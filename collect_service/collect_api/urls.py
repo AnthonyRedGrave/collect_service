@@ -7,9 +7,6 @@ from .views import *
 router = SimpleRouter()
 router.register('things/list', ThingViewSet)
 router.register('thing_messages/list', ThingMessageViewSet)
+router.register('sections/list', SectionViewSet)
 
-urlpatterns = [
-    path('sections/list/', SectionApiView.as_view(), name='section_list'),
-]
-
-urlpatterns += router.urls
+urlpatterns = router.urls

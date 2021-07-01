@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class ThingMessage(models.Model):
-    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, null=False, blank=False, default=None)
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, blank=False)
     content = models.TextField('Текст сообщения', )
     thing = models.ForeignKey('Thing', on_delete=models.CASCADE, related_name='thing_messages', verbose_name='Вещь, для которой пишется сообщение')
 
@@ -40,11 +40,11 @@ class Thing(models.Model):
     date_published = models.DateField('Дата выставления', auto_now=True)
     image = models.ImageField('Изображение вещи', null=True, blank=True, upload_to='things/images/')
     is_sold = models.BooleanField('Продано ли', default=False)
-    owner = models.ForeignKey(User, verbose_name='Владелец', on_delete=models.CASCADE, null=False, blank=False, default=None)
+    owner = models.ForeignKey(User, verbose_name='Владелец', on_delete=models.CASCADE, blank=False)
 
 
     @property
-    def get_messages(self):
+    def get_messages(self): 
         return list(self.thing_messages.values('id','user__username', 'content'))
 
 

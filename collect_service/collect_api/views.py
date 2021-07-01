@@ -2,7 +2,7 @@ from django.db.models import query
 from django.shortcuts import render
 from rest_framework import serializers
 from rest_framework.generics import ListAPIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section
 from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer
 from rest_framework.permissions import *
@@ -13,7 +13,6 @@ class ThingMessageViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        print(self.request.user)
         queryset = ThingMessage.objects.filter(user = self.request.user)
         return queryset
 
@@ -23,7 +22,8 @@ class ThingViewSet(ModelViewSet):
     serializer_class = ThingSerializer
 
 
-class SectionApiView(ListAPIView):
+class SectionViewSet(ReadOnlyModelViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
+    permission_classes = [IsAuthenticated]
 

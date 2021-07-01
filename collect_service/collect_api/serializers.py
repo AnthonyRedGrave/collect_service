@@ -13,17 +13,16 @@ class ThingMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ThingMessage
-        fields = '__all__'
+        fields = ['id', 'user_name', 'thing_title', 'content', 'user', 'thing']
 
 
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = '__all__'
+        fields = ['id', 'title']
 
 
 class ThingSerializer(serializers.ModelSerializer):
-    # state = serializers.CharField(source = 'get_state_display')
     state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)
     owner_name = serializers.StringRelatedField(many=False, source = 'owner')
     section_name = serializers.StringRelatedField(many=False, source='section')
@@ -31,8 +30,8 @@ class ThingSerializer(serializers.ModelSerializer):
 
 
     def get_messages(self, obj):
+        # TODO: избавиться от ответа в json 
         messages = obj.get_messages()
-        print(messages)
         return JsonResponse(messages, safe=False)
 
     class Meta:
