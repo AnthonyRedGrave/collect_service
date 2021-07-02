@@ -1,7 +1,3 @@
-from django.db.models import query
-from django.shortcuts import render
-from rest_framework import serializers
-from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section
 from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer
@@ -13,7 +9,7 @@ class ThingMessageViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = ThingMessage.objects.filter(user = self.request.user)
+        queryset = self.queryset.filter(user = self.request.user)
         return queryset
 
 
