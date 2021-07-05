@@ -8,9 +8,9 @@ class ThingMessageViewSet(ModelViewSet):
     serializer_class = ThingMessageSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        queryset = self.queryset.filter(user = self.request.user)
-        return queryset
+    # def get_queryset(self):
+    #     queryset = self.queryset.filter(user = self.request.user)
+    #     return queryset
 
 
 class ThingViewSet(ModelViewSet):

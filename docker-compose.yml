@@ -19,8 +19,3 @@ services:
     depends_on:
       - db
 
-  pytest:
-    build: .
-    command: pytest
-    depends_on: 
-      - db
