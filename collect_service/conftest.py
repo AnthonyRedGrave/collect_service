@@ -10,11 +10,12 @@ def create_user(db):
     return UserFactory()
 
 @pytest.fixture
-def api_client(db, create_user):
+def api_client(db):
     api_client = APIClient()
-    api_client.force_authenticate(user = create_user)
-    yield api_client
-    api_client.force_authenticate(user = None)
+    return api_client
+    # api_client.force_authenticate(user = create_user)
+    # yield api_client
+    # api_client.force_authenticate(user = None)
 
 
 register(ThingMessageFactory)

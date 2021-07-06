@@ -6,7 +6,7 @@ from rest_framework.permissions import *
 class ThingMessageViewSet(ModelViewSet):
     queryset = ThingMessage.objects.all()
     serializer_class = ThingMessageSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     # def get_queryset(self):
     #     queryset = self.queryset.filter(user = self.request.user)
