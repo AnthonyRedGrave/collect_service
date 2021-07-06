@@ -1,8 +1,6 @@
 import factory
-from ..models import *
+from ..models import Thing, ThingMessage, Section
 from django.contrib.auth.models import User
-import random
-
 
 
 class UserFactory(factory.django.DjangoModelFactory):
