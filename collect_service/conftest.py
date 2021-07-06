@@ -8,7 +8,7 @@ register(UserFactory)
 
 @pytest.fixture
 def create_user(db):
-    return UserFactory()
+    return UserFactory(password="12345")
 
 @pytest.fixture
 def api_client(db, create_user):
