@@ -32,7 +32,6 @@ class ThingFactory(factory.django.DjangoModelFactory):
     section = factory.SubFactory(SectionFactory)
     is_sold = False
     image = factory.Faker('image_url')
-    owner = factory.SubFactory(UserFactory)
 
 
 class ThingMessageFactory(factory.django.DjangoModelFactory):

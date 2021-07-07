@@ -12,6 +12,14 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
         queryset = self.queryset.filter(user = self.request.user)
         return queryset
 
+    def create(self):
+        pass
+
+    def destroy(self):
+        pass
+
+    def update(self):
+        pass
 
 class ThingViewSet(ReadOnlyModelViewSet):
     queryset = Thing.objects.all()
@@ -23,4 +31,13 @@ class SectionViewSet(ReadOnlyModelViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
     permission_classes = [IsAuthenticated]
+
+    def create(self):
+        pass
+
+    def destroy(self):
+        pass
+
+    def update(self):
+        pass
 
