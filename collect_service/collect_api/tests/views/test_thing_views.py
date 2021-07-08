@@ -3,9 +3,7 @@ from django.urls import reverse
 from collect_api.tests.factories import ThingFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from collect_api.views import ThingViewSet
-from pytest_factoryboy import register
 
-register(ThingFactory) 
 
 pytestmark = pytest.mark.django_db
 

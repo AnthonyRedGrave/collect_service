@@ -5,11 +5,8 @@ import pytest
 from django.urls import reverse, resolve
 from collect_api.tests.factories import ThingMessageFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
-from pytest_factoryboy import register
 from collect_api.views import ThingMessageViewSet
 
-register(ThingMessageFactory)
-register(UserFactory)
 
 pytestmark = pytest.mark.django_db
 

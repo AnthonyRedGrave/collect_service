@@ -5,7 +5,6 @@ from pytest_factoryboy import register
 from collect_api.serializers import ThingSerializer
 from rest_framework.validators import ValidationError
 
-register(ThingFactory)
 
 pytestmark = pytest.mark.django_db
 
