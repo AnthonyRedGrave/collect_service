@@ -1,6 +1,6 @@
 import pytest
 from django.urls import reverse
-from collect_api.tests.factories import ThingFactory
+from collect_api.tests.factories import ThingFactory, ThingMessageFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from collect_api.views import ThingViewSet
 
@@ -43,4 +43,24 @@ def test_detail_ThingViewSet__success(api_client_with_credentials):
     thing = ThingFactory()
     url = reverse('thing-detail', kwargs={'pk': thing.id})
     response = api_client_with_credentials.get(url)
+    assert response.status_code == 200
+
+
+def test_action_ThingViewSet_get_list_of_messages__success(api_client_with_credentials):
+    thing = ThingFactory()
+    ThingMessageFactory.create_batch(5, thing = thing)
+    url = reverse('thing-message', kwargs={'pk': thing.id})
+
+    response = api_client_with_credentials.get(url)
+    assert len(response.json()) == 5
+    assert response.status_code == 200
+
+
+def test_action_ThingViewSet_post_message__success(api_client_with_credentials):
+    thing_message = ThingMessageFactory()
+    data = {
+        'content': thing_message.content,
+    }
+    url = reverse('thing-message', kwargs={'pk': thing_message.thing.id})
+    response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 200
