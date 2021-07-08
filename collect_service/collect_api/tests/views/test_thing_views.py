@@ -7,8 +7,8 @@ from collect_api.views import ThingViewSet
 
 pytestmark = pytest.mark.django_db
 
-def test_ThingViewSet_get_queryset__success(thing_factory, api_client_with_credentials):
-    thing_factory.create_batch(100)
+def test_ThingViewSet_get_queryset__success(api_client_with_credentials):
+    ThingFactory.create_batch(100)
     url = reverse('thing-list')
     response = api_client_with_credentials.get(url)
     assert response.status_code == 200
@@ -18,8 +18,8 @@ def test_ThingViewSet_get_queryset__success(thing_factory, api_client_with_crede
 @pytest.mark.parametrize("method, action, url, params", [("post", "create", "thing-list", None),
                                                          ("delete", "destroy", "thing-detail", {'pk': 1}),
                                                          ("put", "update", "thing-detail", {'pk': 1})])
-def test_ThingViewSet__not_allow_request_method(thing_factory, method, action, url, params):
-    thing = thing_factory()
+def test_ThingViewSet__not_allow_request_method(method, action, url, params):
+    thing = ThingFactory()
     data = {
         'title': thing.title,
         'content': thing.content,
@@ -39,8 +39,8 @@ def test_ThingViewSet__not_allow_request_method(thing_factory, method, action, u
     assert response.status_code == 405
 
 
-def test_detail_ThingViewSet__success(thing_factory, api_client_with_credentials):
-    thing = thing_factory()
+def test_detail_ThingViewSet__success(api_client_with_credentials):
+    thing = ThingFactory()
     url = reverse('thing-detail', kwargs={'pk': thing.id})
     response = api_client_with_credentials.get(url)
     assert response.status_code == 200
