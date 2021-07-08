@@ -21,7 +21,7 @@ def test_SectionViewSet_get_queryset__success(section_factory, api_client_with_c
 @pytest.mark.parametrize("method, action, url, params", [("post", "create", "section-list", None),
                                                          ("delete", "destroy", "section-detail", {'pk': 1}),
                                                          ("put", "update", "section-detail", {'pk': 1})])
-def test_SectionViewSet__error(section_factory, method, action, url, params):
+def test_SectionViewSet__not_allow_request_method(section_factory, method, action, url, params):
     section = section_factory()
     user = UserFactory()
     data = {
@@ -37,7 +37,7 @@ def test_SectionViewSet__error(section_factory, method, action, url, params):
     assert response.status_code == 405
 
 
-def test_detail_SectionViewSet__success(db, section_factory, api_client_with_credentials):
+def test_detail_SectionViewSet__success(section_factory, api_client_with_credentials):
     section = section_factory()
     url = reverse('section-detail', kwargs={'pk': section.id})
     response = api_client_with_credentials.get(url)

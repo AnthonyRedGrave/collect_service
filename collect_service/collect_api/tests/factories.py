@@ -27,7 +27,7 @@ class ThingFactory(factory.django.DjangoModelFactory):
 
     title = factory.Faker('first_name')
     content = factory.Faker('text')
-    state = factory.Faker('name')
+    state = "Awesome"
     owner = factory.SubFactory(UserFactory)
     section = factory.SubFactory(SectionFactory)
     is_sold = False

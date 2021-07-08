@@ -1,25 +1,23 @@
 import pytest
-from collect_api.tests.factories import SectionFactory
-from pytest_factoryboy import register
 from collect_api.serializers import SectionSerializer
 from rest_framework.validators import ValidationError
 
-register(SectionFactory)
 
 pytestmark = pytest.mark.django_db
 
-@pytest.mark.parametrize("title", [("Монетки"), ("Фантики")])
-def test_section_serializer__success(title):
+@pytest.mark.parametrize("title", ("Монетки", "накЛеЙки", "   title   ", 123))
+def test_section_serializer_title__success(title):
     data = {
         'title': title
     }
     serializer = SectionSerializer(data=data)
     assert serializer.is_valid()
-    assert serializer.data == data
+    assert serializer.data == {'title': str(title).strip()}
+    assert serializer.errors == {}
 
 
-@pytest.mark.parametrize("title", (False, None))
-def test_section_serializer__error(title):
+@pytest.mark.parametrize("title", (False, None, ""))
+def test_section_serializer_title__error(title):
     data = {
         'title': title
     }

@@ -35,7 +35,7 @@ def test_ThingMessageViewSet__user_dont_have_messages(thing_message_factory, api
 @pytest.mark.parametrize("method, action, url, params", [("post", "create", "thingmessage-list", None),
                                                          ("delete", "destroy", "thingmessage-detail", {'pk': 1}),
                                                          ("put", "update", "thingmessage-detail", {'pk': 1})])
-def test_ThingMessageViewSet__error(thing_message_factory, method, action, url, params):
+def test_ThingMessageViewSet__not_allow_request_method(thing_message_factory, method, action, url, params):
     thing_message = thing_message_factory()
     
     data = {

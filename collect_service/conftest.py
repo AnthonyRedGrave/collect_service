@@ -14,7 +14,6 @@ def create_user(db):
 @pytest.fixture
 def access_token(db, create_user):
     user = create_user(username="user1", password='12345')
-    print(user.__dict__)
     data = {
         'username': user.username,
         'password': '12345'

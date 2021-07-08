@@ -5,34 +5,36 @@ from pytest_factoryboy import register
 from collect_api.serializers import ThingMessageSerializer
 from rest_framework.validators import ValidationError
 
-register(ThingMessageFactory)
-register(UserFactory)
 register(ThingFactory)
 
 pytestmark = pytest.mark.django_db
 
-@pytest.mark.parametrize("content", ("Текст первого сообщения", "Текст второго сообщения"))
-def test_thing_message_serializer_content__success(content, user_factory, thing_factory):
-    user = user_factory()
-    thing = thing_factory()
+@pytest.mark.parametrize("content", ("Текст первого сообщения", "тЕкСт ПерВОго сОобЩенИя", "   Сообщение   ", 123))
+def test_thing_message_serializer_content__success(content):
+    thing = ThingFactory()
 
     data = {
         'content': content,
-        'user': user.id,
+        'user': thing.owner.id,
         'thing': thing.id
     }
     serializer = ThingMessageSerializer(data=data)
     
     assert serializer.is_valid() == True
+    assert serializer.data == {'content': str(content).strip(),
+                               'user': thing.owner.id,
+                               'thing': thing.id,
+                               'thing_title': thing.__str__(),
+                               'user_name': thing.owner.username}
     assert serializer.errors == {}
 
 
 @pytest.mark.parametrize("content", (False, "", None))
-def test_thing_message_serializer_content__error(content, thing_factory):
-    thing = thing_factory()
+def test_thing_message_serializer_content__error(content):
+    thing = ThingFactory()
     data = {
         'content': content,
-        'user': thing.owner_id,
+        'user': thing.owner.id,
         'thing': thing.id
     }
        
