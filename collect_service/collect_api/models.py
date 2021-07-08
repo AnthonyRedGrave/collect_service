@@ -35,7 +35,7 @@ class Thing(models.Model):
 
     title = models.CharField('Название вещи', max_length=150)
     content = models.TextField('Описание')
-    state = models.CharField(verbose_name='Состояние вещи', choices=STATE_CHOICES, max_length=30)
+    state = models.CharField(verbose_name='Состояние вещи', choices=STATE_CHOICES, max_length=50)
     section = models.ForeignKey(Section, on_delete=models.PROTECT, verbose_name='Раздел', related_name='things', blank=False)
     date_published = models.DateField('Дата выставления', auto_now=True)
     image = models.ImageField('Изображение вещи', null=True, blank=True, upload_to='things/images/')

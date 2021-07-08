@@ -5,8 +5,8 @@ from django.urls import path
 from .views import *
 
 router = SimpleRouter()
-router.register('things/list', ThingViewSet)
-router.register('thing_messages/list', ThingMessageViewSet)
-router.register('sections/list', SectionViewSet)
+router.register('things', ThingViewSet)
+router.register('thing_messages', ThingMessageViewSet)
+router.register('sections', SectionViewSet)
 
 urlpatterns = router.urls

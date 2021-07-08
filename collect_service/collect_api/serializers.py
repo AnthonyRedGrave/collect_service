@@ -9,7 +9,7 @@ from django.http import JsonResponse
 class ThingMessageSerializer(serializers.ModelSerializer):
     user_name = serializers.StringRelatedField(many=False, source = 'user')
     thing_title = serializers.StringRelatedField(source='thing')
-
+    
 
     class Meta:
         model = ThingMessage
