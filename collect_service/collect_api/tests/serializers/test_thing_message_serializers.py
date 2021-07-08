@@ -11,10 +11,9 @@ register(ThingFactory)
 
 pytestmark = pytest.mark.django_db
 
-@pytest.mark.parametrize("content, user", [("Текст первого сообщения", {'username': 'user1', 'password': 'password1'}),
-                                           ("Текст второго сообщения", {'username': 'user2', 'password': 'password2'})])
-def test_thing_message_serializer__success(content, user, user_factory, thing_factory):
-    user = user_factory(username = user['username'], password = user['password'])
+@pytest.mark.parametrize("content", ("Текст первого сообщения", "Текст второго сообщения"))
+def test_thing_message_serializer_content__success(content, user_factory, thing_factory):
+    user = user_factory()
     thing = thing_factory()
 
     data = {

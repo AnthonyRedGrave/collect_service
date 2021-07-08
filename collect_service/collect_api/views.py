@@ -26,6 +26,14 @@ class ThingViewSet(ReadOnlyModelViewSet):
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
 
+    def create(self):
+        pass
+
+    def destroy(self):
+        pass
+
+    def update(self):
+        pass
 
 class SectionViewSet(ReadOnlyModelViewSet):
     queryset = Section.objects.all()

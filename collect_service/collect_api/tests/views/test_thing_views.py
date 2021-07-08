@@ -1,13 +1,15 @@
 import pytest
 from django.urls import reverse
 from collect_api.tests.factories import ThingFactory
-
+from rest_framework.test import APIRequestFactory, force_authenticate
+from collect_api.views import ThingViewSet
 from pytest_factoryboy import register
 
 register(ThingFactory) 
 
+pytestmark = pytest.mark.django_db
 
-def test_ThingViewSet_get_queryset__success(db, thing_factory, api_client_with_credentials):
+def test_ThingViewSet_get_queryset__success(thing_factory, api_client_with_credentials):
     thing_factory.create_batch(100)
     url = reverse('thing-list')
     response = api_client_with_credentials.get(url)
@@ -15,7 +17,10 @@ def test_ThingViewSet_get_queryset__success(db, thing_factory, api_client_with_c
     assert len(response.json()) == 100
 
 
-def test_post_ThingViewSet__error(db, thing_factory, api_client_with_credentials):
+@pytest.mark.parametrize("method, action, url, params", [("post", "create", "thing-list", None),
+                                                         ("delete", "destroy", "thing-detail", {'pk': 1}),
+                                                         ("put", "update", "thing-detail", {'pk': 1})])
+def test_ThingViewSet__error(thing_factory, method, action, url, params):
     thing = thing_factory()
     data = {
         'title': thing.title,
@@ -25,26 +30,18 @@ def test_post_ThingViewSet__error(db, thing_factory, api_client_with_credentials
         'image': thing.image.url,
         'owner': thing.owner
     }
-    url = reverse('thing-list')
-    response = api_client_with_credentials.post(url, data=data)
+    url = reverse(url, kwargs=params)
+
+    factory = APIRequestFactory()
+    
+    view = ThingViewSet.as_view({method: action})
+    request = factory.get(url)
+    force_authenticate(request, user=thing.owner)
+    response = view(request, data=data)
     assert response.status_code == 405
 
 
-def test_delete_ThingViewSet__error(db, thing_factory, api_client_with_credentials):
-    thing = thing_factory()
-    url = reverse('thing-detail', kwargs={'pk': thing.id})
-    response = api_client_with_credentials.delete(url)
-    assert response.status_code == 405
-
-
-def test_update_ThingViewSet__error(db, thing_factory, api_client_with_credentials):
-    thing = thing_factory()
-    url = reverse('thing-detail', kwargs={'pk': thing.id})
-    response = api_client_with_credentials.put(url)
-    assert response.status_code == 405
-
-
-def test_detail_ThingViewSet__success(db, thing_factory, api_client_with_credentials):
+def test_detail_ThingViewSet__success(thing_factory, api_client_with_credentials):
     thing = thing_factory()
     url = reverse('thing-detail', kwargs={'pk': thing.id})
     response = api_client_with_credentials.get(url)
