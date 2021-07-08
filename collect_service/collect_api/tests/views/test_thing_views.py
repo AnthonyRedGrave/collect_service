@@ -50,7 +50,6 @@ def test_action_ThingViewSet_get_list_of_messages__success(api_client_with_crede
     thing = ThingFactory()
     ThingMessageFactory.create_batch(5, thing = thing)
     url = reverse('thing-message', kwargs={'pk': thing.id})
-
     response = api_client_with_credentials.get(url)
     assert len(response.json()) == 5
     assert response.status_code == 200

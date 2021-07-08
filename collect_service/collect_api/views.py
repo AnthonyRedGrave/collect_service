@@ -4,6 +4,7 @@ from .models import ThingMessage, Thing, Section
 from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from django.http import JsonResponse
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
     queryset = ThingMessage.objects.all()
@@ -38,8 +39,8 @@ class ThingViewSet(ReadOnlyModelViewSet):
             thing = thing)
             return Response({"Thing_message": "Created!"})
         else:
-            print(thing.get_messages)
-        return Response(serializer.data['get_messages'])
+            return JsonResponse(thing.get_messages, safe=False)
+        
 
     def create(self):
         pass
