@@ -35,8 +35,8 @@ class ThingViewSet(ReadOnlyModelViewSet):
         serializer = self.get_serializer(thing, many=False)
         if request.method == "POST":
             ThingMessage.objects.create(content = request.data['content'],
-            user=request.user,
-            thing = thing)
+                                        user=request.user,
+                                        thing = thing)
             return Response({"Thing_message": "Created!"})
         else:
             return JsonResponse(thing.get_messages, safe=False)

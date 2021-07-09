@@ -63,3 +63,23 @@ def test_action_ThingViewSet_post_message__success(api_client_with_credentials):
     url = reverse('thing-message', kwargs={'pk': thing_message.thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 200
+
+
+def test_action_ThingViewSet_post_message_unauthorized__error(api_client):
+    thing_message = ThingMessageFactory()
+    data = {
+        'content': thing_message.content,
+    }
+    url = reverse('thing-message', kwargs={'pk': thing_message.thing.id})
+    response = api_client.post(url, data = data)
+    print(response)
+    assert response.status_code == 401
+
+
+def test_action_ThingViewSet_post_message_to_wrong_thing__error(api_client_with_credentials):
+    data = {
+        'content': "Сообщение для несуществующей вещи",
+    }
+    url = reverse('thing-message', kwargs={'pk': 100})
+    response = api_client_with_credentials.post(url, data = data)
+    assert response.status_code == 404
