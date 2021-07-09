@@ -5,6 +5,7 @@ from .serializers import SectionSerializer, ThingSerializer, ThingMessageSeriali
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.http import JsonResponse
+from rest_framework import status
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
     queryset = ThingMessage.objects.all()
@@ -32,14 +33,21 @@ class ThingViewSet(ReadOnlyModelViewSet):
     @action(detail=True, methods=['get', 'post'])
     def message(self, request, pk=None):
         thing = self.get_object()
-        serializer = self.get_serializer(thing, many=False)
         if request.method == "POST":
-            ThingMessage.objects.create(content = request.data['content'],
-                                        user=request.user,
-                                        thing = thing)
-            return Response({"Thing_message": "Created!"})
+            data = {'content': request.data['content'],
+                    'user': request.user.id,
+                    'thing': thing.id}
+            thing_message_serializer = ThingMessageSerializer(data=data)
+            if thing_message_serializer.is_valid():
+                ThingMessage.objects.create(content = thing_message_serializer.validated_data['content'],
+                                            user=thing_message_serializer.validated_data['user'],
+                                            thing = thing_message_serializer.validated_data['thing'])
+                return Response({"Thing_message": "Created!"})
+            else:
+                return Response(thing_message_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return JsonResponse(thing.get_messages, safe=False)
+
         
 
     def create(self):
