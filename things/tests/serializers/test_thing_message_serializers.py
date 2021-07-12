@@ -41,5 +41,3 @@ def test_thing_message_serializer_content__error(content):
     assert 'content' in serializer.errors.keys()
     assert 'user' not in serializer.errors.keys()
     assert 'thing' not in serializer.errors.keys()
-
-    

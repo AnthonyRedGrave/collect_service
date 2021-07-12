@@ -1,4 +1,3 @@
-from things.models import Thing
 from _pytest.mark import param
 from django.http import request
 from django.urls.base import resolve
