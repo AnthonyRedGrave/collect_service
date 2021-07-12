@@ -1,11 +1,11 @@
 migrate:
-	docker-compose run --rm web python collect_service/manage.py migrate
+	docker-compose run --rm web python manage.py migrate
 
 migrations:
-	docker-compose run --rm web python collect_service/manage.py makemigrations 
+	docker-compose run --rm web python manage.py makemigrations 
 
 admin:
-	docker-compose run --rm web python collect_service/manage.py createsuperuser 
+	docker-compose run --rm web python manage.py createsuperuser 
 
 test:
-	docker-compose run --rm --workdir="/code/collect_service" web pytest
+	docker-compose run --rm --workdir="/code" web pytest

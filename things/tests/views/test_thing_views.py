@@ -1,8 +1,8 @@
 import pytest
 from django.urls import reverse
-from collect_api.tests.factories import ThingFactory, ThingMessageFactory
+from things.tests.factories import ThingFactory, ThingMessageFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
-from collect_api.views import ThingViewSet
+from things.views import ThingViewSet
 
 
 pytestmark = pytest.mark.django_db

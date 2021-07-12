@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 from django.urls import reverse
-from collect_api.tests.factories import UserFactory
+from things.tests.factories import UserFactory
 
 from pytest_factoryboy import register
 register(UserFactory)

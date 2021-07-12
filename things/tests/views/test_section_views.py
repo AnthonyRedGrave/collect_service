@@ -2,8 +2,8 @@ from django.urls.base import reverse
 import pytest
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from collect_api.tests.factories import SectionFactory, UserFactory
-from collect_api.views import SectionViewSet
+from things.tests.factories import SectionFactory, UserFactory
+from things.views import SectionViewSet
 
 
 pytestmark = pytest.mark.django_db

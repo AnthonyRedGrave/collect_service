@@ -72,4 +72,3 @@ class SectionViewSet(ReadOnlyModelViewSet):
 
     def update(self):
         pass
-
