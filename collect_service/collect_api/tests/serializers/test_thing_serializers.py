@@ -22,10 +22,8 @@ def test_thing_serializer_title__success(title):
     assert serializer.is_valid()
     assert serializer.data == {
                                 'title': str(title).strip(), 
-                                'state': thing.state, 
-                                'owner': thing.owner.id,
+                                'state': thing.state,
                                 'image': None,
-                                'owner_name': thing.owner.username,
                                 'content': thing.content, 
                                 'section': thing.section.id,
                                 'section_name': thing.section.__str__()
@@ -47,10 +45,8 @@ def test_thing_serializer_state__success(state):
     assert serializer.is_valid()
     assert serializer.data == {
                                 'title': thing.title, 
-                                'state': state.strip(), 
-                                'owner': thing.owner.id, 
+                                'state': state.strip(),
                                 'image': None,
-                                'owner_name': thing.owner.username,
                                 'content': thing.content, 
                                 'section': thing.section.id,
                                 'section_name': thing.section.__str__()
@@ -116,10 +112,8 @@ def test_thing_serializer_content__success(content):
     assert serializer.data == {
                                 'title': "Монетка 16-го века",
                                 'state': "Awesome",
-                                'owner': thing.owner.id, 
                                 'content': str(content).strip(), 
                                 'image': None,
-                                'owner_name': thing.owner.username,
                                 'section': thing.section.id,
                                 'section_name': thing.section.__str__()
     }
