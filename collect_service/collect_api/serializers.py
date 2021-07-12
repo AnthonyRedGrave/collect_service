@@ -13,7 +13,7 @@ class ThingMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ThingMessage
-        fields = ('id', 'user_name', 'thing_title', 'content', 'user', 'thing')
+        fields = ('id', 'user_name', 'thing_title', 'content', 'thing', 'user')
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -36,6 +36,6 @@ class ThingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Thing
-        fields = ('id','title', 'state', 'owner_name',
-                  'owner', 'content', 'image', 'section',
+        fields = ('id','title', 'state', 'owner_name', 'owner', 'content', 'image', 'section',
                   'section_name', 'get_messages')
+        read_only_fields = ('owner', )

@@ -1,17 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class ThingMessage(models.Model):
-    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, blank=False)
-    content = models.TextField('Текст сообщения')
-    thing = models.ForeignKey('Thing', on_delete=models.CASCADE, related_name='thing_messages', verbose_name='Вещь, для которой пишется сообщение', blank=False)
-
-    def __str__(self):
-        return f'Сообщение от {self.user}'
-
-    class Meta:
-        verbose_name = 'Сообщение'
-        verbose_name_plural = 'Собщения'
 
 
 class Section(models.Model):
@@ -45,7 +34,7 @@ class Thing(models.Model):
 
     @property
     def get_messages(self): 
-        return list(self.thing_messages.values('id','user__username', 'content'))
+        return list(self.thing_messages.values('id', 'user', 'content', 'thing'))
 
 
     def __str__(self):
@@ -54,4 +43,16 @@ class Thing(models.Model):
     class Meta:
         verbose_name = 'Вещь'
         verbose_name_plural = 'Вещи'
-           
+    
+
+class ThingMessage(models.Model):
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, blank=False)
+    content = models.TextField('Текст сообщения')
+    thing = models.ForeignKey(Thing, on_delete=models.CASCADE, related_name='thing_messages', verbose_name='Вещь, для которой пишется сообщение', blank=False)
+
+    def __str__(self):
+        return f'Сообщение от {self.user}'
+
+    class Meta:
+        verbose_name = 'Сообщение'
+        verbose_name_plural = 'Собщения'

@@ -1,11 +1,12 @@
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.settings import perform_import
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from .models import ThingMessage, Thing, Section
 from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from django.http import JsonResponse
-from rest_framework import status
+from django.core import serializers
+from rest_framework import mixins
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
     queryset = ThingMessage.objects.all()
@@ -25,10 +26,11 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
     def update(self):
         pass
 
-class ThingViewSet(ReadOnlyModelViewSet):
+class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     queryset = Thing.objects.all()
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
+    # http_method_names = ['get', 'post', 'head']
 
     @action(detail=True, methods=['get', 'post'])
     def message(self, request, pk=None):
@@ -38,20 +40,19 @@ class ThingViewSet(ReadOnlyModelViewSet):
                     'user': request.user.id,
                     'thing': thing.id}
             thing_message_serializer = ThingMessageSerializer(data=data)
-            if thing_message_serializer.is_valid():
-                ThingMessage.objects.create(content = thing_message_serializer.validated_data['content'],
-                                            user=thing_message_serializer.validated_data['user'],
-                                            thing = thing_message_serializer.validated_data['thing'])
-                return Response({"Thing_message": "Created!"})
-            else:
-                return Response(thing_message_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            thing_message_serializer.is_valid(raise_exception=True)
+            ThingMessage.objects.create(**thing_message_serializer.validated_data)
+            return Response({"Thing_message": "Created!"})
         else:
-            return JsonResponse(thing.get_messages, safe=False)
+            serializer = ThingMessageSerializer(data=thing.get_messages, many=True)
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.data)
 
-        
+    def perform_create(self, serializer):
+        print("я здесь")
+        Thing.objects.create(**serializer.validated_data, owner=self.request.user)
 
-    def create(self):
-        pass
 
     def destroy(self):
         pass
