@@ -1,11 +1,11 @@
+from comments.models import Comment
+from comments.serializers import CommentSerializer
 from rest_framework.response import Response
-from rest_framework.settings import perform_import
-from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section
 from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from django.core import serializers
 from rest_framework import mixins
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -33,20 +33,19 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     # http_method_names = ['get', 'post', 'head']
 
     @action(detail=True, methods=['get', 'post'])
-    def message(self, request, pk=None):
+    def comment(self, request, pk=None):
         thing = self.get_object()
         if request.method == "POST":
             data = {'content': request.data['content'],
                     'user': request.user.id,
-                    'thing': thing.id}
-            thing_message_serializer = ThingMessageSerializer(data=data)
+                    'object_id': thing.id}
+            serializer = CommentSerializer(data=data)
 
-            thing_message_serializer.is_valid(raise_exception=True)
-            ThingMessage.objects.create(**thing_message_serializer.validated_data)
-            return Response({"Thing_message": "Created!"})
-        else:
-            serializer = ThingMessageSerializer(data=thing.get_messages, many=True)
             serializer.is_valid(raise_exception=True)
+            Comment.objects.create(**serializer.validated_data, content_object = thing)
+            return Response({"Comment": "Created!"})
+        else:
+            serializer = CommentSerializer(thing.get_comments(), many=True)
             return Response(serializer.data)
 
     def perform_create(self, serializer):

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'things',
+    'comments',
     'rest_framework',
     'psycopg2',
     

@@ -2,7 +2,6 @@ import factory
 from ..models import Thing, ThingMessage, Section
 from django.contrib.auth.models import User
 
-
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
@@ -21,6 +20,7 @@ class SectionFactory(factory.django.DjangoModelFactory):
     title = factory.Faker('name')
 
 
+
 class ThingFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Thing
@@ -32,7 +32,17 @@ class ThingFactory(factory.django.DjangoModelFactory):
     section = factory.SubFactory(SectionFactory)
     is_sold = False
     image = factory.Faker('image_url')
-
+    
+    @factory.post_generation
+    def comments(self, create, extracted, **kwargs):
+        from comments.tests.factories import CommentFactory
+        if not create:
+            print("create")
+            return
+        if extracted:
+            for n in range(extracted):
+                CommentFactory(content_object = self)
+        
 
 class ThingMessageFactory(factory.django.DjangoModelFactory):
     class Meta:

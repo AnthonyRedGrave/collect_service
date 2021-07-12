@@ -3,6 +3,8 @@ from django.db.models import fields
 from rest_framework import serializers
 from .models import Thing, ThingMessage, Section
 from django.http import JsonResponse
+from django.contrib.contenttypes.models import ContentType
+from comments.serializers import CommentSerializer
 
 
 
@@ -26,16 +28,12 @@ class ThingSerializer(serializers.ModelSerializer):
     state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)
     owner_name = serializers.StringRelatedField(many=False, source = 'owner')
     section_name = serializers.StringRelatedField(many=False, source='section')
-    get_messages = serializers.SerializerMethodField()
-
-
-    def get_messages(self, obj):
-        # TODO: избавиться от ответа в json 
-        messages = obj.get_messages()
-        return JsonResponse(messages, safe=False)
+    comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Thing
-        fields = ('id','title', 'state', 'owner_name', 'owner', 'content', 'image', 'section',
-                  'section_name', 'get_messages')
+        fields = ('id','title', 'state', 'owner_name', 'owner',
+                  'content', 'image', 'section',
+                  'section_name', 'comments'
+                 )
         read_only_fields = ('owner', )
