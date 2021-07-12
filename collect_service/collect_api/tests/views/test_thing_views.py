@@ -32,7 +32,7 @@ def test_ThingViewSet_post_new_thing__success():
     force_authenticate(request, user=thing.owner)
     response = view(request)
     response.render()
-    assert response.json()
+    assert response
     assert response.status_code == 201
 
 

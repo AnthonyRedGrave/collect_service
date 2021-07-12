@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-
 class Section(models.Model):
     title = models.CharField('Названии раздела', max_length=150)
 
@@ -12,6 +11,7 @@ class Section(models.Model):
     class Meta:
         verbose_name = 'Раздел'
         verbose_name_plural = 'Разделы'
+
 
 class Thing(models.Model):
 
@@ -30,7 +30,6 @@ class Thing(models.Model):
     image = models.ImageField('Изображение вещи', null=True, blank=True, upload_to='things/images/')
     is_sold = models.BooleanField('Продано ли', default=False)
     owner = models.ForeignKey(User, verbose_name='Владелец', on_delete=models.CASCADE, blank=False)
-
 
     @property
     def get_messages(self): 

@@ -10,23 +10,23 @@ from collect_api.views import ThingMessageViewSet
 
 pytestmark = pytest.mark.django_db
 
-# def test_ThingMessageViewSet__user_have_messages(api_client_with_credentials):
-#     user = UserFactory()
-#     api_client_with_credentials.force_authenticate(user = user)
-#     ThingMessageFactory.create_batch(20, user=user)
-#     url = reverse('thingmessage-list')
-#     response = api_client_with_credentials.get(url)
-#     assert response.status_code == 200
+def test_ThingMessageViewSet__user_have_messages(api_client_with_credentials):
+    user = UserFactory()
+    api_client_with_credentials.force_authenticate(user = user)
+    ThingMessageFactory.create_batch(20, user=user)
+    url = reverse('thingmessage-list')
+    response = api_client_with_credentials.get(url)
+    assert response.status_code == 200
 
 
-# def test_ThingMessageViewSet__user_dont_have_messages(api_client_with_credentials):
-#     user = UserFactory()
-#     api_client_with_credentials.force_authenticate(user = user)
-#     ThingMessageFactory.create_batch(20)
-#     url = reverse('thingmessage-list')
-#     response = api_client_with_credentials.get(url)
-#     assert response.status_code == 200
-#     assert len(response.json()) == 0
+def test_ThingMessageViewSet__user_dont_have_messages(api_client_with_credentials):
+    user = UserFactory()
+    api_client_with_credentials.force_authenticate(user = user)
+    ThingMessageFactory.create_batch(20)
+    url = reverse('thingmessage-list')
+    response = api_client_with_credentials.get(url)
+    assert response.status_code == 200
+    assert len(response.json()) == 0
 
 
 @pytest.mark.parametrize("method, action, url, params", [("post", "create", "thingmessage-list", None),

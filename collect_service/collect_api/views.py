@@ -50,7 +50,6 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
             return Response(serializer.data)
 
     def perform_create(self, serializer):
-        print("я здесь")
         Thing.objects.create(**serializer.validated_data, owner=self.request.user)
 
 
