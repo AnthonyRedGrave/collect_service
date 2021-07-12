@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'collect_api',
+    'things',
     'rest_framework',
     'psycopg2',
     

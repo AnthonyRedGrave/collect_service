@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('collect_api', '0001_initial'),
+        ('things', '0001_initial'),
     ]
 
     operations = [
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='thing',
             name='section',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.PROTECT, related_name='things', to='collect_api.section', verbose_name='Раздел'),
+            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.PROTECT, related_name='things', to='things.section', verbose_name='Раздел'),
             preserve_default=False,
         ),
     ]

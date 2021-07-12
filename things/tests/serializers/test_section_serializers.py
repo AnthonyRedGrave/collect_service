@@ -1,5 +1,5 @@
 import pytest
-from collect_api.serializers import SectionSerializer
+from things.serializers import SectionSerializer
 from rest_framework.validators import ValidationError
 
 

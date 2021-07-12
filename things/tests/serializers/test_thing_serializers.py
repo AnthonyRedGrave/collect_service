@@ -1,8 +1,8 @@
 import pytest
 
-from collect_api.tests.factories import ThingFactory
+from things.tests.factories import ThingFactory
 from pytest_factoryboy import register
-from collect_api.serializers import ThingSerializer
+from things.serializers import ThingSerializer
 from rest_framework.validators import ValidationError
 
 

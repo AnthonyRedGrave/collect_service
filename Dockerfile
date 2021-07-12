@@ -8,4 +8,4 @@ COPY requirements.txt /code/
 
 RUN pip install -r requirements.txt
 
-COPY collect_service/ /code/
+COPY / /code/

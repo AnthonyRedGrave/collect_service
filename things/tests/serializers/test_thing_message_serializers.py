@@ -1,7 +1,7 @@
 import pytest
 
-from collect_api.tests.factories import ThingFactory
-from collect_api.serializers import ThingMessageSerializer
+from things.tests.factories import ThingFactory
+from things.serializers import ThingMessageSerializer
 from rest_framework.validators import ValidationError
 
 pytestmark = pytest.mark.django_db

@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('collect_api', '0003_thing_image'),
+        ('things', '0003_thing_image'),
     ]
 
     operations = [
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('content', models.TextField(verbose_name='Текст сообщения')),
-                ('thing', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='thing_messages', to='collect_api.thing', verbose_name='Вещь, для которой пишется сообщение')),
+                ('thing', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='thing_messages', to='things.thing', verbose_name='Вещь, для которой пишется сообщение')),
                 ('user', models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
             ],
             options={
