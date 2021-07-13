@@ -1,3 +1,4 @@
+from tags.tests.factories import TagFactory
 import factory
 from factory import faker
 from ..models import Thing, ThingMessage, Section
@@ -49,8 +50,8 @@ class ThingFactory(factory.django.DjangoModelFactory):
         if not create:
             return
         if extracted:
-            for tag in extracted:
-                self.tags.add(tag)
+            tags = TagFactory.create_batch(extracted)
+            self.tags.add(tags)
 
 
 class ThingMessageFactory(factory.django.DjangoModelFactory):
