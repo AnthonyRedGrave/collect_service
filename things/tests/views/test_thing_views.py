@@ -1,3 +1,4 @@
+from things.models import Thing
 import pytest
 from django.urls import reverse
 from things.tests.factories import ThingFactory
@@ -69,7 +70,7 @@ def test_detail_ThingViewSet__success(api_client_with_credentials):
     assert response.status_code == 200
 
 
-# ========================test action====================
+# ========================test action comment====================
 
 def test_action_ThingViewSet_get_list_of_comments__success(api_client_with_credentials):
     thing = ThingFactory.create(comments = 5)
@@ -117,3 +118,16 @@ def test_action_ThingViewSet_post_wrong_comment__error(api_client_with_credentia
     url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 400
+
+
+
+# ========================test action most====================
+
+
+
+def test_action_most_ThingViewSet_get_list_of_10_things_with_tags__success(api_client_with_credentials):
+    ThingFactory.create_batch(20, tags = "random")
+    url = reverse('thing-most')
+    response = api_client_with_credentials.get(url)
+    assert len(response.json()) == 10
+    assert response.status_code == 200

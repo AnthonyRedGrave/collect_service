@@ -3,6 +3,7 @@ import factory
 from factory import faker
 from ..models import Thing, ThingMessage, Section
 from django.contrib.auth.models import User
+import random
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -50,6 +51,8 @@ class ThingFactory(factory.django.DjangoModelFactory):
         if not create:
             return
         if extracted:
+            if extracted == "random":
+                extracted = random.randint(2, 10)
             tags = TagFactory.create_batch(extracted)
             for tag in tags:
                 self.tags.add(tag)
