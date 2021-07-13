@@ -1,3 +1,4 @@
+from tags.models import Tag
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
@@ -33,6 +34,7 @@ class Thing(models.Model):
     is_sold = models.BooleanField('Продано ли', default=False)
     owner = models.ForeignKey(User, verbose_name='Владелец', on_delete=models.CASCADE, blank=False)
     comments = GenericRelation(Comment)
+    tags = models.ManyToManyField(Tag, verbose_name='Тэги к вещи')
 
 
     def get_comments(self):

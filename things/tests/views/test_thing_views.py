@@ -1,6 +1,8 @@
 import pytest
 from django.urls import reverse
 from things.tests.factories import ThingFactory
+from things.tests.factories import ThingFactory, ThingMessageFactory
+from tags.tests.factories import TagFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
 
@@ -61,7 +63,8 @@ def test_ThingViewSet__not_allow_request_method(method, action, url, params):
 
 
 def test_detail_ThingViewSet__success(api_client_with_credentials):
-    thing = ThingFactory()
+    tags = TagFactory.create_batch(5)
+    thing = ThingFactory(tags=tags)
     url = reverse('thing-detail', kwargs={'pk': thing.id})
     response = api_client_with_credentials.get(url)
     assert response.status_code == 200

@@ -34,6 +34,5 @@ class ThingSerializer(serializers.ModelSerializer):
         model = Thing
         fields = ('id','title', 'state', 'owner_name', 'owner',
                   'content', 'image', 'section',
-                  'section_name', 'comments'
-                 )
+                  'section_name', 'comments', 'tags')
         read_only_fields = ('owner', )
