@@ -34,13 +34,9 @@ class Thing(models.Model):
     owner = models.ForeignKey(User, verbose_name='Владелец', on_delete=models.CASCADE, blank=False)
     comments = GenericRelation(Comment)
 
-    @property
-    def get_messages(self): 
-        return list(self.thing_messages.values('id', 'user', 'content', 'thing'))
-
 
     def get_comments(self):
-        return list(self.comments.all())
+        return self.comments.all()
 
 
     def __str__(self):

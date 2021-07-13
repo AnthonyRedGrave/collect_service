@@ -37,7 +37,6 @@ class ThingFactory(factory.django.DjangoModelFactory):
     def comments(self, create, extracted, **kwargs):
         from comments.tests.factories import CommentFactory
         if not create:
-            print("create")
             return
         if extracted:
             for n in range(extracted):
