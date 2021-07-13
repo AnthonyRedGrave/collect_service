@@ -2,14 +2,11 @@ import pytest
 from rest_framework.exceptions import ValidationError
 from comments.serializers import CommentSerializer
 from things.tests.factories import ThingFactory
-from comments.tests import factories
 
-from pytest_factoryboy import register
 
-register(factories.CommentFactory)
 pytestmark = pytest.mark.django_db
 
-@pytest.mark.parametrize("content", ("Текст первого комментария", "тЕкСт ПерВОго коМменТаРИЯ", "   Комментарий   ", 123))
+@pytest.mark.parametrize("content", ("Текст первого комментария", "тЕкСт ПерВОго коМменТаРИЯ", "   Комментарий   ", 123, "<script>alert(1)</script>", "select * from users; word"))
 def test_comment_serializer_content__success(content):
     thing = ThingFactory()
     data = {

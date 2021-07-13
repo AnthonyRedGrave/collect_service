@@ -1,7 +1,6 @@
 import pytest
 from django.urls import reverse
-from things.tests.factories import ThingFactory, ThingMessageFactory
-from comments.tests.factories import CommentFactory
+from things.tests.factories import ThingFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
 
@@ -58,7 +57,6 @@ def test_ThingViewSet__not_allow_request_method(method, action, url, params):
     request = factory.get(url)
     force_authenticate(request, user=thing.owner)
     response = view(request, data=data)
-    print(response, action)
     assert response.status_code == 405
 
 
@@ -80,22 +78,22 @@ def test_action_ThingViewSet_get_list_of_comments__success(api_client_with_crede
 
 
 def test_action_ThingViewSet_post_comment__success(api_client_with_credentials):
-    comment = CommentFactory()
+    thing = ThingFactory.create(comments=1)
     data = {
-        'content': comment.content,
+        'content': "Новый комментарий для вещи",
     }
-    url = reverse('thing-comment', kwargs={'pk': comment.content_object.id})
+    url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 200
-
+    assert response.json() == {'Comment': 'Created!'}
 
 
 def test_action_ThingViewSet_post_comment_unauthorized__error(api_client):
-    comment = CommentFactory()
+    thing = ThingFactory.create(comments=1)
     data = {
-        'content': comment.content,
+        'content': "Новый комментарий для вещи, но я не авторизовался",
     }
-    url = reverse('thing-comment', kwargs={'pk': comment.content_object.id})
+    url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client.post(url, data = data)
     assert response.status_code == 401
 
@@ -110,10 +108,10 @@ def test_action_ThingViewSet_post_comment_to_not_found_thing__error(api_client_w
 
 
 def test_action_ThingViewSet_post_wrong_comment__error(api_client_with_credentials):
-    comment = CommentFactory()
+    thing = ThingFactory.create(comments=1)
     data = {
         'content': "",
     }
-    url = reverse('thing-comment', kwargs={'pk': comment.content_object.id})
+    url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 400

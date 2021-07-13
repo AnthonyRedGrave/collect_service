@@ -4,7 +4,6 @@ from django.urls import reverse
 from things.tests.factories import UserFactory
 
 from pytest_factoryboy import register
-
 register(UserFactory)
 
 
