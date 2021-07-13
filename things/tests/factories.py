@@ -51,7 +51,8 @@ class ThingFactory(factory.django.DjangoModelFactory):
             return
         if extracted:
             tags = TagFactory.create_batch(extracted)
-            self.tags.add(tags)
+            for tag in tags:
+                self.tags.add(tag)
 
 
 class ThingMessageFactory(factory.django.DjangoModelFactory):

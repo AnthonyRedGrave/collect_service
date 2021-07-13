@@ -64,7 +64,6 @@ def test_ThingViewSet__not_allow_request_method(method, action, url, params):
 
 def test_detail_ThingViewSet__success(api_client_with_credentials):
     thing = ThingFactory(tags=4, comments=5)
-    print(thing)
     url = reverse('thing-detail', kwargs={'pk': thing.id})
     response = api_client_with_credentials.get(url)
     assert response.status_code == 200

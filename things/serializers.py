@@ -1,11 +1,7 @@
-from django.contrib.auth.models import User
-from django.db.models import fields
 from rest_framework import serializers
 from .models import Thing, ThingMessage, Section
-from django.http import JsonResponse
-from django.contrib.contenttypes.models import ContentType
 from comments.serializers import CommentSerializer
-
+from tags.serializers import TagSerializer
 
 
 class ThingMessageSerializer(serializers.ModelSerializer):
@@ -29,6 +25,7 @@ class ThingSerializer(serializers.ModelSerializer):
     owner_name = serializers.StringRelatedField(many=False, source = 'owner')
     section_name = serializers.StringRelatedField(many=False, source='section')
     comments = CommentSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Thing
