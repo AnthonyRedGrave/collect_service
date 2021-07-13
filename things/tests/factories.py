@@ -1,4 +1,5 @@
 import factory
+from factory import faker
 from ..models import Thing, ThingMessage, Section
 from django.contrib.auth.models import User
 
@@ -32,6 +33,15 @@ class ThingFactory(factory.django.DjangoModelFactory):
     section = factory.SubFactory(SectionFactory)
     is_sold = False
     image = factory.Faker('image_url')
+
+
+    @factory.post_generation
+    def tags(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for tag in extracted:
+                self.tags.add(tag)
 
 
 class ThingMessageFactory(factory.django.DjangoModelFactory):
