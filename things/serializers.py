@@ -37,5 +37,5 @@ class ThingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thing
         fields = ('id','title', 'state', 'owner_name', 'owner', 'content', 'image', 'section',
-                  'section_name', 'get_messages')
+                  'section_name', 'get_messages', 'tags')
         read_only_fields = ('owner', )

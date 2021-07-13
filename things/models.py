@@ -1,3 +1,4 @@
+from tags.models import Tag
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -30,6 +31,7 @@ class Thing(models.Model):
     image = models.ImageField('Изображение вещи', null=True, blank=True, upload_to='things/images/')
     is_sold = models.BooleanField('Продано ли', default=False)
     owner = models.ForeignKey(User, verbose_name='Владелец', on_delete=models.CASCADE, blank=False)
+    tags = models.ManyToManyField(Tag, verbose_name='Тэги к вещи')
 
     @property
     def get_messages(self): 
