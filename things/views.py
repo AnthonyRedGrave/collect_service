@@ -1,3 +1,4 @@
+from django.db.models import query
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
@@ -31,6 +32,13 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
     # http_method_names = ['get', 'post', 'head']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        date = self.request.query_params.get('date', None)
+        if date:
+            queryset = queryset.filter(date_published__gte = date).order_by('date_published')
+        return queryset
 
     @action(detail=True, methods=['get', 'post'])
     def comment(self, request, pk=None):
