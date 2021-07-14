@@ -117,3 +117,19 @@ def test_action_ThingViewSet_post_wrong_comment__error(api_client_with_credentia
     url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 400
+
+
+def test_ThingViewSet_get_queryset_with_today_date__success(api_client_with_credentials):
+    ThingFactory.create_batch(10)
+    url = 'http://0.0.0.0:8000/api/things/?date=2021-07-14'
+    response = api_client_with_credentials.get(url)
+    assert len(response.json()) == 10
+    assert response.status_code == 200
+
+
+def test_ThingViewSet_get_queryset_with_greater_date__error(api_client_with_credentials):
+    ThingFactory.create_batch(10)
+    url = 'http://0.0.0.0:8000/api/things/?date=2022-07-14'
+    response = api_client_with_credentials.get(url)
+    assert len(response.json()) == 0
+    assert response.status_code == 200
