@@ -1,6 +1,8 @@
 from tags.models import Tag
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
+from comments.models import Comment
 
 
 class Section(models.Model):
@@ -31,11 +33,12 @@ class Thing(models.Model):
     image = models.ImageField('Изображение вещи', null=True, blank=True, upload_to='things/images/')
     is_sold = models.BooleanField('Продано ли', default=False)
     owner = models.ForeignKey(User, verbose_name='Владелец', on_delete=models.CASCADE, blank=False)
+    comments = GenericRelation(Comment)
     tags = models.ManyToManyField(Tag, verbose_name='Тэги к вещи')
 
-    @property
-    def get_messages(self): 
-        return list(self.thing_messages.values('id', 'user', 'content', 'thing'))
+
+    def get_comments(self):
+        return self.comments.all()
 
 
     def __str__(self):

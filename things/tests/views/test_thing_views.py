@@ -1,5 +1,6 @@
 import pytest
 from django.urls import reverse
+from things.tests.factories import ThingFactory
 from things.tests.factories import ThingFactory, ThingMessageFactory
 from tags.tests.factories import TagFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -58,13 +59,11 @@ def test_ThingViewSet__not_allow_request_method(method, action, url, params):
     request = factory.get(url)
     force_authenticate(request, user=thing.owner)
     response = view(request, data=data)
-    print(response, action)
     assert response.status_code == 405
 
 
 def test_detail_ThingViewSet__success(api_client_with_credentials):
-    tags = TagFactory.create_batch(5)
-    thing = ThingFactory(tags=tags)
+    thing = ThingFactory(tags=4, comments=5)
     url = reverse('thing-detail', kwargs={'pk': thing.id})
     response = api_client_with_credentials.get(url)
     assert response.status_code == 200
@@ -72,52 +71,49 @@ def test_detail_ThingViewSet__success(api_client_with_credentials):
 
 # ========================test action====================
 
-def test_action_ThingViewSet_get_list_of_messages__success(api_client_with_credentials):
-    thing = ThingFactory()
-    ThingMessageFactory.create_batch(5, thing = thing)
-    url = reverse('thing-message', kwargs={'pk': thing.id})
+def test_action_ThingViewSet_get_list_of_comments__success(api_client_with_credentials):
+    thing = ThingFactory.create(comments = 5)
+    url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.get(url)
     assert len(response.json()) == 5
     assert response.status_code == 200
 
 
-
-
-def test_action_ThingViewSet_post_message__success(api_client_with_credentials):
-    thing_message = ThingMessageFactory()
+def test_action_ThingViewSet_post_comment__success(api_client_with_credentials):
+    thing = ThingFactory.create(comments=1)
     data = {
-        'content': thing_message.content,
+        'content': "Новый комментарий для вещи",
     }
-    url = reverse('thing-message', kwargs={'pk': thing_message.thing.id})
+    url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 200
+    assert response.json() == {'Comment': 'Created!'}
 
 
-
-def test_action_ThingViewSet_post_message_unauthorized__error(api_client):
-    thing_message = ThingMessageFactory()
+def test_action_ThingViewSet_post_comment_unauthorized__error(api_client):
+    thing = ThingFactory.create(comments=1)
     data = {
-        'content': thing_message.content,
+        'content': "Новый комментарий для вещи, но я не авторизовался",
     }
-    url = reverse('thing-message', kwargs={'pk': thing_message.thing.id})
+    url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client.post(url, data = data)
     assert response.status_code == 401
 
 
-def test_action_ThingViewSet_post_message_to_not_found_thing__error(api_client_with_credentials):
+def test_action_ThingViewSet_post_comment_to_not_found_thing__error(api_client_with_credentials):
     data = {
         'content': "Сообщение для несуществующей вещи",
     }
-    url = reverse('thing-message', kwargs={'pk': 100})
+    url = reverse('thing-comment', kwargs={'pk': 100})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 404
 
 
-def test_action_ThingViewSet_post_wrong_message__error(api_client_with_credentials):
-    thing_message = ThingMessageFactory()
+def test_action_ThingViewSet_post_wrong_comment__error(api_client_with_credentials):
+    thing = ThingFactory.create(comments=1)
     data = {
         'content': "",
     }
-    url = reverse('thing-message', kwargs={'pk': thing_message.thing.id})
+    url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 400
