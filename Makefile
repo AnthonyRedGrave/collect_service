@@ -8,4 +8,7 @@ admin:
 	docker-compose run --rm web python manage.py createsuperuser 
 
 test:
-	docker-compose run --rm --workdir="/code" web pytest
+	docker-compose run --rm web pytest
+
+sqlprint:
+	docker-compose run --rm web python manage.py shell_plus --print-sql
