@@ -1,3 +1,4 @@
+from django.http import request
 from rest_framework import serializers
 from .models import Thing, ThingMessage, Section
 from comments.serializers import CommentSerializer
@@ -33,3 +34,8 @@ class ThingSerializer(serializers.ModelSerializer):
                   'content', 'image', 'section',
                   'section_name', 'comments', 'tags')
         read_only_fields = ('owner', )
+
+
+class DateSerializer(serializers.Serializer):
+    date_published__gte = serializers.DateField(required=False, source='date')
+    owner_id = serializers.IntegerField(required=False, source="owner")

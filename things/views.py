@@ -1,13 +1,17 @@
+from logging import raiseExceptions
+from django.contrib.auth.models import User
 from django.db.models import query
+from comments import serializers
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section
-from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer
+from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer, DateSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
+
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
     queryset = ThingMessage.objects.all()
@@ -35,9 +39,10 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        date = self.request.query_params.get('date', None)
-        if date:
-            queryset = queryset.filter(date_published__gte = date).order_by('date_published')
+        seriliazer = DateSerializer(data = self.request.query_params)
+        seriliazer.is_valid(raise_exception=True)
+        if seriliazer.validated_data.keys():
+            queryset = queryset.filter(**seriliazer.validated_data)
         return queryset
 
     @action(detail=True, methods=['get', 'post'])

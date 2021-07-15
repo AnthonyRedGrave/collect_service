@@ -47,7 +47,7 @@ class Thing(models.Model):
     class Meta:
         verbose_name = 'Вещь'
         verbose_name_plural = 'Вещи'
-    
+        ordering = ['-date_published']
 
 class ThingMessage(models.Model):
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, blank=False)
