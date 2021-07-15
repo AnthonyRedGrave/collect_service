@@ -1,12 +1,17 @@
+from logging import raiseExceptions
+from django.contrib.auth.models import User
+from django.db.models import query
+from comments import serializers
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section
-from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer
+from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer, DateSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
+
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
     queryset = ThingMessage.objects.all()
@@ -27,10 +32,19 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
         pass
 
 class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
-    queryset = Thing.objects.all()
+    queryset = Thing.objects.all().prefetch_related('tags', 'comments').select_related('owner', 'section')
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
     # http_method_names = ['get', 'post', 'head']
+    #things = Thing.objects.all().prefetch_related('tags').annotate(num_tags=Count('tags'))
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        seriliazer = DateSerializer(data = self.request.query_params)
+        seriliazer.is_valid(raise_exception=True)
+        if seriliazer.validated_data.keys():
+            queryset = queryset.filter(**seriliazer.validated_data)
+        return queryset
 
     @action(detail=True, methods=['get', 'post'])
     def comment(self, request, pk=None):

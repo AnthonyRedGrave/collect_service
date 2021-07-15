@@ -1,10 +1,11 @@
 import pytest
 from django.urls import reverse
 from things.tests.factories import ThingFactory
-from things.tests.factories import ThingFactory, ThingMessageFactory
-from tags.tests.factories import TagFactory
+from things.tests.factories import ThingFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
+from freezegun import freeze_time
+from django.core.exceptions import ValidationError
 
 
 pytestmark = pytest.mark.django_db
@@ -117,3 +118,25 @@ def test_action_ThingViewSet_post_wrong_comment__error(api_client_with_credentia
     url = reverse('thing-comment', kwargs={'pk': thing.id})
     response = api_client_with_credentials.post(url, data = data)
     assert response.status_code == 400
+
+
+def test_ThingViewSet_get_queryset_with_various_date__success(api_client_with_credentials):
+    with freeze_time("2020-01-14"):
+        ThingFactory.create_batch(10)
+    with freeze_time("2022-01-14"):
+        ThingFactory.create_batch(10)
+    with freeze_time("2021-07-15"):
+        ThingFactory.create_batch(10)
+    url = 'http://0.0.0.0:8000/api/things/?date=2021-07-14'
+    response = api_client_with_credentials.get(url)
+    assert len(response.json()) == 20
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize("date", ("2022-14-07", "asdasd", " asddsad ", 123, False, None, {}, []))
+def test_ThingViewSet_get_queryset_with_greater_date__error(api_client_with_credentials, date):
+    ThingFactory.create_batch(10)
+    url = f'http://0.0.0.0:8000/api/things/?date={date}&owner=1'
+    response = api_client_with_credentials.get(url)
+    assert response.status_code == 200
+    assert response.json() == {}
