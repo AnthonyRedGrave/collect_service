@@ -11,6 +11,7 @@ from .serializers import SectionSerializer, ThingSerializer, ThingMessageSeriali
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
+from django.db.models import Count
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -45,6 +46,12 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         if seriliazer.validated_data.keys():
             queryset = queryset.filter(**seriliazer.validated_data)
         return queryset
+
+    @action(detail=False, methods=['get'])
+    def most(self, request):
+        things = self.queryset.annotate(num_tags=Count('tags')).order_by('-num_tags')[:10]
+        serializer = self.get_serializer(things, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['get', 'post'])
     def comment(self, request, pk=None):

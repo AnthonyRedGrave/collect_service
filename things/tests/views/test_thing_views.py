@@ -8,135 +8,114 @@ from freezegun import freeze_time
 from django.core.exceptions import ValidationError
 
 
-pytestmark = pytest.mark.django_db
+@pytest.mark.django_db(True)
+class TestThingViewSet:
 
-def test_ThingViewSet_get_queryset__success(api_client_with_credentials):
-    ThingFactory.create_batch(100)
-    url = reverse('thing-list')
-    response = api_client_with_credentials.get(url)
-    assert response.status_code == 200
-    assert len(response.json()) == 100
+    def test_get_queryset__success(self, api_client_with_credentials):
+        ThingFactory.create_batch(100)
+        url = reverse('thing-list')
+        response = api_client_with_credentials.get(url)
+        assert response.status_code == 200
+        assert len(response.json()) == 100
 
+    def test_post_new_thing__success(self):
+        thing = ThingFactory()
+        data = {
+            'title': thing.title,
+            'content': thing.content,
+            'state': thing.state,
+            'section': thing.section.id,
+            'owner': thing.owner
+        }
+        url = reverse("thing-list")
+        view = ThingViewSet.as_view({"post": "create"})
+        factory = APIRequestFactory()
+        request = factory.post(url, data = data)
+        
+        force_authenticate(request, user=thing.owner)
+        response = view(request)
+        response.render()
+        assert response
+        assert response.status_code == 201
 
-def test_ThingViewSet_post_new_thing__success():
-    thing = ThingFactory()
-    data = {
-        'title': thing.title,
-        'content': thing.content,
-        'state': thing.state,
-        'section': thing.section.id,
-        'owner': thing.owner
-    }
-    url = reverse("thing-list")
-    view = ThingViewSet.as_view({"post": "create"})
-    factory = APIRequestFactory()
-    request = factory.post(url, data = data)
-    
-    force_authenticate(request, user=thing.owner)
-    response = view(request)
-    response.render()
-    assert response
-    assert response.status_code == 201
+    @pytest.mark.parametrize("method, action, url, params", [("delete", "destroy", "thing-detail",{'pk': 1}), 
+                                                             ("put", "update", "thing-detail", {'pk': 1})])
+    def test_not_allow_request_methods(self, method, action, url, params):
+        thing = ThingFactory()
+        data = {
+            'title': thing.title,
+            'content': thing.content,
+            'state': thing.state,
+            'section': thing.section,
+            'image': thing.image.url,
+            'owner': thing.owner
+        }
+        url = reverse(url, kwargs=params)
+        factory = APIRequestFactory()
+        view = ThingViewSet.as_view({method: action})
+        request = factory.get(url)
+        force_authenticate(request, user=thing.owner)
+        response = view(request, data=data)
+        assert response.status_code == 405
 
-
-
-@pytest.mark.parametrize("method, action, url, params", [("delete", "destroy", "thing-detail", {'pk': 1}),
-                                                         ("put", "update", "thing-detail", {'pk': 1})])
-def test_ThingViewSet__not_allow_request_method(method, action, url, params):
-    thing = ThingFactory()
-    data = {
-        'title': thing.title,
-        'content': thing.content,
-        'state': thing.state,
-        'section': thing.section,
-        'image': thing.image.url,
-        'owner': thing.owner
-    }
-    url = reverse(url, kwargs=params)
-
-    factory = APIRequestFactory()
-    
-    view = ThingViewSet.as_view({method: action})
-    request = factory.get(url)
-    force_authenticate(request, user=thing.owner)
-    response = view(request, data=data)
-    assert response.status_code == 405
-
-
-def test_detail_ThingViewSet__success(api_client_with_credentials):
-    thing = ThingFactory(tags=4, comments=5)
-    url = reverse('thing-detail', kwargs={'pk': thing.id})
-    response = api_client_with_credentials.get(url)
-    assert response.status_code == 200
+    def test_detail__success(self, api_client_with_credentials):
+        thing = ThingFactory(tags=4, comments=5)
+        url = reverse('thing-detail', kwargs={'pk': thing.id})
+        response = api_client_with_credentials.get(url)
+        assert response.status_code == 200
 
 
-# ========================test action====================
+class TestThingViewSetActionComment:
 
-def test_action_ThingViewSet_get_list_of_comments__success(api_client_with_credentials):
-    thing = ThingFactory.create(comments = 5)
-    url = reverse('thing-comment', kwargs={'pk': thing.id})
-    response = api_client_with_credentials.get(url)
-    assert len(response.json()) == 5
-    assert response.status_code == 200
+    def test_action_get_list_of_comments__success(self, api_client_with_credentials):
+        thing = ThingFactory.create(comments = 5)
+        url = reverse('thing-comment', kwargs={'pk': thing.id})
+        response = api_client_with_credentials.get(url)
+        assert len(response.json()) == 5
+        assert response.status_code == 200
 
+    def test_action_post_comment__success(self, api_client_with_credentials):
+        thing = ThingFactory.create(comments=1)
+        data = {
+            'content': "Новый комментарий для вещи",
+        }
+        url = reverse('thing-comment', kwargs={'pk': thing.id})
+        response = api_client_with_credentials.post(url, data = data)
+        assert response.status_code == 200
+        assert response.json() == {'Comment': 'Created!'}
 
-def test_action_ThingViewSet_post_comment__success(api_client_with_credentials):
-    thing = ThingFactory.create(comments=1)
-    data = {
-        'content': "Новый комментарий для вещи",
-    }
-    url = reverse('thing-comment', kwargs={'pk': thing.id})
-    response = api_client_with_credentials.post(url, data = data)
-    assert response.status_code == 200
-    assert response.json() == {'Comment': 'Created!'}
+    def test_action_post_comment_unauthorized__error(self, api_client):
+        thing = ThingFactory.create(comments=1)
+        data = {
+            'content': "Новый комментарий для вещи, но я не авторизовался",
+        }
+        url = reverse('thing-comment', kwargs={'pk': thing.id})
+        response = api_client.post(url, data = data)
+        assert response.status_code == 401
 
+    def test_action_post_comment_to_not_found_thing__error(self, api_client_with_credentials):
+        data = {
+            'content': "Сообщение для несуществующей вещи",
+        }
+        url = reverse('thing-comment', kwargs={'pk': 100})
+        response = api_client_with_credentials.post(url, data = data)
+        assert response.status_code == 404
 
-def test_action_ThingViewSet_post_comment_unauthorized__error(api_client):
-    thing = ThingFactory.create(comments=1)
-    data = {
-        'content': "Новый комментарий для вещи, но я не авторизовался",
-    }
-    url = reverse('thing-comment', kwargs={'pk': thing.id})
-    response = api_client.post(url, data = data)
-    assert response.status_code == 401
-
-
-def test_action_ThingViewSet_post_comment_to_not_found_thing__error(api_client_with_credentials):
-    data = {
-        'content': "Сообщение для несуществующей вещи",
-    }
-    url = reverse('thing-comment', kwargs={'pk': 100})
-    response = api_client_with_credentials.post(url, data = data)
-    assert response.status_code == 404
-
-
-def test_action_ThingViewSet_post_wrong_comment__error(api_client_with_credentials):
-    thing = ThingFactory.create(comments=1)
-    data = {
-        'content': "",
-    }
-    url = reverse('thing-comment', kwargs={'pk': thing.id})
-    response = api_client_with_credentials.post(url, data = data)
-    assert response.status_code == 400
+    def test_post_wrong_comment__error(self, api_client_with_credentials):
+        thing = ThingFactory.create(comments=1)
+        data = {
+            'content': "",
+        }
+        url = reverse('thing-comment', kwargs={'pk': thing.id})
+        response = api_client_with_credentials.post(url, data = data)
+        assert response.status_code == 400
 
 
-def test_ThingViewSet_get_queryset_with_various_date__success(api_client_with_credentials):
-    with freeze_time("2020-01-14"):
-        ThingFactory.create_batch(10)
-    with freeze_time("2022-01-14"):
-        ThingFactory.create_batch(10)
-    with freeze_time("2021-07-15"):
-        ThingFactory.create_batch(10)
-    url = 'http://0.0.0.0:8000/api/things/?date=2021-07-14'
-    response = api_client_with_credentials.get(url)
-    assert len(response.json()) == 20
-    assert response.status_code == 200
+class TestThingViewSetActionMost:
 
-
-@pytest.mark.parametrize("date", ("2022-14-07", "asdasd", " asddsad ", 123, False, None, {}, []))
-def test_ThingViewSet_get_queryset_with_greater_date__error(api_client_with_credentials, date):
-    ThingFactory.create_batch(10)
-    url = f'http://0.0.0.0:8000/api/things/?date={date}&owner=1'
-    response = api_client_with_credentials.get(url)
-    assert response.status_code == 200
-    assert response.json() == {}
+    def test_get_list_of_10_things_with_tags__success(self, api_client_with_credentials):
+        ThingFactory.create_batch(20, tags = "random")
+        url = reverse('thing-most')
+        response = api_client_with_credentials.get(url)
+        assert len(response.json()) == 10
+        assert response.status_code == 200
