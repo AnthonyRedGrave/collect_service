@@ -32,10 +32,11 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
         pass
 
 class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
-    queryset = Thing.objects.all()
+    queryset = Thing.objects.all().prefetch_related('tags', 'comments').select_related('owner', 'section')
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
     # http_method_names = ['get', 'post', 'head']
+    #things = Thing.objects.all().prefetch_related('tags').annotate(num_tags=Count('tags'))
 
     def get_queryset(self):
         queryset = super().get_queryset()
