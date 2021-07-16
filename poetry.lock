@@ -104,30 +104,6 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
-name = "django-debug-toolbar"
-version = "3.2.1"
-description = "A configurable set of panels that display various debug information about the current request/response."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-Django = ">=2.2"
-sqlparse = ">=0.2.0"
-
-[[package]]
-name = "django-debug-toolbar-force"
-version = "0.1.8"
-description = "Force debugging of partial- or non-HTML views in django-debug-toolbar."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-django-nine = ">=0.2.3"
-six = ">=1.4.1"
-
-[[package]]
 name = "django-extensions"
 version = "3.1.3"
 description = "Extensions for Django"
@@ -156,25 +132,6 @@ description = "django-admin.py shell+  <- shell with models auto-imported"
 category = "main"
 optional = false
 python-versions = "*"
-
-[[package]]
-name = "django-silk"
-version = "4.1.0"
-description = "Silky smooth profiling for the Django Framework"
-category = "main"
-optional = false
-python-versions = ">=3.5"
-
-[package.dependencies]
-autopep8 = "*"
-Django = ">=2.2"
-gprof2dot = ">=2017.09.19"
-Jinja2 = "*"
-Pygments = "*"
-python-dateutil = "*"
-pytz = "*"
-requests = "*"
-sqlparse = "*"
 
 [[package]]
 name = "djangorestframework"
@@ -543,7 +500,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8fdec7267c4819122adf86a5abc71822460b0708cfa0395aa0bf9327fd62070e"
+content-hash = "cb4f35a7a4c0de72b1b4c917c5e5c6507704558b5862c7b8c4a8415489611b09"
 
 [metadata.files]
 appdirs = [
@@ -586,14 +543,6 @@ django = [
     {file = "Django-3.2.4-py3-none-any.whl", hash = "sha256:ea735cbbbb3b2fba6d4da4784a0043d84c67c92f1fdf15ad6db69900e792c10f"},
     {file = "Django-3.2.4.tar.gz", hash = "sha256:66c9d8db8cc6fe938a28b7887c1596e42d522e27618562517cc8929eb7e7f296"},
 ]
-django-debug-toolbar = [
-    {file = "django-debug-toolbar-3.2.1.tar.gz", hash = "sha256:a5ff2a54f24bf88286f9872836081078f4baa843dc3735ee88524e89f8821e33"},
-    {file = "django_debug_toolbar-3.2.1-py3-none-any.whl", hash = "sha256:e759e63e3fe2d3110e0e519639c166816368701eab4a47fed75d7de7018467b9"},
-]
-django-debug-toolbar-force = [
-    {file = "django-debug-toolbar-force-0.1.8.tar.gz", hash = "sha256:10f0ec9ebbc0dd872ac810eb7d2033abb78c385fc90d8cf45c3adcc21dce23fb"},
-    {file = "django_debug_toolbar_force-0.1.8-py2.py3-none-any.whl", hash = "sha256:0a47451d910ec248c154d4efdf86ff001a04530f5b64daef73280b317364d09a"},
-]
 django-extensions = [
     {file = "django-extensions-3.1.3.tar.gz", hash = "sha256:5f0fea7bf131ca303090352577a9e7f8bfbf5489bd9d9c8aea9401db28db34a0"},
     {file = "django_extensions-3.1.3-py3-none-any.whl", hash = "sha256:50de8977794a66a91575dd40f87d5053608f679561731845edbd325ceeb387e3"},
@@ -604,9 +553,6 @@ django-nine = [
 ]
 django-shell-plus = [
     {file = "django-shell-plus-1.1.7.tar.gz", hash = "sha256:fcad4b3b97ee66d3fb61dc020711d53acf71db637b3e40970e9c7b23949e2b50"},
-]
-django-silk = [
-    {file = "django_silk-4.1.0-py2.py3-none-any.whl", hash = "sha256:a331e55618fa62eaf3cf5a63f31bc1e91205efbeeca5e587c577498b0e251ed8"},
 ]
 djangorestframework = [
     {file = "djangorestframework-3.12.4-py3-none-any.whl", hash = "sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf"},
