@@ -47,7 +47,6 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
     # http_method_names = ['get', 'post', 'head']
-    # things = Thing.objects.all().prefetch_related('tags').annotate(num_tags=Count('tags'))
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -59,9 +58,7 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"])
     def most(self, request):
-        things = self.queryset.annotate(num_tags=Count("tags")).order_by("-num_tags")[
-            :10
-        ]
+        things = self.queryset.prefetch_related('tags').annotate(num_tags=Count("tags")).order_by("-num_tags")[:10]
         serializer = self.get_serializer(things, many=True)
         return Response(serializer.data)
 

@@ -47,12 +47,17 @@ class Thing(models.Model):
     )
     comments = GenericRelation(Comment)
     tags = models.ManyToManyField(Tag, verbose_name="Тэги к вещи")
+    is_deleted = models.BooleanField('Удалён ли', default=False)
 
     def get_comments(self):
         return self.comments.all()
 
     def __str__(self):
         return f"Вещь {self.title}"
+
+    def delete(self):
+        self.is_deleted = True
+        self.save()
 
     class Meta:
         verbose_name = "Вещь"
