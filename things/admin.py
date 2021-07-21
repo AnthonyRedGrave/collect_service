@@ -6,8 +6,6 @@ import csv
 
 @admin.action(description="CSV-Export")
 def csv_export(modeladmin, request, queryset):
-    if not request.user.is_staff:
-        raise PermissionDenied
     model = queryset.model
     opts = model._meta.fields + model._meta.many_to_many
     response = HttpResponse(content_type='text/csv')
