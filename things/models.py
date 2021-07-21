@@ -3,10 +3,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from comments.models import Comment
-from mixins.soft_delete import SoftDeleteObjectMixin
+from core.mixins import SoftDeleteObjectMixin
 
 
-class Section(models.Model):
+class Section(SoftDeleteObjectMixin, models.Model):
     title = models.CharField("Названии раздела", max_length=150)
 
     def __str__(self):
@@ -17,7 +17,7 @@ class Section(models.Model):
         verbose_name_plural = "Разделы"
 
 
-class Thing(models.Model):
+class Thing(SoftDeleteObjectMixin, models.Model):
 
     STATE_CHOICES = [
         ("Awesome", "Лучшее"),
@@ -61,7 +61,7 @@ class Thing(models.Model):
         ordering = ["-date_published"]
 
 
-class ThingMessage(models.Model):
+class ThingMessage(SoftDeleteObjectMixin, models.Model):
     user = models.ForeignKey(
         User, verbose_name="Пользователь", on_delete=models.CASCADE, blank=False
     )
