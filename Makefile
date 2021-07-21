@@ -12,3 +12,9 @@ test:
 
 sqlprint:
 	docker-compose run --rm web python manage.py shell_plus --print-sql
+
+csv_import:
+	docker-compose run --rm web python manage.py csv_import
+
+csv_export:
+	docker-compose run --rm web python manage.py csv_export
