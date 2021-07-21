@@ -4,13 +4,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /code
 
-COPY requirements.txt /code/
+RUN pip install poetry
 
-RUN pip install -r requirements.txt
+COPY pyproject.toml poetry.lock /code/
 
-COPY collect_service/ /code/
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction 
 
-COPY init.sql /docker-entrypoint-initdb.d/
-# RUN python manage.py makemigrations
-
-# RUN python manage.py migrate
+COPY / /code/
