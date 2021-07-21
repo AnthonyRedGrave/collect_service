@@ -4,8 +4,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /code
 
-COPY requirements.txt /code/
+RUN pip install poetry
 
-RUN pip install -r requirements.txt
+COPY pyproject.toml poetry.lock /code/
+
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction 
 
 COPY / /code/
