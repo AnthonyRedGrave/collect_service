@@ -49,5 +49,5 @@ def test_hard_delete__success(factory, model):
     object.delete(True)
     count_after_delete = model.objects.count()
     assert len(model.deleted_objects.all()) == 0
-    assert count_before_add != count_after_add
+    assert count_before_add + 1 == count_after_add
     assert count_before_add == count_after_delete
