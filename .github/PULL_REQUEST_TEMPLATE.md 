@@ -1,0 +1,8 @@
+- [ ] I investigated how we can implement it
+- [ ] I created the right branch using gitflow
+- [ ] I tested this logic on my local
+- [ ] I wrote tests
+- [ ] I checked unused imports
+- [ ] I checked prints and other debug information
+- [ ] I checked commits on github PR page `Commits` tab
+- [ ] I checked files on github PR page `Files changes` tab
