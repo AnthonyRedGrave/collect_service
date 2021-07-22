@@ -43,7 +43,11 @@ def test_comment_soft_delete__success():
     ),
 )
 def test_hard_delete__success(factory, model):
+    count_before_add = model.objects.count()
     object = factory()
+    count_after_add = model.objects.count()
     object.delete(True)
+    count_after_delete = model.objects.count()
     assert len(model.deleted_objects.all()) == 0
-    assert len(model.objects.all()) == 0
+    assert count_before_add != count_after_add
+    assert count_before_add == count_after_delete
