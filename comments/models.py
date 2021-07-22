@@ -2,10 +2,10 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
-from core.mixins import SoftDeleteObjectMixin
+from core.mixins import SoftDeleteMixin
 
 
-class Comment(SoftDeleteObjectMixin, models.Model):
+class Comment(SoftDeleteMixin, models.Model):
     content = models.TextField('Текст комментария')
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE, blank=False)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

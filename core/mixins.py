@@ -1,10 +1,12 @@
 from django.db import models
 
 
-class SoftDeleteObjectMixin(models.Model):
+class SoftDeleteMixin(models.Model):
+    deleted = models.BooleanField("Удалено ли", default=False)
+
     def delete(object, *args, **kwargs):
-        object.active = False
+        object.deleted = True
         object.save()
-    
+
     class Meta:
         abstract = True
