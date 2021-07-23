@@ -9,10 +9,20 @@ def csv_export_service(filename = "export.csv"):
 
     with open(f"media/csv-things/{filename}", "w") as f:
         writer = csv.writer(f, delimiter=";")
-        field_names = [field.name for field in opts]
-        object_fields = ["id", "title","content", "state", "section", "date_published", "image", "is_sold", "owner"]
+        field_names = [field.name for field in opts] # здесь все названия полей
+        # object_fields = ["id", "title","content", "state", "section", "date_published", "image", "is_sold", "owner"]
         writer.writerow(field_names)
         for obj in queryset:
-            fields_list = [getattr(obj, field) for field in object_fields]
-            fields_list.append(list(obj.tags.values_list("title", flat=True)))
-            writer.writerow(fields_list)
+            field_values = []
+            tags = []
+            for field in field_names:
+                value = getattr(obj, field)
+                if value == '':
+                    value = 'None'
+                if field == 'tags':
+                    value = list(value.values_list("title", flat=True)) # если field это теги, значит в value хранится queryset
+                field_values.append(value)
+            writer.writerow(field_values)
+            # fields_list = [getattr(obj, field) for field in object_fields]
+            # fields_list.append(list(obj.tags.values_list("title", flat=True)))
+            
