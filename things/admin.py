@@ -26,4 +26,3 @@ class ThingMessageAdmin(admin.ModelAdmin):
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
     list_display = ("title", "deleted")
-    

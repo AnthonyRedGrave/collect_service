@@ -20,3 +20,5 @@ class SoftDeleteMixin(models.Model):
 
     class Meta:
         abstract = True
+
+# file - test_soft_delete_mixin
