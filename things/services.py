@@ -13,3 +13,4 @@ def csv_export_service(filename):
         writer.writerow(field_names)
         for obj in queryset:
             writer.writerow([getattr(obj, field) for field in field_names])
+    return f

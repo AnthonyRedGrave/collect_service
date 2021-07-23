@@ -1,22 +1,13 @@
 from django.contrib import admin
 from .models import *
 from django.http import HttpResponse
+from .services import csv_export_service
 import csv
 
 
 @admin.action(description="CSV-Export")
 def csv_export(modeladmin, request, queryset):
-    model = queryset.model
-    opts = model._meta.fields + model._meta.many_to_many
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="export.csv"'
-    response.write(u'\ufeff'.encode('utf8'))
-    writer = csv.writer(response, delimiter=";")
-    field_names = [field.name for field in opts]
-    writer.writerow(field_names)
-    for obj in queryset:
-        writer.writerow([getattr(obj, field) for field in field_names])
-    return response
+    return csv_export_service()
 
 
 @admin.register(Thing)
