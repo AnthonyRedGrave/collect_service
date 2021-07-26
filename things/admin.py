@@ -12,7 +12,16 @@ class CommentInline(GenericTabularInline):
 
 @admin.register(Thing)
 class ThingAdmin(admin.ModelAdmin):
-    list_display = ('title', 'content', 'owner', 'state', 'section', 'is_sold', 'date_published')
+    list_display = (
+        "title",
+        "content",
+        "owner",
+        "state",
+        "section",
+        "is_sold",
+        "date_published",
+        "deleted",
+    )
     list_display_links = ('title', 'content', 'owner', 'state')
     inlines = [CommentInline,]
 
