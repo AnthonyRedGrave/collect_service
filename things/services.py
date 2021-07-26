@@ -1,4 +1,5 @@
 import csv
+from tags.models import Tag
 
 from .models import Thing
 from django.contrib.auth.models import User
@@ -12,14 +13,22 @@ WRITE_ONLY = "w"
 DELIMETER = ";"
 
 
+def _get_tags(row_tag_titles):
+    tags = []
+    for title in row_tag_titles:
+        tags.append(Tag.objects.get(title=title).id)
+    return tags
+
+
 def data_validate(row):
+    tags = _get_tags(row[5].split(","))
     data = {
         "title": row[0],
         "content": row[1],
         "state": row[2],
         "section": row[4],
         "owner": row[3],  # если нет юзера raise except validate_field
-        "tags": row[5].split(',')
+        "tags": tags,
     }
     serializer = CreateThingSerializer(data=data)
     serializer.is_valid(raise_exception=True)
@@ -27,14 +36,16 @@ def data_validate(row):
 
 
 def thing_save(validated_data):
-    print(validated_data)
-    thing = Thing.objects.create(title = validated_data['title'],
-                  state = validated_data['state'],
-                  owner = validated_data['owner'],
-                  content = validated_data['content'],
-                  section = validated_data['section'])
-    thing.tags.set(validated_data['tags'])
+    thing = Thing.objects.create(
+        title=validated_data["title"],
+        state=validated_data["state"],
+        owner=validated_data["owner"],
+        content=validated_data["content"],
+        section=validated_data["section"],
+    )
+    thing.tags.set(validated_data["tags"])
     thing.save()
+
 
 def csv_import(filename):
 
