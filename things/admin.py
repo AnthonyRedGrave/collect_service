@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Thing, ThingMessage, Section
+from .models import *
+from tags.models import Tag
+
+
+class TagInline(admin.TabularInline):
+    model = Thing.tags.through
+    extra = 3
 
 
 @admin.register(Thing)
@@ -15,6 +21,8 @@ class ThingAdmin(admin.ModelAdmin):
         "deleted",
     )
     list_display_links = ("title", "content", "owner", "state")
+    inlines = (TagInline,)
+    exclude = ('tags',)
 
 
 @admin.register(ThingMessage)
