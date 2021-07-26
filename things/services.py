@@ -5,28 +5,27 @@ from .models import Section, Thing
 from .serializers import ThingSerializer
 
 
-def csv_import_service(filename="import.csv"):
-        with open(f"media/csv-things/{filename}", "r") as f:
-            reader = csv.reader(f, delimiter=";")
-            for row in reader:
-                print(row)
-                user = User.objects.get(id=row[3])
-                data = {
-                    "title": row[0],
-                    "content": row[1],
-                    "state": row[2],
-                    "owner": user.id,
-                    "section": row[4],
-                }
-                serializer = ThingSerializer(data=data)
-                print(serializer)
-                serializer.is_valid(raise_exception=True)
-                print(serializer.validated_data)
-                thing = Thing(**serializer.validated_data)
-                print(thing)
+def csv_import_service(filename):
+    with open(f"media/csv-things/{filename}", "r") as f:
+        reader = csv.reader(f, delimiter=";")
+        for row in reader:
+            user = User.objects.get(id=row[3])
+            data = {
+                "title": row[0],
+                "content": row[1],
+                "state": row[2],
+                "owner": user.id,
+                "section": row[4],
+            }
+            serializer = ThingSerializer(data=data)
+            print(serializer)
+            serializer.is_valid(raise_exception=True)
+            print(serializer.validated_data)
+            thing = Thing(**serializer.validated_data)
+            print(thing)
 
 
-def csv_export_service(filename="export.csv"):
+def csv_export_service(filename):
     queryset = Thing.objects.all()
     model = queryset.model
     opts = model._meta.fields + model._meta.many_to_many
