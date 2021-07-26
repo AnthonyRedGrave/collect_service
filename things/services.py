@@ -1,21 +1,25 @@
 import csv
+
+from rest_framework import fields
 from .models import Thing
 from django.contrib.auth.models import User
 from .models import Section, Thing
 from .serializers import ThingSerializer
 
+READ_ONLY = "r"
 
 def csv_import_service(filename):
+    
     with open(f"media/csv-things/{filename}", "r") as f:
         reader = csv.reader(f, delimiter=";")
         for row in reader:
-            user = User.objects.get(id=row[3])
             data = {
                 "title": row[0],
                 "content": row[1],
                 "state": row[2],
-                "owner": user.id,
                 "section": row[4],
+                "owner": row[3] # если нет юзера raise except validate_field
+                # tags
             }
             serializer = ThingSerializer(data=data)
             print(serializer)
@@ -24,21 +28,29 @@ def csv_import_service(filename):
             thing = Thing(**serializer.validated_data)
             print(thing)
 
+def _get_fields(model):
+    opts = model._meta.fields + model._meta.many_to_many
+    field_names = [field.name for field in opts]
+    # field_names = ["id", "title","content", "state", "section", "date_published", "image", "is_sold", "owner"]
+    return field_names
+
+def _write_thing(thing):
+    #сам напишу
+    pass
 
 def csv_export_service(filename):
     queryset = Thing.objects.all()
     model = queryset.model
-    opts = model._meta.fields + model._meta.many_to_many
+    fields = _get_fields(model)
 
     with open(f"media/csv-things/{filename}", "w") as f:
         writer = csv.writer(f, delimiter=";")
-        field_names = [field.name for field in opts]  # здесь все названия полей
-        # object_fields = ["id", "title","content", "state", "section", "date_published", "image", "is_sold", "owner"]
-        writer.writerow(field_names)
+        
+        writer.writerow(fields)
         for obj in queryset:
             field_values = []
             tags = []
-            for field in field_names:
+            for field in fields:
                 value = getattr(obj, field)
                 if value == "":
                     value = "None"
@@ -46,5 +58,5 @@ def csv_export_service(filename):
                     value = list(
                         value.values_list("title", flat=True)
                     )  # если field это теги, значит в value хранится queryset
-                field_values.append(value)
+                field_values.append(*value)
             writer.writerow(field_values)
