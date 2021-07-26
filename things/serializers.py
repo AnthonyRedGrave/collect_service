@@ -1,4 +1,3 @@
-from django.http import request
 from rest_framework import serializers
 from .models import Thing, ThingMessage, Section
 from comments.serializers import CommentSerializer
