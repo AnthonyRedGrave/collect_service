@@ -3,7 +3,7 @@ import csv
 from .models import Thing
 from django.contrib.auth.models import User
 from .models import Thing
-from .serializers import ThingSerializer
+from .serializers import CreateThingSerializer
 
 READ_ONLY = "r"
 
@@ -18,13 +18,23 @@ def data_validate(row):
         "content": row[1],
         "state": row[2],
         "section": row[4],
-        "owner": row[3]  # если нет юзера raise except validate_field
-        # tags
+        "owner": row[3],  # если нет юзера raise except validate_field
+        "tags": row[5].split(',')
     }
-    serializer = ThingSerializer(data=data)
-    print(serializer)
+    serializer = CreateThingSerializer(data=data)
     serializer.is_valid(raise_exception=True)
     return serializer.validated_data
+
+
+def thing_save(validated_data):
+    print(validated_data)
+    thing = Thing.objects.create(title = validated_data['title'],
+                  state = validated_data['state'],
+                  owner = validated_data['owner'],
+                  content = validated_data['content'],
+                  section = validated_data['section'])
+    thing.tags.set(validated_data['tags'])
+    thing.save()
 
 def csv_import(filename):
 
@@ -32,9 +42,7 @@ def csv_import(filename):
         reader = csv.reader(f, delimiter=DELIMETER)
         for row in reader:
             validated_data = data_validate(row)
-            print(validated_data)
-            thing = Thing(**validated_data)
-            print(thing)
+            thing_save(validated_data)
 
 
 def _get_fields(model):
