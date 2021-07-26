@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'tags',
     'rest_framework',
     'psycopg2',
-    'django_extensions'
+    'django_extensions',
+    'core'
+
 ]
 
 MIDDLEWARE = [

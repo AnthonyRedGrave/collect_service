@@ -18,10 +18,9 @@ class ThingAdmin(admin.ModelAdmin):
         "section",
         "is_sold",
         "date_published",
-        "deleted"
+        "deleted",
     )
     list_display_links = ("title", "content", "owner", "state")
-    actions = (csv_export,)
 
 
 @admin.register(ThingMessage)
