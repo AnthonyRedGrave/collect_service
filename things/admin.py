@@ -1,13 +1,11 @@
 from django.contrib import admin
 from .models import *
-from django.http import HttpResponse
-from .services import csv_export_service
-import csv
+from .services import csv_export
 
 
 @admin.action(description="CSV-Export")
 def csv_export(modeladmin, request, queryset):
-    return csv_export_service()
+    return csv_export()
 
 
 @admin.register(Thing)

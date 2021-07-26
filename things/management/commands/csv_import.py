@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from things.services import csv_import_service 
+from things.services import csv_import
 
 class Command(BaseCommand):
     help = 'CSV-import for thing objects'
@@ -9,4 +9,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         filename = kwargs['f']
-        csv_import_service(filename)
+        csv_import(filename)

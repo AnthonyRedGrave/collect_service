@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-from things.services import csv_export_service
-import csv
+from things.services import csv_export
 
 
 class Command(BaseCommand):
@@ -11,4 +10,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         filename = kwargs['f']
-        csv_export_service(filename)
+        csv_export(filename)

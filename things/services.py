@@ -1,62 +1,76 @@
 import csv
 
-from rest_framework import fields
 from .models import Thing
 from django.contrib.auth.models import User
-from .models import Section, Thing
+from .models import Thing
 from .serializers import ThingSerializer
 
 READ_ONLY = "r"
 
-def csv_import_service(filename):
-    
-    with open(f"media/csv-things/{filename}", "r") as f:
-        reader = csv.reader(f, delimiter=";")
+WRITE_ONLY = "w"
+
+DELIMETER = ";"
+
+
+def data_validate(row):
+    data = {
+        "title": row[0],
+        "content": row[1],
+        "state": row[2],
+        "section": row[4],
+        "owner": row[3]  # если нет юзера raise except validate_field
+        # tags
+    }
+    serializer = ThingSerializer(data=data)
+    print(serializer)
+    serializer.is_valid(raise_exception=True)
+    return serializer.validated_data
+
+def csv_import(filename):
+
+    with open(f"media/csv-things/{filename}", READ_ONLY) as f:
+        reader = csv.reader(f, delimiter=DELIMETER)
         for row in reader:
-            data = {
-                "title": row[0],
-                "content": row[1],
-                "state": row[2],
-                "section": row[4],
-                "owner": row[3] # если нет юзера raise except validate_field
-                # tags
-            }
-            serializer = ThingSerializer(data=data)
-            print(serializer)
-            serializer.is_valid(raise_exception=True)
-            print(serializer.validated_data)
-            thing = Thing(**serializer.validated_data)
+            validated_data = data_validate(row)
+            print(validated_data)
+            thing = Thing(**validated_data)
             print(thing)
 
+
 def _get_fields(model):
-    opts = model._meta.fields + model._meta.many_to_many
-    field_names = [field.name for field in opts]
+    field_names = model._meta._forward_fields_map.keys()
     # field_names = ["id", "title","content", "state", "section", "date_published", "image", "is_sold", "owner"]
     return field_names
 
-def _write_thing(thing):
-    #сам напишу
-    pass
 
-def csv_export_service(filename):
-    queryset = Thing.objects.all()
-    model = queryset.model
-    fields = _get_fields(model)
+def _write_thing(thing, fields):
+    field_values = []
+    for field in fields:
+        value = getattr(thing, field)
+        if value == "":
+            value = "None"
+            field_values.append(value)
+        elif field == "tags":
+            tags = value
+            for tag in tags.values_list("title", flat=True):
+                field_values.append(tag)
+        elif field == "comments":
+            comments = value
+            for comment in comments.values_list("content", flat=True):
+                field_values.append(comment)
+        else:
+            field_values.append(value)
 
-    with open(f"media/csv-things/{filename}", "w") as f:
-        writer = csv.writer(f, delimiter=";")
-        
+    return field_values
+
+
+def csv_export(filename):
+    things = Thing.objects.all()
+    fields = _get_fields(things.model)
+
+    with open(f"media/csv-things/{filename}", WRITE_ONLY) as f:
+        writer = csv.writer(f, delimiter=DELIMETER)
         writer.writerow(fields)
-        for obj in queryset:
-            field_values = []
-            tags = []
-            for field in fields:
-                value = getattr(obj, field)
-                if value == "":
-                    value = "None"
-                if field == "tags":
-                    value = list(
-                        value.values_list("title", flat=True)
-                    )  # если field это теги, значит в value хранится queryset
-                field_values.append(*value)
+        for thing in things:
+            field_values = _write_thing(thing, fields)
             writer.writerow(field_values)
