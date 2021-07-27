@@ -1,7 +1,3 @@
-from logging import raiseExceptions
-from django.contrib.auth.models import User
-from django.db.models import query
-from comments import serializers
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
@@ -12,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
 from django.db.models import Count
+from .services import csv_export
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -46,6 +43,12 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         if seriliazer.validated_data.keys():
             queryset = queryset.filter(**seriliazer.validated_data)
         return queryset
+
+    @action(detail=False, methods=['get'])
+    def csv_export(self, request):
+        filename = self.request.query_params.get('filename', "export.csv")
+        csv_export(filename)
+        return Response("Успешно экспортировано")
 
     @action(detail=False, methods=['get'])
     def most(self, request):
