@@ -1,7 +1,9 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from .models import Thing, ThingMessage, Section
 from comments.serializers import CommentSerializer
 from tags.serializers import TagSerializer
+from tags.models import Tag
 
 
 class ThingMessageSerializer(serializers.ModelSerializer):
@@ -46,6 +48,19 @@ class ThingSerializer(serializers.ModelSerializer):
 
 
 class CreateThingSerializer(serializers.ModelSerializer):
+
+    def validate_tags(self, value):
+        tags = value.split(",")
+        tags_from_db = Tag.objects.filter(title__in = tags).all()
+        if len(tags) != len(tags_from_db):
+            raise ValidationError("Не все теги существуют!")
+        return list(tags_from_db)
+
+    
+    def validate_user(self, attrs):
+        return super().validate(attrs)
+
+
     class Meta:
         model = Thing
         fields = (
