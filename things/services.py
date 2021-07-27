@@ -3,7 +3,6 @@ import csv
 from .models import Thing
 from comments.models import Comment
 from .serializers import CreateThingSerializer
-from django.http import HttpRequest, request
 
 READ_ONLY = "r"
 
