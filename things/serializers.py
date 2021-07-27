@@ -4,6 +4,7 @@ from .models import Thing, ThingMessage, Section
 from comments.serializers import CommentSerializer
 from tags.serializers import TagSerializer
 from tags.models import Tag
+from django.contrib.auth.models import User
 
 
 class ThingMessageSerializer(serializers.ModelSerializer):
@@ -47,34 +48,31 @@ class ThingSerializer(serializers.ModelSerializer):
         read_only_fields = ("owner",)
 
 
-class CreateThingSerializer(serializers.ModelSerializer):
+class CreateThingSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)
+    owner = serializers.CharField()
+    content = serializers.CharField()
+    section = serializers.CharField()
+    tags = serializers.CharField()
 
     def validate_tags(self, value):
         tags = value.split(",")
-        tags_from_db = Tag.objects.filter(title__in = tags).all()
+        tags_from_db = Tag.objects.filter(title__in=tags).all()
+
         if len(tags) != len(tags_from_db):
             raise ValidationError("Не все теги существуют!")
         return list(tags_from_db)
 
-    
-    def validate_user(self, attrs):
-        return super().validate(attrs)
+    def validate_section(self, value):
+        if not Section.objects.filter(title=value).exists():
+            raise ValidationError("Такого раздела не существует")
+        return Section.objects.get(title=value)
 
-
-    class Meta:
-        model = Thing
-        fields = (
-            "id",
-            "title",
-            "state",
-            "date_published",
-            "owner",
-            "content",
-            "image",
-            "section",
-            "comments",
-            "tags",
-        )
+    def validate_owner(self, value):
+        if not User.objects.filter(username=value).exists():
+            raise ValidationError("Такого пользователя не существует")
+        return User.objects.get(username=value)
 
 
 class DateSerializer(serializers.Serializer):
