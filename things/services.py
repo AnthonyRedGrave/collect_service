@@ -10,25 +10,18 @@ WRITE_ONLY = "w"
 
 DELIMETER_SEMICOLON = ";"
 
+CSV_FOLDER = "media/csv-things/"
 
-def thing_row_validate(row):
 
-    data = {
-        "title": row[0],
-        "content": row[1],
-        "state": row[2],
-        "section": row[4],
-        "owner": row[3],
-        "tags": row[5],
-    }
-    serializer = CreateThingSerializer(data=data)
+def thing_row_validate(data_row):
+    serializer = CreateThingSerializer(data=data_row)
     serializer.is_valid(raise_exception=True)
     return serializer.validated_data
 
 
 def thing_save(validated_thing_row, row):
     tags = validated_thing_row.pop("tags")
-    comment_titles = row[6].split(",")
+    comment_titles = row['comments'].split(",")
 
     thing = Thing.objects.create(**validated_thing_row)
     thing.tags.set(tags)
@@ -39,14 +32,14 @@ def thing_save(validated_thing_row, row):
             user=validated_thing_row["owner"],
             content_object=thing,
         )
-
     thing.save()
     return thing
 
 
 def csv_import(filename):
-    with open(f"media/csv-things/{filename}", READ_ONLY, encoding="utf-8") as f:
-        reader = csv.reader(f, delimiter=DELIMETER_SEMICOLON)
+    with open(f"{CSV_FOLDER}{filename}", READ_ONLY, encoding="utf-8") as f:
+        fieldnames = ["title", "content", "state", "owner", "section", "tags", "comments"]
+        reader = csv.DictReader(f, fieldnames=fieldnames, delimiter=DELIMETER_SEMICOLON)
         for row in reader:
             thing = thing_row_validate(row)
             thing_save(thing, row)
@@ -82,14 +75,14 @@ field_managers = {
 
 
 def _get_thing_field_values(thing, fields):
-    field_values = []
+    field_values = {}
     for field in fields:
         value = getattr(thing, field)
         if field in field_managers.keys():
             value = field_managers[field](value)
-            field_values.append(value)
+            field_values[field] = value
         else:
-            field_values.append(value)
+            field_values[field] = value
     return field_values
 
 
@@ -108,12 +101,11 @@ def csv_export(filename):
         "comments",
     ]
 
-    with open(f"media/csv-things/{filename}", WRITE_ONLY, encoding="utf-8") as f:
-        writer = csv.writer(f, delimiter=DELIMETER_SEMICOLON)
+    with open(f"{CSV_FOLDER}{filename}", WRITE_ONLY, encoding="utf-8") as f:
         fields = ["#"] + thing_fields
-        writer.writerow(fields)
+        writer = csv.DictWriter(f, delimiter=DELIMETER_SEMICOLON, fieldnames=fields)
+        writer.writeheader()
         for i, thing in enumerate(things):
-            row = [i]
-            field_values = _get_thing_field_values(thing, thing_fields)
-            row = row + field_values
-            writer.writerow(row)
+            field_values_dict = {"#": i}
+            field_values_dict.update(_get_thing_field_values(thing, thing_fields))
+            writer.writerow(field_values_dict)
