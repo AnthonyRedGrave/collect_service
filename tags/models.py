@@ -10,3 +10,4 @@ class Tag(SoftDeleteMixin, models.Model):
     class Meta:
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
+        ordering = ["title"]
