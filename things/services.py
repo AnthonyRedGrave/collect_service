@@ -21,17 +21,19 @@ def thing_row_validate(data_row):
 
 def thing_save(validated_thing_row, row):
     tags = validated_thing_row.pop("tags")
-    comment_titles = row['comments'].split(",")
-
     thing = Thing.objects.create(**validated_thing_row)
     thing.tags.set(tags)
 
-    for comment_title in comment_titles:
-        Comment.objects.create(
-            content=comment_title,
-            user=validated_thing_row["owner"],
-            content_object=thing,
-        )
+    if row['comments']:
+        comment_titles = row['comments'].split(",")
+        for comment_title in comment_titles:
+            Comment.objects.create(
+                content=comment_title,
+                user=validated_thing_row["owner"],
+                content_object=thing,
+            )
+
+    
     thing.save()
     return thing
 
