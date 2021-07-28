@@ -3,6 +3,7 @@ import pytest
 from things.tests.factories import ThingFactory
 from things.serializers import CreateThingSerializer
 from rest_framework.validators import ValidationError
+from django.contrib.auth.models import User
 
 
 pytestmark = pytest.mark.django_db
@@ -27,25 +28,24 @@ def test_create_thing_serializer_tags__error(tags):
 
 @pytest.mark.parametrize("title", ("Монетка", "  Фантик  ", "мОНетКа", 123))
 def test_create_thing_serializer_title__success(title):
-    thing = ThingFactory(tags=4)
+    thing = ThingFactory(tags=4, owner__username = "admin")
     data = {
         "title": title,
         "state": thing.state,
-        "owner": thing.owner.id,
+        "owner": thing.owner.username,
         "content": thing.content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.title,
+        "tags": ",".join(list(thing.tags.values_list("title", flat=True))),
     }
     serializer = CreateThingSerializer(data=data)
     assert serializer.is_valid()
     assert serializer.data == {
         "title": str(title).strip(),
         "state": thing.state,
-        "owner": thing.owner.id,
-        "image": None,
+        "owner": thing.owner.username,
         "content": thing.content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.__str__(),
+        "tags": f'{list(thing.tags.all())}',
     }
     assert serializer.errors == {}
 
@@ -56,21 +56,20 @@ def test_create_thing_serializer_state__success(state):
     data = {
         "title": thing.title,
         "state": state,
-        "owner": thing.owner.id,
+        "owner": thing.owner.username,
         "content": thing.content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.title,
+        "tags": ",".join(list(thing.tags.values_list("title", flat=True))),
     }
     serializer = CreateThingSerializer(data=data)
     assert serializer.is_valid()
     assert serializer.data == {
-        "title": thing.title,
-        "state": state.strip(),
-        "owner": thing.owner.id,
-        "image": None,
+        "title": str(thing.title).strip(),
+        "state": str(state).strip(),
+        "owner": thing.owner.username,
         "content": thing.content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.__str__(),
+        "tags": f'{list(thing.tags.all())}',
     }
     assert serializer.errors == {}
 
