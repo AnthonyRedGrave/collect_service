@@ -99,7 +99,7 @@ def test_create_thing_serializer_title__error(title):
 
 @pytest.mark.parametrize("state", ("Not valid state", "", "  Awesome  "))
 def test_create_thing_serializer_state__error(state):
-    thing = ThingFactory()
+    thing = ThingFactory(tags=2)
     data = {
         "title": thing.title,
         "state": state,
@@ -117,7 +117,7 @@ def test_create_thing_serializer_state__error(state):
     assert "content" not in serializer.errors.keys()
     assert "section" not in serializer.errors.keys()
     assert "owner" not in serializer.errors.keys()
-
+    assert "tags" not in serializer.errors.keys()
 
 @pytest.mark.parametrize("content", ("Content1", "   Content2   ", 12345689))
 def test_create_thing_serializer_content__success(content):
@@ -153,7 +153,7 @@ def test_create_thing_serializer_content__error(content):
         "owner": thing.owner.username,
         "content": content,
         "section": thing.section.title,
-        "tags": list(thing.tags.values_list("title", flat=True)),
+        "tags": ",".join(list(thing.tags.values_list("title", flat=True))),
     }
     serializer = CreateThingSerializer(data=data)
     with pytest.raises(ValidationError):
@@ -163,4 +163,26 @@ def test_create_thing_serializer_content__error(content):
     assert "state" not in serializer.errors.keys()
     assert "section" not in serializer.errors.keys()
     assert "owner" not in serializer.errors.keys()
-    assert "taags" not in serializer.errors.keys()
+    assert "tags" not in serializer.errors.keys()
+
+
+@pytest.mark.parametrize("owner", ("1", "wrong_user", 0))
+def test_create_thing_serializer_owner__error(owner):
+    thing = ThingFactory(tags=2)
+    data = {
+        "title": thing.title,
+        "state": thing.state,
+        "owner": owner,
+        "content": thing.content,
+        "section": thing.section.title,
+        "tags": ",".join(list(thing.tags.values_list("title", flat=True))),
+    }
+    serializer = CreateThingSerializer(data=data)
+    with pytest.raises(ValidationError):
+        serializer.is_valid(raise_exception=True)
+    assert "owner" in serializer.errors.keys()
+    assert "content" not in serializer.errors.keys()
+    assert "title" not in serializer.errors.keys()
+    assert "state" not in serializer.errors.keys()
+    assert "section" not in serializer.errors.keys()
+    assert "tags" not in serializer.errors.keys()
