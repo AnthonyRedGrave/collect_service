@@ -80,10 +80,10 @@ def test_create_thing_serializer_title__error(title):
     data = {
         "title": title,
         "state": thing.state,
-        "owner": thing.owner.id,
+        "owner": thing.owner.username,
         "content": thing.content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.title,
+        "tags": ",".join(list(thing.tags.values_list("title", flat=True))),
     }
     serializer = CreateThingSerializer(data=data)
 
@@ -94,6 +94,7 @@ def test_create_thing_serializer_title__error(title):
     assert "content" not in serializer.errors.keys()
     assert "section" not in serializer.errors.keys()
     assert "owner" not in serializer.errors.keys()
+    assert "tags" not in serializer.errors.keys()
 
 
 @pytest.mark.parametrize("state", ("Not valid state", "", "  Awesome  "))
@@ -102,10 +103,10 @@ def test_create_thing_serializer_state__error(state):
     data = {
         "title": thing.title,
         "state": state,
-        "owner": thing.owner.id,
+        "owner": thing.owner.username,
         "content": thing.content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.title,
+        "tags": ",".join(list(thing.tags.values_list("title", flat=True))),
     }
     serializer = CreateThingSerializer(data=data)
 
@@ -124,10 +125,10 @@ def test_create_thing_serializer_content__success(content):
     data = {
         "title": "Монетка 16-го века",
         "state": "Awesome",
-        "owner": thing.owner.id,
+        "owner": thing.owner.username,
         "content": content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.title,
+        "tags": ",".join(list(thing.tags.values_list("title", flat=True))),
     }
     serializer = CreateThingSerializer(data=data)
 
@@ -136,10 +137,9 @@ def test_create_thing_serializer_content__success(content):
         "title": "Монетка 16-го века",
         "state": "Awesome",
         "content": str(content).strip(),
-        "owner": thing.owner.id,
-        "image": None,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "owner": thing.owner.username,
+        "section": thing.section.__str__(),
+        "tags": f'{list(thing.tags.all())}',
     }
     assert serializer.errors == {}
 
@@ -150,10 +150,10 @@ def test_create_thing_serializer_content__error(content):
     data = {
         "title": "Монетка 16-го века",
         "state": "Awesome",
-        "owner": thing.owner.id,
+        "owner": thing.owner.username,
         "content": content,
-        "section": thing.section.id,
-        "tags": list(thing.tags.values_list("id", flat=True)),
+        "section": thing.section.title,
+        "tags": list(thing.tags.values_list("title", flat=True)),
     }
     serializer = CreateThingSerializer(data=data)
     with pytest.raises(ValidationError):
@@ -163,3 +163,4 @@ def test_create_thing_serializer_content__error(content):
     assert "state" not in serializer.errors.keys()
     assert "section" not in serializer.errors.keys()
     assert "owner" not in serializer.errors.keys()
+    assert "taags" not in serializer.errors.keys()
