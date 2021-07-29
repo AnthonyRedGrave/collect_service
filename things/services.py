@@ -1,4 +1,5 @@
 import csv
+from genericpath import exists
 
 from .models import Thing
 from comments.models import Comment
@@ -39,12 +40,15 @@ def thing_save(validated_thing_row, row):
 
 
 def csv_import(filename):
-    with open(f"{CSV_FOLDER}{filename}", READ_ONLY, encoding="utf-8") as f:
-        fieldnames = ["title", "content", "state", "owner", "section", "tags", "comments"]
-        reader = csv.DictReader(f, fieldnames=fieldnames, delimiter=DELIMETER_SEMICOLON)
-        for row in reader:
-            thing = thing_row_validate(row)
-            thing_save(thing, row)
+    try:
+        with open(f"{CSV_FOLDER}{filename}", READ_ONLY, encoding="utf-8") as f:
+            fieldnames = ["title", "content", "state", "owner", "section", "tags", "comments"]
+            reader = csv.DictReader(f, fieldnames=fieldnames, delimiter=DELIMETER_SEMICOLON)
+            for row in reader:
+                thing = thing_row_validate(row)
+                thing_save(thing, row)
+    except FileNotFoundError as error:
+        print(error)
 
 
 def _get_tags_value(tags):
