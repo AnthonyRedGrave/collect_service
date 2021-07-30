@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'comments',
     'tags',
     'rest_framework',
+    'djoser',
     'psycopg2',
     'django_extensions',
     'core'
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'collect_service.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -96,6 +97,26 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     )
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_HOST_USER = 'obarnev@inbox.ru'
+EMAIL_HOST_PASSWORD = 'Yuliamylove12341'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'obarnev@inbox.ru'
+
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True,
+    'SERIALIZERS': {},
+    'EMAIL': {
+        'activation': 'things.email.ActivationEmail',
+    },
 }
 
 
