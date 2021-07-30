@@ -1,5 +1,4 @@
 import csv
-from genericpath import exists
 
 from .models import Thing
 from comments.models import Comment
@@ -67,7 +66,6 @@ def _get_is_sold_value(is_sold):
 
 def _get_image_url(image):
     if image:
-        # не доделал
         return image.url
     return ""
 
