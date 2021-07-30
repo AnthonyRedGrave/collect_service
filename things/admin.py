@@ -1,5 +1,11 @@
 from django.contrib import admin
 from .models import Thing, ThingMessage, Section
+from .services import csv_export
+
+
+@admin.action(description="CSV-Export")
+def csv_export(modeladmin, request, queryset):
+    return csv_export()
 
 
 class TagInline(admin.TabularInline):
