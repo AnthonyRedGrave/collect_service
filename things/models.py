@@ -6,26 +6,6 @@ from comments.models import Comment
 from core.mixins import SoftDeleteMixin
 
 
-class Transaction(models.Model):
-    owner = models.ForeignKey(
-        User, verbose_name="Владелец вещи", on_delete=models.CASCADE, blank=False
-    )
-    customer = models.ForeignKey(
-        User, verbose_name="Покупатель", on_delete=models.CASCADE, blank=False
-    )
-    date_deal = models.DateTimeField(auto_now=True, verbose_name="Дата и время сделки")
-    cost = models.DecimalField(
-        verbose_name="Цена сделки", max_digits=6, decimal_places=2
-    )
-
-    def __str__(self):
-        return f"Сделка между {self.owner} и {self.customer}"
-
-    class Meta:
-        verbose_name = "Сделка"
-        verbose_name = "Сделки"
-
-
 class Section(SoftDeleteMixin, models.Model):
     title = models.CharField("Названии раздела", max_length=150)
 
@@ -100,3 +80,38 @@ class ThingMessage(SoftDeleteMixin, models.Model):
     class Meta:
         verbose_name = "Сообщение"
         verbose_name_plural = "Собщения"
+
+
+class Transaction(models.Model):
+    owner = models.ForeignKey(
+        User,
+        verbose_name="Владелец вещи",
+        on_delete=models.CASCADE,
+        blank=False,
+        related_name="own_thing_transcation",
+    )
+    customer = models.ForeignKey(
+        User,
+        verbose_name="Покупатель",
+        on_delete=models.CASCADE,
+        blank=False,
+        related_name="buy_thing_transcation",
+    )
+    thing = models.ForeignKey(
+        Thing,
+        on_delete=models.CASCADE,
+        related_name="transactions",
+        verbose_name="Вещь, для которой пишется сообщение",
+        blank=False,
+    )
+    date_deal = models.DateTimeField(auto_now=True, verbose_name="Дата и время сделки")
+    cost = models.DecimalField(
+        verbose_name="Цена сделки", max_digits=6, decimal_places=2
+    )
+
+    def __str__(self):
+        return f"Сделка между {self.owner} и {self.customer}"
+
+    class Meta:
+        verbose_name = "Сделка"
+        verbose_name = "Сделки"
