@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +43,9 @@ INSTALLED_APPS = [
     'djoser',
     'psycopg2',
     'django_extensions',
-    'core'
+    'core',
+    'social_django',
+
 
 ]
 
@@ -99,6 +102,25 @@ REST_FRAMEWORK = {
     )
 }
 
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.spotify.SpotifyOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.social_auth.associate_by_email',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.mail.ru'
@@ -106,6 +128,9 @@ EMAIL_HOST_USER = 'obarnev@inbox.ru'
 EMAIL_HOST_PASSWORD = 'Yuliamylove12341'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'obarnev@inbox.ru'
+
+SOCIAL_AUTH_SPOTIFY_KEY = 'eb7107b846a04384ac2f6df37b278c5c' 
+SOCIAL_AUTH_SPOTIFY_SECRET = 'a4a85fadf46b46fcb53697cd78de0ea4'
 
 
 DJOSER = {

@@ -27,7 +27,8 @@ urlpatterns = [
     path('api/', include('things.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/auth/', include('djoser.urls'))
+    path('api/auth/', include('djoser.urls')),
+    path('social/', include('social_django.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
