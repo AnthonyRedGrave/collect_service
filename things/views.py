@@ -46,7 +46,8 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     @action(detail=True, methods=['post'])
     def buy(self, request):
         thing_to_buy = self.get_object()
-        Transaction.objects.create()
+        Transaction.objects.create(owner = thing_to_buy.owner, customer = request.user, status="Accepted")
+        return Response({"Transaction": "Сделка подтверждена!"})
 
 
     @action(detail=False, methods=['get'])
