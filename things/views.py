@@ -1,12 +1,8 @@
-from logging import raiseExceptions
-from django.contrib.auth.models import User
-from django.db.models import query
-from comments import serializers
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from .models import ThingMessage, Thing, Section
+from .models import ThingMessage, Thing, Section, Transaction
 from .serializers import SectionSerializer, ThingSerializer, ThingMessageSerializer, DateSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -50,8 +46,8 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     @action(detail=True, methods=['post'])
     def buy(self, request):
         thing_to_buy = self.get_object()
-        print(thing_to_buy)
-        
+        Transaction.objects.create()
+
 
     @action(detail=False, methods=['get'])
     def most(self, request):

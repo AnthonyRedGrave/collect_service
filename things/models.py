@@ -83,6 +83,14 @@ class ThingMessage(SoftDeleteMixin, models.Model):
 
 
 class Transaction(models.Model):
+
+    STATUS_TYPES = [
+        ("Accepted", "Принят"),
+        ("Confirmed", "Подтвержден"),
+        ("Paid", "Оплачивается"),
+        ("Completed", "Выполнен"),
+    ]
+
     owner = models.ForeignKey(
         User,
         verbose_name="Владелец вещи",
@@ -104,6 +112,7 @@ class Transaction(models.Model):
         verbose_name="Вещь, для которой пишется сообщение",
         blank=False,
     )
+    status = models.CharField(verbose_name="Статус заказа", choices=STATUS_TYPES, max_length=15)
     date_deal = models.DateTimeField(auto_now=True, verbose_name="Дата и время сделки")
     cost = models.DecimalField(
         verbose_name="Цена сделки", max_digits=6, decimal_places=2
