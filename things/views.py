@@ -75,14 +75,24 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         transaction.save()
         return Response(status_log)
 
-    
+    #поговорить о том, нужны ли все таки транзакции
     @action(detail=True, methods=['post'])
     def buy_complete(self, request, pk=None):
         thing_to_buy = self.get_object()
         transaction = Transaction.objects.get(thing = thing_to_buy, owner = thing_to_buy.owner, customer = request.user)
+        status_log = {"complete":
+                        {"status": "Выполнен",
+                         "date": str(datetime.now()),
+                         "new_owner": transaction.customer.username,
+                         "old_owner": transaction.owner.username,
+                         "cost": str(thing_to_buy.price)}
+                    }
+        thing_to_buy.owner = request.user
+        thing_to_buy.save()
         transaction.status = "Completed"
+        transaction.status_log.update(status_log)
         transaction.save()
-        return Response({"Статус заказа": "Выполнен"})
+        return Response(status_log)
 
 
     @action(detail=False, methods=['get'])

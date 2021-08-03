@@ -1,7 +1,6 @@
 import pytest
 from django.urls import reverse
-from rest_framework import response
-import rest_framework
+from things.models import Transaction
 from things.tests.factories import ThingFactory, TransactionFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
@@ -158,3 +157,56 @@ class TestThingViewSetActionsBuy:
         assert response.json()["confirm"]["owner"] == transaction.owner.username
         assert response.json()["confirm"]["customer"] == transaction.customer.username
         assert response.json()["confirm"]["cost"] == str(thing.price)
+    
+
+    def test_get_transaction_status_log_completed__success(self, api_client):
+        thing = ThingFactory()
+        request_user = UserFactory()
+        status_log = {"confirmed":
+                        {"status": "Принят",
+                         "date": str(datetime.now()),
+                         "owner": "owner",
+                         "customer": "customer"}
+                    }
+        transaction = TransactionFactory(thing = thing, owner = thing.owner, customer = request_user, status_log = status_log)
+        api_client.force_authenticate(user=request_user)
+        url = reverse("thing-buy-complete", kwargs={"pk": thing.id})
+        response = api_client.post(url)
+        assert response.status_code == 200
+        assert response.json()["complete"]["status"] == "Выполнен"
+        assert response.json()["complete"]["new_owner"] == request_user.username
+        assert response.json()["complete"]["old_owner"] == thing.owner.username
+        assert response.json()["complete"]["cost"] == str(thing.price)
+    
+
+    def test_all_actions_buy__success(self, api_client):
+        thing = ThingFactory()
+        request_user = UserFactory()
+        api_client.force_authenticate(user=request_user)
+
+        url = reverse("thing-buy-accept", kwargs={"pk": thing.id})
+        response = api_client.post(url)
+        assert response.status_code == 200
+        assert response.json()["accept"]["status"] == "Принят"
+        assert response.json()["accept"]["owner"] == thing.owner.username
+        assert response.json()["accept"]["customer"] == request_user.username
+
+        transaction = Transaction.objects.get(thing = thing, owner = thing.owner, customer = request_user)
+        url = reverse("thing-buy-confirm", kwargs={"pk": thing.id})
+        response = api_client.post(url)
+        assert response.status_code == 200
+        assert response.json()["confirm"]["status"] == "Подтвержден"
+        assert response.json()["confirm"]["owner"] == transaction.owner.username
+        assert response.json()["confirm"]["customer"] == transaction.customer.username
+        assert response.json()["confirm"]["cost"] == str(thing.price)
+
+        url = reverse("thing-buy-complete", kwargs={"pk": thing.id})
+        response = api_client.post(url)
+        assert response.status_code == 200
+        assert response.json()["complete"]["status"] == "Выполнен"
+        assert response.json()["complete"]["new_owner"] == request_user.username
+        assert response.json()["complete"]["old_owner"] == thing.owner.username
+        assert response.json()["complete"]["cost"] == str(thing.price)
+
+        transaction.refresh_from_db()
+        assert list(transaction.status_log.keys()) == ['accept', 'confirm', 'complete']
