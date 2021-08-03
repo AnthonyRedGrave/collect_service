@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework import mixins
 from django.db.models import Count
 from datetime import datetime
+from .services import csv_export
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -94,6 +95,12 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         transaction.save()
         return Response(status_log)
 
+
+    @action(detail=False, methods=['get'])
+    def csv_export(self, request):
+        filename = self.request.query_params.get('filename', "export.csv")
+        csv_export(filename)
+        return Response("Успешно экспортировано")
 
     @action(detail=False, methods=['get'])
     def most(self, request):
