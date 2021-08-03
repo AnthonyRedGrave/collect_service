@@ -48,6 +48,7 @@ class Thing(SoftDeleteMixin, models.Model):
     )
     comments = GenericRelation(Comment)
     tags = models.ManyToManyField(Tag, verbose_name="Тэги к вещи")
+    price = models.DecimalField(verbose_name="Цена вещи", default=0, decimal_places=2, max_digits=6)
 
     def get_comments(self):
         return self.comments.all()
@@ -87,7 +88,6 @@ class Transaction(models.Model):
     STATUS_TYPES = [
         ("Accepted", "Принят"),
         ("Confirmed", "Подтвержден"),
-        ("Paid", "Оплачивается"),
         ("Completed", "Выполнен"),
     ]
 
@@ -115,8 +115,10 @@ class Transaction(models.Model):
     status = models.CharField(verbose_name="Статус заказа", choices=STATUS_TYPES, max_length=15)
     date_deal = models.DateTimeField(auto_now=True, verbose_name="Дата и время сделки")
     cost = models.DecimalField(
-        verbose_name="Цена сделки", max_digits=6, decimal_places=2
+        verbose_name="Цена сделки", max_digits=6, decimal_places=2, null=True
     )
+    status_log = models.JSONField()
+
 
     def __str__(self):
         return f"Сделка между {self.owner} и {self.customer}"

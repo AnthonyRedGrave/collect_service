@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
 from django.db.models import Count
+from datetime import datetime
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -44,10 +45,44 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         return queryset
 
     @action(detail=True, methods=['post'])
-    def buy(self, request):
+    def buy_accept(self, request, pk=None):
         thing_to_buy = self.get_object()
-        Transaction.objects.create(owner = thing_to_buy.owner, customer = request.user, status="Accepted")
-        return Response({"Transaction": "Сделка подтверждена!"})
+        status_log = {"accept":
+                        {"status": "Принят",
+                         "date": str(datetime.now()),
+                         "owner": thing_to_buy.owner.username,
+                         "customer": request.user.username}
+                    }
+        transaction = Transaction.objects.create(owner = thing_to_buy.owner, customer = request.user, status = "Accepted", thing = thing_to_buy, status_log= status_log)
+        transaction.save()
+        return Response(status_log)
+
+
+    @action(detail=True, methods=['post'])
+    def buy_confirm(self, request, pk=None):
+        thing_to_buy = self.get_object()
+        transaction = Transaction.objects.get(thing = thing_to_buy, owner = thing_to_buy.owner, customer = request.user)
+        status_log = {"confirm":
+                        {"status": "Подтвержден",
+                         "date": str(datetime.now()),
+                         "owner": transaction.owner.username,
+                         "customer": transaction.customer.username,
+                         "cost": str(thing_to_buy.price)}
+                    }
+        transaction.status_log.update(status_log)
+        transaction.status = "Confirmed"
+        transaction.cost = thing_to_buy.price
+        transaction.save()
+        return Response(status_log)
+
+    
+    @action(detail=True, methods=['post'])
+    def buy_complete(self, request, pk=None):
+        thing_to_buy = self.get_object()
+        transaction = Transaction.objects.get(thing = thing_to_buy, owner = thing_to_buy.owner, customer = request.user)
+        transaction.status = "Completed"
+        transaction.save()
+        return Response({"Статус заказа": "Выполнен"})
 
 
     @action(detail=False, methods=['get'])
