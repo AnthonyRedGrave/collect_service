@@ -97,19 +97,19 @@ class Deal(BaseModel, models.Model):
         verbose_name="Владелец вещи",
         on_delete=models.CASCADE,
         blank=False,
-        related_name="old_owner_thing_deal",
+        related_name="old_owner_thing_deals",
     )
     new_owner = models.ForeignKey(
         User,
         verbose_name="Покупатель",
         on_delete=models.CASCADE,
         blank=False,
-        related_name="new_owner_thing_deal",
+        related_name="new_owner_thing_deals",
     )
     thing = models.ForeignKey(
         Thing,
         on_delete=models.CASCADE,
-        related_name="transactions",
+        related_name="deals",
         verbose_name="Вещь, для которой пишется сообщение",
         blank=False,
     )
@@ -124,6 +124,6 @@ class Deal(BaseModel, models.Model):
         return f"Сделка между {self.new_owner} и {self.old_owner}"
 
     class Meta:
-        unique_together = ('old_owner', 'new_owner', 'thing', 'status_log')
+        unique_together = ('old_owner', 'new_owner', 'thing')
         verbose_name = "Сделка"
         verbose_name = "Сделки"

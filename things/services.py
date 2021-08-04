@@ -14,11 +14,11 @@ DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
 
-ACCEPTED = "accepted"
+ACCEPTED = Deal.StatusChoices.accepted.value
 
-CONFIRMED = "confirmed"
+CONFIRMED = Deal.StatusChoices.confirmed.value
 
-COMPLETED = "completed"
+COMPLETED = Deal.StatusChoices.completed.value
 
 
 def _change_or_create_deal(deal_data):
@@ -50,22 +50,22 @@ def _get_deal_data(thing_to_buy, new_owner, status):
     return deal_data
 
 
-def buy_accepted(thing_to_buy, new_owner):
-    deal_data = _get_deal_data(thing_to_buy, new_owner, ACCEPTED)
+def buy(thing_to_buy, new_owner, status):
+    deal_data = _get_deal_data(thing_to_buy, new_owner, status)
     status_log = _change_or_create_deal(deal_data)
     return status_log
 
 
-def buy_confirmed(thing_to_buy, new_owner):
-    deal_data = _get_deal_data(thing_to_buy, new_owner, CONFIRMED)
-    status_log = _change_or_create_deal(deal_data)
-    return status_log
+# def buy_confirmed(thing_to_buy, new_owner):
+#     deal_data = _get_deal_data(thing_to_buy, new_owner, CONFIRMED)
+#     status_log = _change_or_create_deal(deal_data)
+#     return status_log
 
 
-def buy_completed(thing_to_buy, new_owner):
-    deal_data = _get_deal_data(thing_to_buy, new_owner, COMPLETED)
-    status_log = _change_or_create_deal(deal_data)
-    return status_log
+# def buy_completed(thing_to_buy, new_owner):
+#     deal_data = _get_deal_data(thing_to_buy, new_owner, COMPLETED)
+#     status_log = _change_or_create_deal(deal_data)
+#     return status_log
 
 
 def thing_row_validate(data_row):

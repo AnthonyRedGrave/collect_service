@@ -173,7 +173,7 @@ class TestThingViewSetActionsBuy:
             "new_owner": "customer",
         }
         DealFactory(
-            thing=thing, old_owner=thing.owner, new_owner=request_user, status_log=[status_log]
+            thing=thing, old_owner=thing.owner, new_owner=request_user, status_log=[status_log], cost=thing.price
         )
         api_client.force_authenticate(user=request_user)
         url = reverse("thing-buy-complete", kwargs={"pk": thing.id})

@@ -14,7 +14,7 @@ from rest_framework.decorators import action
 from rest_framework import mixins
 from django.db.models import Count
 from datetime import datetime
-from .services import csv_export, buy_accepted, buy_confirmed, buy_completed
+from .services import csv_export, buy
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -58,19 +58,19 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     @action(detail=True, methods=["post"])
     def buy_accept(self, request, pk=None):
         thing_to_buy = self.get_object()
-        status_log = buy_accepted(thing_to_buy, request.user)
+        status_log = buy(thing_to_buy, request.user, "accepted")
         return Response(status_log)
 
     @action(detail=True, methods=["post"])
     def buy_confirm(self, request, pk=None):
         thing_to_buy = self.get_object()
-        status_log = buy_confirmed(thing_to_buy, request.user)
+        status_log = buy(thing_to_buy, request.user, "confirmed")
         return Response(status_log)
 
     @action(detail=True, methods=["post"])
     def buy_complete(self, request, pk=None):
         thing_to_buy = self.get_object()
-        status_log = buy_completed(thing_to_buy, request.user)
+        status_log = buy(thing_to_buy, request.user, "completed")
         return Response(status_log)
 
     @action(detail=False, methods=["get"])
