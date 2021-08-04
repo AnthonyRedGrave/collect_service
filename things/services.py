@@ -14,59 +14,57 @@ DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
 
+ACCEPTED = "accepted"
 
-def buy_accepted(thing_to_buy, new_owner):
+CONFIRMED = "confirmed"
+
+COMPLETED = "completed"
+
+
+def _change_or_create_deal(deal_data):
+    status_log = deal_data.pop("status_log", None)
+    deal, created = Deal.objects.get_or_create(**deal_data)
+    deal.status_log.append(status_log)
+    deal.save()
+    if status_log['status'] == COMPLETED:
+        deal.thing.owner = deal_data['new_owner']
+        deal.thing.save()
+    return status_log
+
+
+def _get_deal_data(thing_to_buy, new_owner, status):
     status_log = {
-        "status": "accepted",
+        "status": status,
         "date": f"{datetime.now()}",
         "old_owner": thing_to_buy.owner.username,
         "new_owner": new_owner.username,
+        "cost": f"{thing_to_buy.price}",
     }
-    deal = Deal(
-        old_owner=thing_to_buy.owner,
-        new_owner=new_owner,
-        status="accepted",
-        thing=thing_to_buy,
-    )
-    deal.status_log.append(status_log)
-    deal.save()
+    deal_data = {
+        "old_owner": thing_to_buy.owner,
+        "new_owner": new_owner,
+        "thing": thing_to_buy,
+        "status_log": status_log,
+        "cost": f"{thing_to_buy.price}",
+    }
+    return deal_data
+
+
+def buy_accepted(thing_to_buy, new_owner):
+    deal_data = _get_deal_data(thing_to_buy, new_owner, ACCEPTED)
+    status_log = _change_or_create_deal(deal_data)
     return status_log
 
 
 def buy_confirmed(thing_to_buy, new_owner):
-    deal = Deal.objects.get(
-        thing=thing_to_buy, old_owner=thing_to_buy.owner, new_owner=new_owner
-    )
-    status_log = {
-        "status": "confirmed",
-        "date": f"{datetime.now()}",
-        "old_owner": deal.old_owner.username,
-        "new_owner": deal.new_owner.username,
-        "cost": f"{thing_to_buy.price}",
-    }
-    deal.status_log.append(status_log)
-    deal.status = "confirmed"
-    deal.cost = thing_to_buy.price
-    deal.save()
+    deal_data = _get_deal_data(thing_to_buy, new_owner, CONFIRMED)
+    status_log = _change_or_create_deal(deal_data)
     return status_log
 
 
 def buy_completed(thing_to_buy, new_owner):
-    deal = Deal.objects.get(
-            thing=thing_to_buy, old_owner=thing_to_buy.owner, new_owner=new_owner
-        )
-    status_log = {
-            "status": "completed",
-            "date": f"{datetime.now()}",
-            "new_owner": deal.new_owner.username,
-            "old_owner": deal.old_owner.username,
-            "cost": f"{thing_to_buy.price}",
-        }
-    thing_to_buy.owner = new_owner
-    thing_to_buy.save()
-    deal.status = "completed"
-    deal.status_log.append(status_log)
-    deal.save()
+    deal_data = _get_deal_data(thing_to_buy, new_owner, COMPLETED)
+    status_log = _change_or_create_deal(deal_data)
     return status_log
 
 

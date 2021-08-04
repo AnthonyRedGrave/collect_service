@@ -121,8 +121,9 @@ class Deal(BaseModel, models.Model):
 
 
     def __str__(self):
-        return f"Сделка между {self.owner} и {self.customer}"
+        return f"Сделка между {self.new_owner} и {self.old_owner}"
 
     class Meta:
+        unique_together = ('old_owner', 'new_owner', 'thing', 'status_log')
         verbose_name = "Сделка"
         verbose_name = "Сделки"

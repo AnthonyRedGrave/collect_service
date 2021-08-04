@@ -152,6 +152,7 @@ class TestThingViewSetActionsBuy:
             old_owner=thing.owner,
             new_owner=request_user,
             status_log=[status_log],
+            cost=thing.price
         )
         api_client.force_authenticate(user=request_user)
         url = reverse("thing-buy-confirm", kwargs={"pk": thing.id})
@@ -217,4 +218,13 @@ class TestThingViewSetActionsBuy:
         assert list_of_status == ['accepted', 'confirmed', 'completed']
 
 
-    # error нельзя создать две deals с одними и теми же данными
+    def test_two_buy_accepted_actions__success(self, api_client):
+        thing = ThingFactory()
+        request_user = UserFactory()
+        api_client.force_authenticate(user=request_user)
+        url = reverse("thing-buy-accept", kwargs={"pk": thing.id})
+        api_client.post(url)
+        response = api_client.post(url)
+        assert response.status_code == 200
+
+
