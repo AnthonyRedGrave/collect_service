@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from comments.models import Comment
 from core.mixins import SoftDeleteMixin
+from core.models import BaseModel
 
 
 class Section(SoftDeleteMixin, models.Model):
@@ -83,27 +84,27 @@ class ThingMessage(SoftDeleteMixin, models.Model):
         verbose_name_plural = "Собщения"
 
 
-class Transaction(models.Model):
+class Deal(BaseModel, models.Model):
 
-    STATUS_TYPES = [
-        ("Accepted", "Принят"),
-        ("Confirmed", "Подтвержден"),
-        ("Completed", "Выполнен"),
-    ]
+    class StatusChoices(models.TextChoices):
+        accepted = "accepted", "Принят"
+        confirmed = "confirmed", "Подтвержден"
+        completed = "completed", "Выполнен"
 
-    owner = models.ForeignKey(
+
+    old_owner = models.ForeignKey(
         User,
         verbose_name="Владелец вещи",
         on_delete=models.CASCADE,
         blank=False,
-        related_name="own_thing_transcation",
+        related_name="old_owner_thing_deal",
     )
-    customer = models.ForeignKey(
+    new_owner = models.ForeignKey(
         User,
         verbose_name="Покупатель",
         on_delete=models.CASCADE,
         blank=False,
-        related_name="buy_thing_transcation",
+        related_name="new_owner_thing_deal",
     )
     thing = models.ForeignKey(
         Thing,
@@ -112,12 +113,11 @@ class Transaction(models.Model):
         verbose_name="Вещь, для которой пишется сообщение",
         blank=False,
     )
-    status = models.CharField(verbose_name="Статус заказа", choices=STATUS_TYPES, max_length=15)
-    date_deal = models.DateTimeField(auto_now=True, verbose_name="Дата и время сделки")
+    status = models.CharField(verbose_name="Статус заказа", choices=StatusChoices.choices, max_length=15)
     cost = models.DecimalField(
         verbose_name="Цена сделки", max_digits=6, decimal_places=2, null=True
     )
-    status_log = models.JSONField()
+    status_log = models.JSONField(default = list)
 
 
     def __str__(self):

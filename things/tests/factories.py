@@ -1,7 +1,6 @@
 from tags.tests.factories import TagFactory
 import factory
-from factory import faker
-from ..models import Thing, ThingMessage, Section, Transaction
+from ..models import Thing, ThingMessage, Section, Deal
 from django.contrib.auth.models import User
 import random
 
@@ -68,11 +67,11 @@ class ThingMessageFactory(factory.django.DjangoModelFactory):
     thing = factory.SubFactory(ThingFactory)
 
 
-class TransactionFactory(factory.django.DjangoModelFactory):
+class DealFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = Transaction
+        model = Deal
 
-    owner = factory.SubFactory(UserFactory)
-    customer = factory.SubFactory(UserFactory)
+    old_owner = factory.SubFactory(UserFactory)
+    new_owner = factory.SubFactory(UserFactory)
     thing = factory.SubFactory(ThingFactory)
-    status = "Accepted"
+    status = "accepted"

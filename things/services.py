@@ -1,8 +1,10 @@
 import csv
 
-from .models import Thing
+from .models import Thing, Deal
 from comments.models import Comment
 from .serializers import CreateThingSerializer
+from datetime import datetime
+
 
 READ_ONLY = "r"
 
@@ -11,6 +13,61 @@ WRITE_ONLY = "w"
 DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
+
+
+def buy_accepted(thing_to_buy, new_owner):
+    status_log = {
+        "status": "accepted",
+        "date": f"{datetime.now()}",
+        "old_owner": thing_to_buy.owner.username,
+        "new_owner": new_owner.username,
+    }
+    deal = Deal(
+        old_owner=thing_to_buy.owner,
+        new_owner=new_owner,
+        status="accepted",
+        thing=thing_to_buy,
+    )
+    deal.status_log.append(status_log)
+    deal.save()
+    return status_log
+
+
+def buy_confirmed(thing_to_buy, new_owner):
+    deal = Deal.objects.get(
+        thing=thing_to_buy, old_owner=thing_to_buy.owner, new_owner=new_owner
+    )
+    status_log = {
+        "status": "confirmed",
+        "date": f"{datetime.now()}",
+        "old_owner": deal.old_owner.username,
+        "new_owner": deal.new_owner.username,
+        "cost": f"{thing_to_buy.price}",
+    }
+    deal.status_log.append(status_log)
+    deal.status = "confirmed"
+    deal.cost = thing_to_buy.price
+    deal.save()
+    return status_log
+
+
+def buy_completed(thing_to_buy, new_owner):
+    deal = Deal.objects.get(
+            thing=thing_to_buy, old_owner=thing_to_buy.owner, new_owner=new_owner
+        )
+    status_log = {
+            "status": "completed",
+            "date": f"{datetime.now()}",
+            "new_owner": deal.new_owner.username,
+            "old_owner": deal.old_owner.username,
+            "cost": f"{thing_to_buy.price}",
+        }
+    thing_to_buy.owner = new_owner
+    thing_to_buy.save()
+    deal.status = "completed"
+    deal.status_log.append(status_log)
+    deal.save()
+    return status_log
 
 
 def thing_row_validate(data_row):
@@ -24,8 +81,8 @@ def thing_save(validated_thing_row, row):
     thing = Thing.objects.create(**validated_thing_row)
     thing.tags.set(tags)
 
-    if row['comments']:
-        comment_titles = row['comments'].split(",")
+    if row["comments"]:
+        comment_titles = row["comments"].split(",")
         for comment_title in comment_titles:
             Comment.objects.create(
                 content=comment_title,
@@ -33,7 +90,6 @@ def thing_save(validated_thing_row, row):
                 content_object=thing,
             )
 
-    
     thing.save()
     return thing
 
@@ -41,8 +97,18 @@ def thing_save(validated_thing_row, row):
 def csv_import(filename):
     try:
         with open(f"{CSV_FOLDER}{filename}", READ_ONLY, encoding="utf-8") as f:
-            fieldnames = ["title", "content", "state", "owner", "section", "tags", "comments"]
-            reader = csv.DictReader(f, fieldnames=fieldnames, delimiter=DELIMETER_SEMICOLON)
+            fieldnames = [
+                "title",
+                "content",
+                "state",
+                "owner",
+                "section",
+                "tags",
+                "comments",
+            ]
+            reader = csv.DictReader(
+                f, fieldnames=fieldnames, delimiter=DELIMETER_SEMICOLON
+            )
             for row in reader:
                 thing = thing_row_validate(row)
                 thing_save(thing, row)
