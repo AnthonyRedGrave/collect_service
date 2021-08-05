@@ -5,6 +5,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from comments.models import Comment
 from core.mixins import SoftDeleteMixin
 from core.models import BaseModel
+from datetime import datetime
 
 
 class Section(SoftDeleteMixin, models.Model):
@@ -49,7 +50,6 @@ class Thing(SoftDeleteMixin, models.Model):
     )
     comments = GenericRelation(Comment)
     tags = models.ManyToManyField(Tag, verbose_name="Тэги к вещи")
-    price = models.DecimalField(verbose_name="Цена вещи", default=0, decimal_places=2, max_digits=6)
 
     def get_comments(self):
         return self.comments.all()
@@ -85,12 +85,10 @@ class ThingMessage(SoftDeleteMixin, models.Model):
 
 
 class Deal(BaseModel, models.Model):
-
     class StatusChoices(models.TextChoices):
         accepted = "accepted", "Принят"
         confirmed = "confirmed", "Подтвержден"
         completed = "completed", "Выполнен"
-
 
     old_owner = models.ForeignKey(
         User,
@@ -113,17 +111,27 @@ class Deal(BaseModel, models.Model):
         verbose_name="Вещь, для которой пишется сообщение",
         blank=False,
     )
-    status = models.CharField(verbose_name="Статус заказа", choices=StatusChoices.choices, max_length=15)
+    status = models.CharField(
+        verbose_name="Статус заказа", choices=StatusChoices.choices, max_length=15
+    )
     cost = models.DecimalField(
         verbose_name="Цена сделки", max_digits=6, decimal_places=2, null=True
     )
-    status_log = models.JSONField(default = list)
+    status_log = models.JSONField(default=list)
 
+    def update_status_log(self):
+        status_log = {
+            "status": self.status,
+            "date": f"{datetime.now()}",
+            "old_owner": self.old_owner.username,
+            "new_owner": self.new_owner.username,
+            "cost": f"{self.cost}",
+        }
+        self.status_log.append(status_log)
 
     def __str__(self):
         return f"Сделка между {self.new_owner} и {self.old_owner}"
 
     class Meta:
-        unique_together = ('old_owner', 'new_owner', 'thing')
         verbose_name = "Сделка"
-        verbose_name = "Сделки"
+        verbose_name_plural = "Сделки"

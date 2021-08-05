@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from .models import Thing, ThingMessage, Section
+from .models import Thing, ThingMessage, Section, Deal
 from comments.serializers import CommentSerializer
 from tags.serializers import TagSerializer
 from tags.models import Tag
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 
 class ThingMessageSerializer(serializers.ModelSerializer):
@@ -78,3 +79,35 @@ class CreateThingSerializer(serializers.Serializer):
 class DateSerializer(serializers.Serializer):
     date_published__gte = serializers.DateField(required=False, source="date")
     owner_id = serializers.IntegerField(required=False, source="owner")
+
+
+class DealModelSerializer(serializers.ModelSerializer):
+    old_owner_name = serializers.StringRelatedField(many=False, source="old_owner")
+    new_owner_name = serializers.StringRelatedField(many=False, source="new_owner")
+
+    class Meta:
+        model = Deal
+        fields = (
+            "id",
+            "status",
+            "created_at",
+            "old_owner",
+            "old_owner_name",
+            "new_owner",
+            "new_owner_name",
+            "cost",
+        )
+
+
+class DealSerializer(serializers.Serializer):
+    cost = serializers.DecimalField(max_digits=6, decimal_places=2)
+    thing = serializers.CharField()
+
+    def validate_thing(self, value):
+        thing = get_object_or_404(Thing, id=value)
+        return thing
+
+
+class UpdateDealSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=["confirmed", "completed"])
+    cost = serializers.DecimalField(max_digits=6, decimal_places=2)

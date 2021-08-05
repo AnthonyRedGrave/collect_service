@@ -3,7 +3,6 @@ import csv
 from .models import Thing, Deal
 from comments.models import Comment
 from .serializers import CreateThingSerializer
-from datetime import datetime
 
 
 READ_ONLY = "r"
@@ -21,51 +20,37 @@ CONFIRMED = Deal.StatusChoices.confirmed.value
 COMPLETED = Deal.StatusChoices.completed.value
 
 
-def _change_or_create_deal(deal_data):
-    status_log = deal_data.pop("status_log", None)
-    deal, created = Deal.objects.get_or_create(**deal_data)
-    deal.status_log.append(status_log)
+def create_deal(new_owner, cost, thing):
+    if thing.deals.exclude(status = "completed").exists():
+        raise Exception("Нельзя создать две действующих сделки!")
+    
+    if thing.owner == new_owner:
+        raise Exception("Вы не можете совершить сделку с самим собой!")
+
+    deal = thing.deals.create(
+        old_owner=thing.owner,
+        new_owner=new_owner,
+        status=Deal.StatusChoices.accepted.value,
+        cost=cost,
+    )
+    deal.update_status_log()
     deal.save()
-    if status_log['status'] == COMPLETED:
-        deal.thing.owner = deal_data['new_owner']
-        deal.thing.save()
-    return status_log
+    return deal
 
 
-def _get_deal_data(thing_to_buy, new_owner, status):
-    status_log = {
-        "status": status,
-        "date": f"{datetime.now()}",
-        "old_owner": thing_to_buy.owner.username,
-        "new_owner": new_owner.username,
-        "cost": f"{thing_to_buy.price}",
-    }
-    deal_data = {
-        "old_owner": thing_to_buy.owner,
-        "new_owner": new_owner,
-        "thing": thing_to_buy,
-        "status_log": status_log,
-        "cost": f"{thing_to_buy.price}",
-    }
-    return deal_data
+def update_thing_owner(thing, new_owner):
+    thing.owner = new_owner
+    thing.save()
 
 
-def buy(thing_to_buy, new_owner, status):
-    deal_data = _get_deal_data(thing_to_buy, new_owner, status)
-    status_log = _change_or_create_deal(deal_data)
-    return status_log
-
-
-# def buy_confirmed(thing_to_buy, new_owner):
-#     deal_data = _get_deal_data(thing_to_buy, new_owner, CONFIRMED)
-#     status_log = _change_or_create_deal(deal_data)
-#     return status_log
-
-
-# def buy_completed(thing_to_buy, new_owner):
-#     deal_data = _get_deal_data(thing_to_buy, new_owner, COMPLETED)
-#     status_log = _change_or_create_deal(deal_data)
-#     return status_log
+def update_deal(deal, status, cost):
+    if status == Deal.StatusChoices.completed.value:
+        update_thing_owner(deal.thing, deal.new_owner)
+    deal.cost = cost
+    deal.status = status
+    deal.update_status_log()
+    deal.save()
+    return deal
 
 
 def thing_row_validate(data_row):

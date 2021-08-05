@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Thing, ThingMessage, Section
+from .models import Thing, ThingMessage, Section, Deal
 from .services import csv_export
 
 
@@ -39,3 +39,6 @@ class ThingMessageAdmin(admin.ModelAdmin):
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
     list_display = ("title", "deleted")
+
+
+admin.site.register(Deal)
