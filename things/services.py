@@ -44,6 +44,8 @@ def update_thing_owner(thing, new_owner):
 
 
 def update_deal(deal, status, cost):
+    if deal.status == Deal.StatusChoices.completed.value:
+        raise Exception("Нельзя изменить совершенную сделку!")
     if status == Deal.StatusChoices.completed.value:
         update_thing_owner(deal.thing, deal.new_owner)
     deal.cost = cost
