@@ -1,5 +1,25 @@
 from django.contrib import admin
-from .models import Thing, ThingMessage, Section
+
+from .models import Thing, ThingMessage, Section, Deal
+from .services.csv import csv_export
+
+from django.contrib.contenttypes.admin import GenericTabularInline
+from comments.models import Comment
+
+
+class CommentInline(GenericTabularInline):
+    model = Comment
+
+
+
+@admin.action(description="CSV-Export")
+def csv_export(modeladmin, request, queryset):
+    return csv_export()
+
+
+class TagInline(admin.TabularInline):
+    model = Thing.tags.through
+    extra = 3
 
 
 @admin.register(Thing)
@@ -15,6 +35,8 @@ class ThingAdmin(admin.ModelAdmin):
         "deleted",
     )
     list_display_links = ("title", "content", "owner", "state")
+    inlines = (TagInline, CommentInline)
+    exclude = ('tags',)
 
 
 @admin.register(ThingMessage)
@@ -26,3 +48,6 @@ class ThingMessageAdmin(admin.ModelAdmin):
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
     list_display = ("title", "deleted")
+
+
+admin.site.register(Deal)
