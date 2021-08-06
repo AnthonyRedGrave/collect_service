@@ -1,11 +1,10 @@
-from rest_framework import status
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section, Deal
 from .serializers import (
-    DealSerializer,
+    CreateDealSerializer,
     SectionSerializer,
     ThingSerializer,
     ThingMessageSerializer,
@@ -17,7 +16,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
 from django.db.models import Count
-from .services import csv_export, create_deal, update_deal
+from things.services.deal import create_deal
+from things.services.csv import csv_export
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -115,26 +115,28 @@ class SectionViewSet(ReadOnlyModelViewSet):
         pass
 
 
-class DealViewSet(ModelViewSet):
+class DealViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyModelViewSet):
     queryset = Deal.objects.all()
     serializer_class = DealModelSerializer
-    create_serializer = DealSerializer
-    update_serializer = UpdateDealSerializer
 
     def get_queryset(self):
         return super().get_queryset().filter(thing__owner=self.request.user)
 
-    def create(self, request):
-        serializer = self.create_serializer(data=request.POST)
-        serializer.is_valid(raise_exception=True)
-        deal = create_deal(request.user, **serializer.validated_data)
-        serializer = DealModelSerializer(deal)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateDealSerializer
+        elif self.action == "partial_update":
+            return UpdateDealSerializer
+        return super().get_serializer_class()
+    
+    def perform_create(self, serializer):
+        create_deal(self.request.user, **serializer.validated_data)
 
-    def update(self, request, *args, **kwargs):
-        deal = self.get_object()
-        serializer = UpdateDealSerializer(data=request.POST)
-        serializer.is_valid(raise_exception=True)
-        deal = update_deal(deal, **serializer.validated_data)
-        serializer = DealModelSerializer(deal)
-        return Response(serializer.data)
+
+    # def update(self, request, *args, **kwargs):
+    #     deal = self.get_object()
+    #     serializer = UpdateDealSerializer(data=request.POST)
+    #     serializer.is_valid(raise_exception=True)
+    #     deal = update_deal(deal, **serializer.validated_data)
+    #     serializer = DealModelSerializer(deal)
+    #     return Response(serializer.data)

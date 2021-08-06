@@ -1,8 +1,10 @@
 import csv
 
-from .models import Thing, Deal
+
+
+from things.models import Thing
 from comments.models import Comment
-from .serializers import CreateThingSerializer
+from things.serializers import CreateThingSerializer
 
 
 READ_ONLY = "r"
@@ -13,46 +15,6 @@ DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
 
-ACCEPTED = Deal.StatusChoices.accepted.value
-
-CONFIRMED = Deal.StatusChoices.confirmed.value
-
-COMPLETED = Deal.StatusChoices.completed.value
-
-
-def create_deal(new_owner, cost, thing):
-    if thing.deals.exclude(status = "completed").exists():
-        raise Exception("Нельзя создать две действующих сделки!")
-    
-    if thing.owner == new_owner:
-        raise Exception("Вы не можете совершить сделку с самим собой!")
-
-    deal = thing.deals.create(
-        old_owner=thing.owner,
-        new_owner=new_owner,
-        status=Deal.StatusChoices.accepted.value,
-        cost=cost,
-    )
-    deal.update_status_log()
-    deal.save()
-    return deal
-
-
-def update_thing_owner(thing, new_owner):
-    thing.owner = new_owner
-    thing.save()
-
-
-def update_deal(deal, status, cost):
-    if deal.status == Deal.StatusChoices.completed.value:
-        raise Exception("Нельзя изменить совершенную сделку!")
-    if status == Deal.StatusChoices.completed.value:
-        update_thing_owner(deal.thing, deal.new_owner)
-    deal.cost = cost
-    deal.status = status
-    deal.update_status_log()
-    deal.save()
-    return deal
 
 
 def thing_row_validate(data_row):

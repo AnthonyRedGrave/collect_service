@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Thing, ThingMessage, Section, Deal
-from .services import csv_export
+from .services.csv import csv_export
 
 
 @admin.action(description="CSV-Export")
