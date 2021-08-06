@@ -4,9 +4,8 @@ from things.tests.factories import ThingFactory
 from things.tests.factories import ThingFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
-from freezegun import freeze_time
-from django.core.exceptions import ValidationError
-
+from unittest.mock import patch
+import os.path
 
 @pytest.mark.django_db(True)
 class TestThingViewSet:
@@ -119,3 +118,22 @@ class TestThingViewSetActionMost:
         response = api_client_with_credentials.get(url)
         assert len(response.json()) == 10
         assert response.status_code == 200
+
+
+class TestThingViewSetActionCSVExport:
+    
+    @patch("things.services.CSV_FOLDER", "media/tests/csv_export/")
+    def test_have_csv_file__success(self, api_client_with_credentials):
+        ThingFactory.create_batch(5, tags="random")
+        test_filename = "test_endpoint_export.csv"
+        url = f"{reverse('thing-csv-export')}?filename={test_filename}"
+        response = api_client_with_credentials.get(url)
+        assert response.status_code == 200
+        assert os.path.exists(f"media/tests/csv_export/{test_filename}")
+    
+
+    def test_export_unauthorizated__error(self, api_client):
+        ThingFactory.create_batch(1, tags="random")
+        url = reverse('thing-csv-export')
+        response = api_client.get(url)
+        assert response.status_code == 401
