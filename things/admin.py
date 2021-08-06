@@ -1,6 +1,13 @@
 from django.contrib import admin
 from .models import Thing, ThingMessage, Section
 from .services import csv_export
+from django.contrib.contenttypes.admin import GenericTabularInline
+from comments.models import Comment
+
+
+class CommentInline(GenericTabularInline):
+    model = Comment
+
 
 
 @admin.action(description="CSV-Export")
@@ -26,7 +33,7 @@ class ThingAdmin(admin.ModelAdmin):
         "deleted",
     )
     list_display_links = ("title", "content", "owner", "state")
-    inlines = (TagInline,)
+    inlines = (TagInline, CommentInline)
     exclude = ('tags',)
 
 
