@@ -1,8 +1,11 @@
 import csv
 
-from .models import Thing
+
+
+from things.models import Thing
 from comments.models import Comment
-from .serializers import CreateThingSerializer
+from things.serializers import CreateThingSerializer
+
 
 READ_ONLY = "r"
 
@@ -11,6 +14,7 @@ WRITE_ONLY = "w"
 DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
+
 
 
 def thing_row_validate(data_row):
@@ -24,8 +28,8 @@ def thing_save(validated_thing_row, row):
     thing = Thing.objects.create(**validated_thing_row)
     thing.tags.set(tags)
 
-    if row['comments']:
-        comment_titles = row['comments'].split(",")
+    if row["comments"]:
+        comment_titles = row["comments"].split(",")
         for comment_title in comment_titles:
             Comment.objects.create(
                 content=comment_title,
@@ -33,7 +37,6 @@ def thing_save(validated_thing_row, row):
                 content_object=thing,
             )
 
-    
     thing.save()
     return thing
 
@@ -41,8 +44,18 @@ def thing_save(validated_thing_row, row):
 def csv_import(filename):
     try:
         with open(f"{CSV_FOLDER}{filename}", READ_ONLY, encoding="utf-8") as f:
-            fieldnames = ["title", "content", "state", "owner", "section", "tags", "comments"]
-            reader = csv.DictReader(f, fieldnames=fieldnames, delimiter=DELIMETER_SEMICOLON)
+            fieldnames = [
+                "title",
+                "content",
+                "state",
+                "owner",
+                "section",
+                "tags",
+                "comments",
+            ]
+            reader = csv.DictReader(
+                f, fieldnames=fieldnames, delimiter=DELIMETER_SEMICOLON
+            )
             for row in reader:
                 thing = thing_row_validate(row)
                 thing_save(thing, row)

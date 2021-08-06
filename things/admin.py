@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Thing, ThingMessage, Section
-from .services import csv_export
+
+from .models import Thing, ThingMessage, Section, Deal
+from .services.csv import csv_export
+
 from django.contrib.contenttypes.admin import GenericTabularInline
 from comments.models import Comment
 
@@ -46,3 +48,6 @@ class ThingMessageAdmin(admin.ModelAdmin):
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
     list_display = ("title", "deleted")
+
+
+admin.site.register(Deal)

@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from comments.models import Comment
 from core.mixins import SoftDeleteMixin
+from core.models import BaseModel
+from datetime import datetime
 
 
 class Section(SoftDeleteMixin, models.Model):
@@ -80,3 +82,56 @@ class ThingMessage(SoftDeleteMixin, models.Model):
     class Meta:
         verbose_name = "Сообщение"
         verbose_name_plural = "Собщения"
+
+
+class Deal(BaseModel, models.Model):
+    class StatusChoices(models.TextChoices):
+        accepted = "accepted", "Принят"
+        confirmed = "confirmed", "Подтвержден"
+        completed = "completed", "Выполнен"
+
+    old_owner = models.ForeignKey(
+        User,
+        verbose_name="Владелец вещи",
+        on_delete=models.CASCADE,
+        blank=False,
+        related_name="old_owner_thing_deals",
+    )
+    new_owner = models.ForeignKey(
+        User,
+        verbose_name="Покупатель",
+        on_delete=models.CASCADE,
+        blank=False,
+        related_name="new_owner_thing_deals",
+    )
+    thing = models.ForeignKey(
+        Thing,
+        on_delete=models.CASCADE,
+        related_name="deals",
+        verbose_name="Вещь, для которой пишется сообщение",
+        blank=False,
+    )
+    status = models.CharField(
+        verbose_name="Статус заказа", choices=StatusChoices.choices, max_length=15
+    )
+    cost = models.DecimalField(
+        verbose_name="Цена сделки", max_digits=6, decimal_places=2, null=True
+    )
+    status_log = models.JSONField(default=list)
+
+    def update_status_log(self):
+        status_log = {
+            "status": self.status,
+            "date": f"{datetime.now()}",
+            "old_owner": self.old_owner.username,
+            "new_owner": self.new_owner.username,
+            "cost": f"{self.cost}",
+        }
+        self.status_log.append(status_log)
+
+    def __str__(self):
+        return f"Сделка между {self.new_owner} и {self.old_owner}"
+
+    class Meta:
+        verbose_name = "Сделка"
+        verbose_name_plural = "Сделки"

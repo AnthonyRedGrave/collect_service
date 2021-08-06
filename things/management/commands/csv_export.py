@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from things.services import csv_export
+from things.services.csv import csv_export
 
 
 class Command(BaseCommand):
