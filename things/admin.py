@@ -32,14 +32,9 @@ class ThingAdmin(admin.ModelAdmin):
         "date_published",
         "deleted",
     )
-<<<<<<< HEAD
-    list_display_links = ('title', 'content', 'owner', 'state')
-    inlines = [CommentInline,]
-=======
     list_display_links = ("title", "content", "owner", "state")
-    inlines = (TagInline,)
+    inlines = (TagInline, CommentInline)
     exclude = ('tags',)
->>>>>>> 570403f6c22b017b24e91ff93812ba3d54c284f3
 
 
 @admin.register(ThingMessage)
