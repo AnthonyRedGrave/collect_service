@@ -1,6 +1,6 @@
 from things.models import Thing
 import pytest
-from things.services import csv_import
+from things.services.csv import csv_import
 from unittest.mock import patch
 import csv
 from django.contrib.auth.models import User
@@ -12,7 +12,7 @@ from rest_framework.validators import ValidationError
 pytestmark = pytest.mark.django_db
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_import/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_import/")
 def test_import_fields_without_m2m__success():
     count_before = Thing.objects.count()
     UserFactory(username="admin")
@@ -49,7 +49,7 @@ def test_import_fields_without_m2m__success():
         assert count_before + 3 == count_after
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_import/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_import/")
 def test_import_fields_tags__success():
     UserFactory(username="admin")
     SectionFactory(title="Монетки")
@@ -74,7 +74,7 @@ def test_import_fields_tags__success():
             assert list(things_from_db[i].tags.values_list("title", flat=True)) == row_tags
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_import/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_import/")
 def test_import_fields_tags__error():
     UserFactory(username="admin")
     SectionFactory(title="Монетки")
@@ -100,7 +100,7 @@ def test_import_fields_tags__error():
         assert row_tags not in tags
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_import/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_import/")
 def test_import_fields_user__error():
     UserFactory(username="admin")
     SectionFactory(title="Монетки")

@@ -34,7 +34,6 @@ class ThingFactory(factory.django.DjangoModelFactory):
     section = factory.SubFactory(SectionFactory)
     is_sold = False
     image = factory.Faker("image_url")
-    price = 100.99
 
     @factory.post_generation
     def comments(self, create, extracted, **kwargs):
@@ -75,3 +74,4 @@ class DealFactory(factory.django.DjangoModelFactory):
     new_owner = factory.SubFactory(UserFactory)
     thing = factory.SubFactory(ThingFactory)
     status = "accepted"
+    cost = 100

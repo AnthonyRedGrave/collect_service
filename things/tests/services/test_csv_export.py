@@ -1,6 +1,6 @@
 from things.models import Thing
 import pytest
-from things.services import csv_export
+from things.services.csv import csv_export
 from unittest.mock import patch
 import csv
 from things.tests.factories import ThingFactory
@@ -9,7 +9,7 @@ import datetime
 pytestmark = pytest.mark.django_db
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_export/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_export/")
 def test_export_len_keys__success():
     ThingFactory.create_batch(5)
     filename = "test_export_len_keys.csv"
@@ -33,7 +33,7 @@ def test_export_len_keys__success():
         # assert наполнения список = список
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_export/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_export/")
 def test_export_check_row_number__success():
     ThingFactory.create_batch(5)
     filename = "test_export_row_number.csv"
@@ -45,7 +45,7 @@ def test_export_check_row_number__success():
         assert result_row_numbers == expected_row_numbers
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_export/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_export/")
 def test_export_check_fields_title_content_state_section_thing_values__success():
     ThingFactory.create_batch(5)
     things = list(Thing.objects.all())
@@ -63,7 +63,7 @@ def test_export_check_fields_title_content_state_section_thing_values__success()
             assert things[i].owner.username == row["owner"]
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_export/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_export/")
 def test_export_check_fields_comments__success():
     ThingFactory.create_batch(5, comments=3)
     things = list(Thing.objects.all())
@@ -77,7 +77,7 @@ def test_export_check_fields_comments__success():
             assert row_comments == thing_comments
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_export/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_export/")
 def test_export_check_fields_tags__success():
     ThingFactory.create_batch(5, tags=5)
     things = list(Thing.objects.all())
@@ -91,7 +91,7 @@ def test_export_check_fields_tags__success():
             assert row_tags == thing_tags
 
 
-@patch("things.services.CSV_FOLDER", "media/tests/csv_export/")
+@patch("things.services.csv.CSV_FOLDER", "media/tests/csv_export/")
 def test_export_check_double__success():
     ThingFactory.create_batch(5)
     filename = "test_export_double.csv"
