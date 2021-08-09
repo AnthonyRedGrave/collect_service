@@ -24,7 +24,7 @@ environ.Env.read_env(env_file)
 
 SECRET_KEY = 'django-insecure-o(25x55u!v==$rl&a-!q9qkjnt)8#9=r&s(^8+3lsa&mu@ao=%'
 
-DEBUG = env('DEBUG')
+DEBUG = os.environ.get("DEBUG", "")
 
 ALLOWED_HOSTS = ['*']
 
@@ -119,9 +119,9 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.mail.ru'
-EMAIL_HOST_USER = 'obarnev@inbox.ru'
-EMAIL_HOST_PASSWORD = 'Yuliamylove12341'
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'obarnev@inbox.ru'
 
