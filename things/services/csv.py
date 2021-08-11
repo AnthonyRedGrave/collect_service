@@ -1,5 +1,6 @@
 import csv
 
+from django.http.response import HttpResponse
 
 
 from things.models import Thing
@@ -14,7 +15,6 @@ WRITE_ONLY = "w"
 DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
-
 
 
 def thing_row_validate(data_row):
@@ -103,6 +103,16 @@ def _get_thing_field_values(thing, fields):
     return field_values
 
 
+def writer(file, things, thing_fields):
+    fields = ["#"] + thing_fields
+    writer = csv.DictWriter(file, delimiter=DELIMETER_SEMICOLON, fieldnames=fields)
+    writer.writeheader()
+    for i, thing in enumerate(things):
+        field_values_dict = {"#": i}
+        field_values_dict.update(_get_thing_field_values(thing, thing_fields))
+        writer.writerow(field_values_dict)
+    return file
+
 def csv_export(filename):
     things = Thing.objects.all()
     thing_fields = [
@@ -117,12 +127,8 @@ def csv_export(filename):
         "tags",
         "comments",
     ]
-
-    with open(f"{CSV_FOLDER}{filename}", WRITE_ONLY, encoding="utf-8") as f:
-        fields = ["#"] + thing_fields
-        writer = csv.DictWriter(f, delimiter=DELIMETER_SEMICOLON, fieldnames=fields)
-        writer.writeheader()
-        for i, thing in enumerate(things):
-            field_values_dict = {"#": i}
-            field_values_dict.update(_get_thing_field_values(thing, thing_fields))
-            writer.writerow(field_values_dict)
+    if isinstance(filename, HttpResponse):
+        f = writer(filename, things, thing_fields)
+        return f
+    with open(f"{CSV_FOLDER}{filename}", WRITE_ONLY, encoding="utf-8") as file:
+        writer(file, things, thing_fields)
