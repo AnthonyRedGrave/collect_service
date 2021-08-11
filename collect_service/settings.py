@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'psycopg2',
     'django_extensions',
-    'core'
-
+    'core',
+    'paypal.standard.ipn',
 ]
+
+PAYPAL_TEST = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
