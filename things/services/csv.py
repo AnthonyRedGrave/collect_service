@@ -131,4 +131,5 @@ def csv_export(filename):
         f = writer(filename, things, thing_fields)
         return f
     with open(f"{CSV_FOLDER}{filename}", WRITE_ONLY, encoding="utf-8") as file:
-        writer(file, things, thing_fields)
+        file = writer(file, things, thing_fields)
+        return file
