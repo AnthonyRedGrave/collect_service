@@ -99,8 +99,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    # 'social_core.backends.spotify.SpotifyOAuth2',
-    'backends.spotify.SpotifyCustomOAuth2',
+    'social_core.backends.spotify.SpotifyOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
