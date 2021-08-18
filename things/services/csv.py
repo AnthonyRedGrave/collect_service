@@ -17,6 +17,10 @@ DELIMETER_SEMICOLON = ";"
 CSV_FOLDER = "media/csv-things/"
 
 
+def _get_csv_path(filename):
+    return f'{CSV_FOLDER}{filename}'
+
+
 def thing_row_validate(data_row):
     serializer = CreateThingSerializer(data=data_row)
     serializer.is_valid(raise_exception=True)
@@ -43,7 +47,7 @@ def thing_save(validated_thing_row, row):
 
 def csv_import(filename):
     try:
-        with open(f"{CSV_FOLDER}{filename}", READ_ONLY, encoding="utf-8") as f:
+        with open(_get_csv_path(filename), READ_ONLY, encoding="utf-8") as f:
             fieldnames = [
                 "title",
                 "content",
@@ -107,8 +111,8 @@ def writer(file, things, thing_fields):
     fields = ["#"] + thing_fields
     writer = csv.DictWriter(file, delimiter=DELIMETER_SEMICOLON, fieldnames=fields)
     writer.writeheader()
-    for i, thing in enumerate(things):
-        field_values_dict = {"#": i}
+    for row_number, thing in enumerate(things):
+        field_values_dict = {"#": row_number}
         field_values_dict.update(_get_thing_field_values(thing, thing_fields))
         writer.writerow(field_values_dict)
     return file
@@ -127,9 +131,6 @@ def csv_export(filename):
         "tags",
         "comments",
     ]
-    if isinstance(filename, HttpResponse):
-        f = writer(filename, things, thing_fields)
-        return f
-    with open(f"{CSV_FOLDER}{filename}", WRITE_ONLY, encoding="utf-8") as file:
+    with open(_get_csv_path(filename), WRITE_ONLY, encoding="utf-8") as file:
         file = writer(file, things, thing_fields)
         return file
