@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.http import HttpResponse
+from django.http import FileResponse
 
 from .models import Thing, ThingMessage, Section, Deal
-from things.services.csv import csv_export
+from things.services.csv import csv_export, _get_csv_path
 
 from django.contrib.contenttypes.admin import GenericTabularInline
 from comments.models import Comment
@@ -15,10 +16,9 @@ class CommentInline(GenericTabularInline):
 
 @admin.action(description="CSV-Export")
 def csv_export_action(modeladmin, request, queryset):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="admin_export.csv"'
-    file = csv_export(response)
-    return file
+    filename = "admin_export.csv"
+    csv_export(filename)
+    return FileResponse(open(_get_csv_path(filename), 'rb'))
 
 
 class TagInline(admin.TabularInline):
