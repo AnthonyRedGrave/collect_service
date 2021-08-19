@@ -3,7 +3,7 @@ from things.models import Deal
 import logging
 
 
-logger = logging.getLogger("things.services")
+logger = logging.getLogger(__name__)
 
 
 def create_deal(new_owner, cost, thing):

@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from things.services.csv import csv_import
 import logging
 
-logger = logging.getLogger('things.management.commands')
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'CSV-import for thing objects'

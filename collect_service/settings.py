@@ -179,23 +179,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'things.services':{
-            'handlers': ['fileError', 'fileInfo'],
-            'level': 'INFO'
-        },
-        'things.serializers':{
-            'handlers': ['fileError', 'fileInfo'],
-            'level': 'INFO'
-        },
-        'things.admin':{
-            'handlers': ['fileError', 'fileInfo'],
-            'level': 'INFO'
-        },
-        'things.management.commands':{
-            'handlers': ['fileError', 'fileInfo'],
-            'level': 'INFO'
-        },
-        'things.views':{
+        '':{
             'handlers': ['fileError', 'fileInfo'],
             'level': 'INFO'
         }

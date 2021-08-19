@@ -15,7 +15,7 @@ DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
 
-logger = logging.getLogger("things.services")
+logger = logging.getLogger(__name__)
 
 
 def _get_csv_path(filename):
