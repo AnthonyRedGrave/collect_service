@@ -1,5 +1,8 @@
 from django.core.management.base import BaseCommand
 from things.services.csv import csv_export
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -10,4 +13,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         filename = kwargs['f']
+        logger.info("Экспорт записей как management комманда в файл", {'filename': filename})
         csv_export(filename)

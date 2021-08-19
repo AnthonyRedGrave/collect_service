@@ -147,6 +147,46 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=15),
 }
 
+# Logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'info_filter': {
+            '()': 'log_filters.InformationFilter',
+        }
+    },
+    'formatters':{
+        'verbose': {
+            'format': '{levelname} {asctime} {pathname} {lineno} {message} {args}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'fileInfo':{
+            'level': 'INFO', 
+            'class': 'logging.FileHandler',
+            'filename': 'logs/things/info.log',
+            'filters': ['info_filter'],
+            'formatter': 'verbose',
+        },
+        'fileError': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/things/error.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        '':{
+            'handlers': ['fileError', 'fileInfo'],
+            'level': 'INFO'
+        }
+    },
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 

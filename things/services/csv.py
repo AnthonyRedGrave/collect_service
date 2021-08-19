@@ -1,8 +1,7 @@
 import csv
 
-from django.http.response import HttpResponse
 
-
+import logging
 from things.models import Thing
 from comments.models import Comment
 from things.serializers import CreateThingSerializer
@@ -16,18 +15,23 @@ DELIMETER_SEMICOLON = ";"
 
 CSV_FOLDER = "media/csv-things/"
 
+logger = logging.getLogger(__name__)
+
 
 def _get_csv_path(filename):
-    return f'{CSV_FOLDER}{filename}'
+    return f"{CSV_FOLDER}{filename}"
 
 
 def thing_row_validate(data_row):
+    logger.info("Валидация полей вещи из csv файла", {'row': data_row})
     serializer = CreateThingSerializer(data=data_row)
     serializer.is_valid(raise_exception=True)
+    logger.info("Поля из csv файла провалидированы")
     return serializer.validated_data
 
 
 def thing_save(validated_thing_row, row):
+    logger.info("Создание вещи из поля csv файла")
     tags = validated_thing_row.pop("tags")
     thing = Thing.objects.create(**validated_thing_row)
     thing.tags.set(tags)
@@ -42,12 +46,14 @@ def thing_save(validated_thing_row, row):
             )
 
     thing.save()
+    logger.info("Сохранение вещи из csv файла")
     return thing
 
 
 def csv_import(filename):
     try:
         with open(_get_csv_path(filename), READ_ONLY, encoding="utf-8") as f:
+            logger.info("Открытие файла", {'filename': filename})
             fieldnames = [
                 "title",
                 "content",
@@ -63,7 +69,9 @@ def csv_import(filename):
             for row in reader:
                 thing = thing_row_validate(row)
                 thing_save(thing, row)
+            logger.info("Закрытие файла", {'filename': filename})
     except FileNotFoundError as error:
+        logger.error('Файла не существует', {'filename': filename})
         print(error)
 
 
@@ -96,6 +104,7 @@ field_managers = {
 
 
 def _get_thing_field_values(thing, fields):
+    logger.info("Запись полей вещи в csv файл")
     field_values = {}
     for field in fields:
         value = getattr(thing, field)
@@ -108,6 +117,7 @@ def _get_thing_field_values(thing, fields):
 
 
 def writer(file, things, thing_fields):
+    logger.info("Запись вещей в файл")
     fields = ["#"] + thing_fields
     writer = csv.DictWriter(file, delimiter=DELIMETER_SEMICOLON, fieldnames=fields)
     writer.writeheader()
@@ -116,6 +126,7 @@ def writer(file, things, thing_fields):
         field_values_dict.update(_get_thing_field_values(thing, thing_fields))
         writer.writerow(field_values_dict)
     return file
+
 
 def csv_export(filename):
     things = Thing.objects.all()
@@ -132,5 +143,6 @@ def csv_export(filename):
         "comments",
     ]
     with open(_get_csv_path(filename), WRITE_ONLY, encoding="utf-8") as file:
+        logger.info(f"Создание файла для экспорта", {'filename': filename})
         file = writer(file, things, thing_fields)
         return file

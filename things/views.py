@@ -19,6 +19,9 @@ from django.db.models import Count
 from things.services.deal import create_deal
 from things.services.csv import csv_export
 from django.db.models import Q
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -27,6 +30,7 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        logger.info("ThingMessageViewSet GET get_queryset")
         queryset = self.queryset.filter(user=self.request.user)
         return queryset
 
@@ -48,10 +52,9 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     )
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
-    # http_method_names = ['get', 'post', 'head']
-    # things = Thing.objects.all().prefetch_related('tags').annotate(num_tags=Count('tags'))
 
     def get_queryset(self):
+        logger.info("ThingViewSet GET get_queryset")
         queryset = super().get_queryset()
         seriliazer = DateSerializer(data=self.request.query_params)
         seriliazer.is_valid(raise_exception=True)
@@ -62,11 +65,13 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"])
     def csv_export(self, request):
         filename = self.request.query_params.get("filename", "export.csv")
+        logger.info("ThingViewSet POST action csv_exrport Экспорт записей в csv файл", {'filename': filename})
         csv_export(filename)
         return Response("Успешно экспортировано")
 
     @action(detail=False, methods=["get"])
     def most(self, request):
+        logger.info("ThingViewSet POST action most Получение вещей с наибольшим кол-вом тегов")
         things = self.queryset.annotate(num_tags=Count("tags")).order_by("-num_tags")[
             :10
         ]
@@ -77,6 +82,7 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     def comment(self, request, pk=None):
         thing = self.get_object()
         if request.method == "POST":
+            logger.info("ThingViewSet POST action comment")
             data = {
                 "content": request.data["content"],
                 "user": request.user.id,
@@ -85,13 +91,16 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
             serializer = CommentSerializer(data=data)
 
             serializer.is_valid(raise_exception=True)
+            logger.info("ThingViewSet POST action comment Создание комментария для вещи")
             Comment.objects.create(**serializer.validated_data, content_object=thing)
             return Response({"Comment": "Created!"})
         else:
+            logger.info("ThingViewSet GET action comment Получение всех комментариев вещи")
             serializer = CommentSerializer(thing.get_comments(), many=True)
             return Response(serializer.data)
 
     def perform_create(self, serializer):
+        logger.info("ThingViewSet perform create Создание вещи")
         Thing.objects.create(**serializer.validated_data, owner=self.request.user)
 
     def destroy(self):
@@ -123,9 +132,11 @@ class DealViewSet(
     serializer_class = DealModelSerializer
 
     def get_queryset(self):
+        logger.info("DealViewSet GET get_queryset")
         return super().get_queryset().filter(Q(old_owner=self.request.user) | Q(new_owner=self.request.user))
 
     def get_serializer_class(self):
+        logger.info("DealViewSet get_serializer_class")
         if self.action == "create":
             return CreateDealSerializer
         elif self.action == "partial_update":
@@ -133,4 +144,5 @@ class DealViewSet(
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
+        logger.info("DealViewSet perform create")
         create_deal(self.request.user, **serializer.validated_data)
