@@ -4,7 +4,6 @@ from things.models import Deal
 from things.tests.factories import ThingFactory, DealFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
-from datetime import datetime
 
 
 @pytest.mark.django_db(True)
@@ -234,19 +233,6 @@ class TestDeal:
         assert response.status_code == 200
         assert result['status'] == data["status"]
         assert result['cost'] == data['cost']
-
-        # deal.refresh_from_db()
-        # list_of_status = [log["status"] for log in deal.status_log]
         assert statuses == ['accepted', 'confirmed', 'completed']
-
-
-    # def test_two_buy_accepted_actions__success(self, api_client):
-    #     thing = ThingFactory()
-    #     request_user = UserFactory()
-    #     api_client.force_authenticate(user=request_user)
-    #     url = reverse("thing-buy-accept", kwargs={"pk": thing.id})
-    #     api_client.post(url)
-    #     response = api_client.post(url)
-    #     assert response.status_code == 200
 
 
