@@ -18,6 +18,7 @@ from rest_framework import mixins
 from django.db.models import Count
 from things.services.deal import create_deal
 from things.services.csv import csv_export
+from django.db.models import Q
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -115,12 +116,14 @@ class SectionViewSet(ReadOnlyModelViewSet):
         pass
 
 
-class DealViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyModelViewSet):
+class DealViewSet(
+    mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyModelViewSet
+):
     queryset = Deal.objects.all()
     serializer_class = DealModelSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(thing__owner=self.request.user)
+        return super().get_queryset().filter(Q(old_owner=self.request.user) | Q(new_owner=self.request.user))
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -128,15 +131,6 @@ class DealViewSet(mixins.UpdateModelMixin, mixins.CreateModelMixin, ReadOnlyMode
         elif self.action == "partial_update":
             return UpdateDealSerializer
         return super().get_serializer_class()
-    
+
     def perform_create(self, serializer):
         create_deal(self.request.user, **serializer.validated_data)
-
-
-    # def update(self, request, *args, **kwargs):
-    #     deal = self.get_object()
-    #     serializer = UpdateDealSerializer(data=request.POST)
-    #     serializer.is_valid(raise_exception=True)
-    #     deal = update_deal(deal, **serializer.validated_data)
-    #     serializer = DealModelSerializer(deal)
-    #     return Response(serializer.data)

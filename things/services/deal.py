@@ -15,7 +15,6 @@ def create_deal(new_owner, cost, thing):
         status=Deal.StatusChoices.accepted.value,
         cost=cost,
     )
-    deal.update_status_log()
     deal.save()
     return deal
 
@@ -32,6 +31,5 @@ def update_deal(deal, status, cost):
         update_thing_owner(deal.thing, deal.new_owner)
     deal.cost = cost
     deal.status = status
-    deal.update_status_log()
     deal.save()
     return deal

@@ -24,7 +24,7 @@ environ.Env.read_env(env_file)
 
 SECRET_KEY = 'django-insecure-o(25x55u!v==$rl&a-!q9qkjnt)8#9=r&s(^8+3lsa&mu@ao=%'
 
-DEBUG = env('DEBUG')
+DEBUG = os.environ.get("DEBUG", "")
 
 ALLOWED_HOSTS = ['*']
 
@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,9 +43,12 @@ INSTALLED_APPS = [
     'comments',
     'tags',
     'rest_framework',
+    'djoser',
     'psycopg2',
     'django_extensions',
-    'core'
+    'core',
+    'social_django',
+
 
 ]
 
@@ -63,7 +67,7 @@ ROOT_URLCONF = 'collect_service.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,6 +96,49 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     )
+}
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.spotify.SpotifyOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.social_auth.associate_by_email',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'obarnev@inbox.ru'
+
+SOCIAL_AUTH_SPOTIFY_KEY = 'eb7107b846a04384ac2f6df37b278c5c' 
+SOCIAL_AUTH_SPOTIFY_SECRET = 'a4a85fadf46b46fcb53697cd78de0ea4'
+
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True,
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {},
+    'EMAIL': {
+        'activation': 'things.email.ActivationEmail',
+    },
 }
 
 
