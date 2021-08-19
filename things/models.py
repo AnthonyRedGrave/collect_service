@@ -117,17 +117,7 @@ class Deal(BaseModel, models.Model):
     cost = models.DecimalField(
         verbose_name="Цена сделки", max_digits=6, decimal_places=2, null=True
     )
-    status_log = models.JSONField(default=list)
 
-    def update_status_log(self):
-        status_log = {
-            "status": self.status,
-            "date": f"{datetime.now()}",
-            "old_owner": self.old_owner.username,
-            "new_owner": self.new_owner.username,
-            "cost": f"{self.cost}",
-        }
-        self.status_log.append(status_log)
 
     def __str__(self):
         return f"Сделка между {self.new_owner} и {self.old_owner}"

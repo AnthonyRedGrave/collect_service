@@ -1,3 +1,4 @@
+from django.http import request
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
@@ -18,6 +19,7 @@ from rest_framework import mixins
 from django.db.models import Count
 from things.services.deal import create_deal
 from things.services.csv import csv_export
+from django.db.models import Q
 
 
 class ThingMessageViewSet(ReadOnlyModelViewSet):
@@ -122,7 +124,7 @@ class DealViewSet(
     serializer_class = DealModelSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(thing__owner=self.request.user)
+        return super().get_queryset().filter(Q(old_owner=self.request.user) | Q(new_owner=self.request.user))
 
     def get_serializer_class(self):
         if self.action == "create":

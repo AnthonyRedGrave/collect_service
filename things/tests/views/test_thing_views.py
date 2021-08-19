@@ -126,104 +126,118 @@ class TestThingViewSetActionMost:
         assert response.status_code == 200
 
 
-# class TestDeal:
-    # def test_get_deal_status_accepted__success(self, api_client):
-    #     thing = ThingFactory()
-    #     request_user = UserFactory()
-    #     api_client.force_authenticate(user=request_user)
-    #     url = reverse("deal-list")
-    #     data = {
-    #         'thing': thing.id,
-    #         'cost': 100
-    #     }
-    #     response = api_client.post(url, data=data)
-    #     deal = Deal.objects.get(new_owner = request_user, thing=thing, old_owner = thing.owner, cost = 100)
-    #     assert response.status_code == 201
-    #     assert deal.status_log[0]["status"] == "accepted"
-    #     assert deal.status_log[0]["old_owner"] == deal.old_owner.username
-    #     assert deal.status_log[0]["new_owner"] == deal.new_owner.username
-    #     assert deal.status_log[0]["cost"] == "100.00"
+class TestDeal:
+    def test_get_deal_status_accepted__success(self, api_client):
+        thing = ThingFactory()
+        request_user = UserFactory()
+        api_client.force_authenticate(user=request_user)
+        url = reverse("deal-list")
+        data = {
+            'thing': thing.id,
+            'cost': '100.00'
+        }
+        response = api_client.post(url, data=data)
+        deal = Deal.objects.get(new_owner = request_user, thing=thing, old_owner = thing.owner, cost = 100.00)
+        result = response.json()
+        assert response.status_code == 201
+        assert deal.thing.id == data['thing']
+        assert result['cost'] == data['cost']
+        assert deal.old_owner == thing.owner
+        assert deal.new_owner == request_user
+        assert deal.status == "accepted"
 
-    # def test_get_deal_status_log_confirmed__success(self, api_client):
-    #     thing = ThingFactory()
-    #     request_user = UserFactory()
-    #     status_log = {
-    #         "status": "accepted",
-    #     }
-    #     deal = DealFactory(
-    #         thing=thing,
-    #         old_owner=thing.owner,
-    #         new_owner=request_user,
-    #         status_log=[status_log]
-    #     )
-    #     data = {
-    #         "status": "confirmed",
-    #         "cost": 101
-    #     }
-    #     api_client.force_authenticate(user=request_user)
-    #     url = reverse("deal-list")
-    #     response = api_client.get(url)
-    #     print(response.json())
+
+    def test_get_deal_status_log_confirmed__success(self, api_client):
+        thing = ThingFactory()
+        request_user = UserFactory()
+        deal = DealFactory(
+            thing=thing,
+            old_owner=thing.owner,
+            new_owner=request_user
+        )
+        data = {
+            "status": "confirmed",
+            "cost": '101.00'
+        }
+        api_client.force_authenticate(user=request_user)
+        url = reverse("deal-detail", kwargs={'pk': deal.id})
+        response = api_client.patch(url, data=data)
+        result = response.json()
+        assert response.status_code == 200
+        assert result['status'] == data["status"]
+        assert result['cost'] == data['cost']
+
+
+    def test_get_deal_status_log_completed__success(self, api_client):
+        thing = ThingFactory()
+        request_user = UserFactory()
+        deal = DealFactory(
+            thing=thing, old_owner=thing.owner, new_owner=request_user
+        )
+        data = {
+            "status": "completed",
+            "cost": '110.00'
+        }
+        api_client.force_authenticate(user=request_user)
+        url = reverse("deal-detail", kwargs={"pk": deal.id})
+        response = api_client.patch(url, data=data)
+        result = response.json()
+        assert response.status_code == 200
+        assert result['status'] == data["status"]
+        assert result['cost'] == data['cost']
+
+
+    def test_all_actions_buy__success(self, api_client):
+        thing = ThingFactory()
+        request_user = UserFactory()
+        statuses = []
+
+        api_client.force_authenticate(user=request_user)
+        data = {
+            'thing': thing.id,
+            'cost': '100.00'
+        }
+        url = reverse('deal-list')
+        
+        response = api_client.post(url, data=data)
+        deal = Deal.objects.get(new_owner = request_user, thing=thing, old_owner = thing.owner, cost = 100.00)
+        statuses.append(deal.status)
+        result = response.json()
+        assert response.status_code == 201
+        assert deal.thing.id == data['thing']
+        assert result['cost'] == data['cost']
+        assert deal.old_owner == thing.owner
+        assert deal.new_owner == request_user
+        assert deal.status == "accepted"
+
+        data = {
+            "status": "confirmed",
+            "cost": '105.00'
+        }
+        url = reverse("deal-detail", kwargs={"pk": deal.id})
+        response = api_client.patch(url, data=data)
+        result = response.json()
+        statuses.append(result['status'])
+        assert response.status_code == 200
+        assert result['status'] == data["status"]
+        assert result['cost'] == data['cost']
+
+        data = {
+            "status": "completed",
+            "cost": '103.00'
+        }
+
+        url = reverse("deal-detail", kwargs={"pk": deal.id})
+        response = api_client.patch(url, data=data)
+        result = response.json()
+        statuses.append(result['status'])
+        assert response.status_code == 200
+        assert result['status'] == data["status"]
+        assert result['cost'] == data['cost']
+
         # deal.refresh_from_db()
-        # assert response.status_code == 200
-        # assert deal.status_log[0]["status"] == "confirmed"
-        # assert deal.status_log[0]["old_owner"] == deal.old_owner.username
-        # assert deal.status_log[0]["new_owner"] == deal.new_owner.username
-        # assert deal.status_log[0]["cost"] == f"{thing.price}"
-
-    # def test_get_deal_status_log_completed__success(self, api_client):
-    #     thing = ThingFactory()
-    #     request_user = UserFactory()
-    #     status_log = {
-    #         "status": "completed",
-    #         "date": f"{datetime.now()}",
-    #         "old_owner": "owner",
-    #         "new_owner": "customer",
-    #     }
-    #     DealFactory(
-    #         thing=thing, old_owner=thing.owner, new_owner=request_user, status_log=[status_log], cost=thing.price
-    #     )
-    #     api_client.force_authenticate(user=request_user)
-    #     url = reverse("thing-buy-complete", kwargs={"pk": thing.id})
-    #     response = api_client.post(url)
-    #     assert response.status_code == 200
-    #     assert response.json()["status"] == "completed"
-    #     assert response.json()["new_owner"] == request_user.username
-    #     assert response.json()["old_owner"] == thing.owner.username
-    #     assert response.json()["cost"] == f"{thing.price}"
-
-    # def test_all_actions_buy__success(self, api_client):
-    #     thing = ThingFactory()
-    #     request_user = UserFactory()
-    #     api_client.force_authenticate(user=request_user)
-
-    #     url = reverse("thing-buy-accept", kwargs={"pk": thing.id})
-    #     response = api_client.post(url)
-    #     assert response.status_code == 200
-    #     assert response.json()["status"] == "accepted"
-    #     assert response.json()["old_owner"] == thing.owner.username
-    #     assert response.json()["new_owner"] == request_user.username
-
-    #     deal = Deal.objects.get(thing = thing, old_owner = thing.owner, new_owner = request_user)
-    #     url = reverse("thing-buy-confirm", kwargs={"pk": thing.id})
-    #     response = api_client.post(url)
-    #     assert response.status_code == 200
-    #     assert response.json()["status"] == "confirmed"
-    #     assert response.json()["old_owner"] == deal.old_owner.username
-    #     assert response.json()["new_owner"] == deal.new_owner.username
-    #     assert response.json()["cost"] == f"{thing.price}"
-
-    #     url = reverse("thing-buy-complete", kwargs={"pk": thing.id})
-    #     response = api_client.post(url)
-    #     assert response.status_code == 200
-    #     assert response.json()["status"] == "completed"
-    #     assert response.json()["new_owner"] == request_user.username
-    #     assert response.json()["old_owner"] == thing.owner.username
-    #     assert response.json()["cost"] == f"{thing.price}"
-
-    #     deal.refresh_from_db()
-    #     list_of_status = [log["status"] for log in deal.status_log]
-    #     assert list_of_status == ['accepted', 'confirmed', 'completed']
+        # list_of_status = [log["status"] for log in deal.status_log]
+        assert statuses == ['accepted', 'confirmed', 'completed']
 
 
     # def test_two_buy_accepted_actions__success(self, api_client):
