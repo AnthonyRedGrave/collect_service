@@ -7,7 +7,9 @@ from things.services.csv import csv_export, _get_csv_path
 
 from django.contrib.contenttypes.admin import GenericTabularInline
 from comments.models import Comment
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CommentInline(GenericTabularInline):
     model = Comment
@@ -17,6 +19,7 @@ class CommentInline(GenericTabularInline):
 @admin.action(description="CSV-Export")
 def csv_export_action(modeladmin, request, queryset):
     filename = "admin_export.csv"
+    logger.info("Экспорт записей из панели администратора", {'filename': filename})
     csv_export(filename)
     return FileResponse(open(_get_csv_path(filename), 'rb'))
 

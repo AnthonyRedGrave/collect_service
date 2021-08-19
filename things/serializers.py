@@ -6,7 +6,9 @@ from tags.serializers import TagSerializer
 from tags.models import Tag
 from django.contrib.auth.models import User
 from things.services.deal import update_deal
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ThingMessageSerializer(serializers.ModelSerializer):
     user_name = serializers.StringRelatedField(many=False, source="user")
@@ -58,23 +60,32 @@ class CreateThingSerializer(serializers.Serializer):
     tags = serializers.CharField()
 
     def validate_tags(self, value):
+        logger.info("Валидация тегов для создания вещи", {'tags': value})
         tags = value.split(",")
         tags_from_db = Tag.objects.filter(title__in=tags).all()
 
         if len(tags) != len(tags_from_db):
-            raise ValidationError("Не все теги существуют!")
+            message = "Не все теги существуют!"
+            logger.error(message, {'tags': value})
+            raise ValidationError(message)
         return list(tags_from_db)
 
     def validate_section(self, value):
+        logger.info("Валидация раздела для создания вещи", {'section_id': value})
         section = Section.objects.filter(title=value).last()
         if not section:
-            raise ValidationError("Такого раздела не существует")
+            message = "Такого раздела не существует"
+            logger.error(message, {'section_id': value})
+            raise ValidationError(message)
         return section
 
     def validate_owner(self, value):
+        logger.info("Валидация пользователя для создания вещи", {'owner_id': value})
         user = User.objects.filter(username=value).last()
         if not user:
-            raise ValidationError("Такого пользователя не существует")
+            message = "Такого пользователя не существует"
+            logger.error(message, {'owner_id': value})
+            raise ValidationError(message)
         return user
 
 
@@ -106,9 +117,12 @@ class CreateDealSerializer(serializers.Serializer):
     thing = serializers.CharField()
 
     def validate_thing(self, value):
+        logger.info("Валидация вещи для сделки", {'thing_id': value})
         thing = Thing.objects.filter(id=value).last()
         if not thing:
-            raise ValidationError("Вещи с таким id не существует!")
+            message = "Вещи с таким id не существует!"
+            logger.error(message, {'thing_id': value})
+            raise ValidationError(message)
         return thing
 
 
@@ -118,5 +132,6 @@ class UpdateDealSerializer(serializers.Serializer):
     updated_at = serializers.DateTimeField(read_only = True)
 
     def update(self, instance, validated_data):
+        logger.info("update записи в UpdateDealSerializer", {'deal': instance})
         deal = update_deal(instance, **validated_data)
         return deal
