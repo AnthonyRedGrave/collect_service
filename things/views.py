@@ -1,4 +1,3 @@
-from django.http import request
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
