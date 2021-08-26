@@ -135,3 +135,27 @@ class UpdateDealSerializer(serializers.Serializer):
         logger.info("update записи в UpdateDealSerializer", {'deal': instance})
         deal = update_deal(instance, **validated_data)
         return deal
+
+
+class AssesmentSerializer(serializers.Serializer):
+    owner = serializers.CharField()
+    thing = serializers.CharField()
+
+
+    def validate_thing(self, value):
+        logger.info("Валидация вещи для оценивания вещи", {"thing_id": value})
+        thing = Thing.objects.filter(id=value).last()
+        if not thing:
+            message = "Вещи с таким id не существует!"
+            logger.error(message, {'thing_id': value})
+            raise ValidationError(message)
+        return thing
+    
+    def validate_owner(self, value):
+        logger.info("Валидация пользователя для оценивания вещи", {"owner_id": value})
+        owner = User.objects.filter(id=value).last()
+        if not owner:
+            message = "Пользователя с таким id не существует!"
+            logger.error(message, {'owner_id': value})
+            raise ValidationError(message)
+        return owner

@@ -11,6 +11,7 @@ from .serializers import (
     DateSerializer,
     UpdateDealSerializer,
     DealModelSerializer,
+    AssesmentSerializer
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
@@ -18,6 +19,7 @@ from rest_framework import mixins
 from django.db.models import Count
 from things.services.deal import create_deal
 from things.services.csv import csv_export
+from things.services.assesment import create_assesment
 from django.db.models import Q
 import logging
 
@@ -61,6 +63,38 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         if seriliazer.validated_data.keys():
             queryset = queryset.filter(**seriliazer.validated_data)
         return queryset
+
+    @action(detail=True, methods=["get", "post"], name='like')
+    def like(self, request, pk=None):
+        thing = self.get_object()
+        if request.method == "GET":
+            logger.info("ThingViewSet GET action like Получение всех лайков вещи")
+            serializer = AssesmentSerializer(thing.get_likes(), many=True)
+            return Response(serializer.data)
+        else:
+            logger.info("ThingViewSet POST action like Создание нового лайка для вещи")
+            request_data = {
+                "thing": thing.id,
+                "owner": request.user.id
+            }
+            responce = create_assesment(request_data, f'{self.action}')
+            return Response(responce)
+
+    @action(detail=True, methods=["get", "post"])
+    def dislike(self, request, pk=None):
+        thing = self.get_object()
+        if request.method == "GET":
+            logger.info("ThingViewSet GET action dislike Получение всех дизлайков вещи")
+            serializer = AssesmentSerializer(thing.get_dislikes(), many=True)
+            return Response(serializer.data)
+        else:
+            logger.info("ThingViewSet POST action dislike Создание нового дизлайка для вещи")
+            request_data = {
+                "thing": thing.id,
+                "owner": request.user.id
+            }
+            responce = create_assesment(request_data, f'{self.action}')
+            return Response(responce)
 
     @action(detail=False, methods=["get"])
     def csv_export(self, request):

@@ -1,3 +1,4 @@
+from enum import unique
 from tags.models import Tag
 from django.db import models
 from django.contrib.auth.models import User
@@ -53,6 +54,12 @@ class Thing(SoftDeleteMixin, models.Model):
 
     def get_comments(self):
         return self.comments.all()
+
+    def get_likes(self):
+        return self.like_set.all()
+
+    def get_dislikes(self):
+        return self.dislike_set.all()
 
     def __str__(self):
         return f"Вещь {self.title}"
@@ -125,3 +132,28 @@ class Deal(BaseModel, models.Model):
     class Meta:
         verbose_name = "Сделка"
         verbose_name_plural = "Сделки"
+
+
+class AssesmentThingMixin(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    thing = models.ForeignKey(Thing, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+        
+
+
+class Like(AssesmentThingMixin, models.Model):
+    
+    class Meta:
+        verbose_name = 'Лайк'
+        verbose_name_plural = 'Лайки'
+        unique_together = ("owner", "thing")
+
+
+class Dislike(AssesmentThingMixin, models.Model):
+    
+    class Meta:
+        verbose_name = 'Дизлайк'
+        verbose_name_plural = 'Дизлайки'
+        unique_together = ("owner", "thing")
