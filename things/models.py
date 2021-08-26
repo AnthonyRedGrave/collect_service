@@ -56,10 +56,10 @@ class Thing(SoftDeleteMixin, models.Model):
         return self.comments.all()
 
     def get_likes(self):
-        return self.like_set.all()
+        return self.assesment_set.filter(status = "like")
 
     def get_dislikes(self):
-        return self.dislike_set.all()
+        return self.assesment_set.filter(status = "dislike")
 
     def __str__(self):
         return f"Вещь {self.title}"
@@ -134,26 +134,15 @@ class Deal(BaseModel, models.Model):
         verbose_name_plural = "Сделки"
 
 
-class AssesmentThingMixin(models.Model):
+class Assesment(models.Model):
+    class StatusChoices(models.TextChoices):
+        like = "like", "Нравится"
+        dislike = "dislike", "Не нравится"
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     thing = models.ForeignKey(Thing, on_delete=models.CASCADE)
+    status = models.CharField(verbose_name="Статус оценивания", choices=StatusChoices.choices, max_length=15)
 
     class Meta:
-        abstract = True
-        
-
-
-class Like(AssesmentThingMixin, models.Model):
-    
-    class Meta:
-        verbose_name = 'Лайк'
-        verbose_name_plural = 'Лайки'
-        unique_together = ("owner", "thing")
-
-
-class Dislike(AssesmentThingMixin, models.Model):
-    
-    class Meta:
-        verbose_name = 'Дизлайк'
-        verbose_name_plural = 'Дизлайки'
+        verbose_name = 'Оценка'
+        verbose_name_plural = 'Оценки'
         unique_together = ("owner", "thing")

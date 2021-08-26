@@ -77,7 +77,9 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
                 "thing": thing.id,
                 "owner": request.user.id
             }
-            responce = create_assesment(request_data, f'{self.action}')
+            serializer = AssesmentSerializer(data = request_data)
+            serializer.is_valid(raise_exception=True)
+            responce = create_assesment(serializer.validated_data, f'{self.action}')
             return Response(responce)
 
     @action(detail=True, methods=["get", "post"])
@@ -93,7 +95,9 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
                 "thing": thing.id,
                 "owner": request.user.id
             }
-            responce = create_assesment(request_data, f'{self.action}')
+            serializer = AssesmentSerializer(data = request_data)
+            serializer.is_valid(raise_exception=True)
+            responce = create_assesment(serializer.validated_data, f'{self.action}')
             return Response(responce)
 
     @action(detail=False, methods=["get"])

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.http import FileResponse
 
-from .models import Thing, ThingMessage, Section, Deal, Like, Dislike
+from .models import Thing, ThingMessage, Section, Deal, Assesment
 from things.services.csv import csv_export, _get_csv_path
 
 from django.contrib.contenttypes.admin import GenericTabularInline
@@ -57,14 +57,9 @@ class SectionAdmin(admin.ModelAdmin):
     list_display = ("title", "deleted")
 
 
-@admin.register(Like)
-class LikeAdmin(admin.ModelAdmin):
-    list_display = ("owner", "thing")
-
-
-@admin.register(Dislike)
-class DislikeAdmin(admin.ModelAdmin):
-    list_display = ("owner", "thing")
+@admin.register(Assesment)
+class AssesmentAdmin(admin.ModelAdmin):
+    list_display = ("owner", "thing", "status")
 
 
 admin.site.register(Deal)
