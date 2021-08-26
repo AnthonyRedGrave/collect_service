@@ -1,4 +1,4 @@
-from enum import unique
+from rest_framework.exceptions import ValidationError
 from tags.models import Tag
 from django.db import models
 from django.contrib.auth.models import User
@@ -6,7 +6,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from comments.models import Comment
 from core.mixins import SoftDeleteMixin
 from core.models import BaseModel
-from datetime import datetime
 
 
 class Section(SoftDeleteMixin, models.Model):
@@ -55,11 +54,10 @@ class Thing(SoftDeleteMixin, models.Model):
     def get_comments(self):
         return self.comments.all()
 
-    def get_likes(self):
-        return self.assesment_set.filter(status = "like")
-
-    def get_dislikes(self):
-        return self.assesment_set.filter(status = "dislike")
+    def get_assessments(self, type):
+        if type not in Assesment.TypeChoices:
+            raise ValidationError({"type": "Некорректный ввод"})
+        return self.assesment_set.filter(type = type)
 
     def __str__(self):
         return f"Вещь {self.title}"
@@ -135,12 +133,12 @@ class Deal(BaseModel, models.Model):
 
 
 class Assesment(models.Model):
-    class StatusChoices(models.TextChoices):
+    class TypeChoices(models.TextChoices):
         like = "like", "Нравится"
         dislike = "dislike", "Не нравится"
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     thing = models.ForeignKey(Thing, on_delete=models.CASCADE)
-    status = models.CharField(verbose_name="Статус оценивания", choices=StatusChoices.choices, max_length=15)
+    type = models.CharField(verbose_name="Статус оценивания", choices=TypeChoices.choices, max_length=15)
 
     class Meta:
         verbose_name = 'Оценка'

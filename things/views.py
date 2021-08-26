@@ -65,39 +65,23 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         return queryset
 
     @action(detail=True, methods=["get", "post"], name='like')
-    def like(self, request, pk=None):
+    def assess(self, request, pk=None):
         thing = self.get_object()
+        assesment_type = request.data['type']
         if request.method == "GET":
-            logger.info("ThingViewSet GET action like Получение всех лайков вещи")
-            serializer = AssesmentSerializer(thing.get_likes(), many=True)
+            logger.info("ThingViewSet GET action asses Получение всех лайков/дизлайков вещи")
+            serializer = AssesmentSerializer(thing.get_assessments(assesment_type), many=True)
             return Response(serializer.data)
         else:
-            logger.info("ThingViewSet POST action like Создание нового лайка для вещи")
+            logger.info("ThingViewSet POST action asses Создание нового лайка/дизлайка для вещи")
             request_data = {
                 "thing": thing.id,
-                "owner": request.user.id
+                "owner": request.user.id,
+                "type": assesment_type
             }
             serializer = AssesmentSerializer(data = request_data)
             serializer.is_valid(raise_exception=True)
-            responce = create_assesment(serializer.validated_data, f'{self.action}')
-            return Response(responce)
-
-    @action(detail=True, methods=["get", "post"])
-    def dislike(self, request, pk=None):
-        thing = self.get_object()
-        if request.method == "GET":
-            logger.info("ThingViewSet GET action dislike Получение всех дизлайков вещи")
-            serializer = AssesmentSerializer(thing.get_dislikes(), many=True)
-            return Response(serializer.data)
-        else:
-            logger.info("ThingViewSet POST action dislike Создание нового дизлайка для вещи")
-            request_data = {
-                "thing": thing.id,
-                "owner": request.user.id
-            }
-            serializer = AssesmentSerializer(data = request_data)
-            serializer.is_valid(raise_exception=True)
-            responce = create_assesment(serializer.validated_data, f'{self.action}')
+            responce = create_assesment(serializer.validated_data)
             return Response(responce)
 
     @action(detail=False, methods=["get"])

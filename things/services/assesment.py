@@ -36,7 +36,8 @@ def like_create_or_delete(validated_data):
 #         dislike.delete()
 #         return {"Dislike": "Deleted!"}
 
-def assesment_create_or_create(validated_data, assesment_status):
+def assesment_create_or_create(validated_data):
+    assesment_status = validated_data.pop("type")
     assesment = Assesment.objects.filter(**validated_data, status = assesment_status).last()
     if assesment:
         logger.info("Удаление существующей оценки вещи", {"thing_id": validated_data['thing']})
@@ -53,7 +54,7 @@ def assesment_create_or_create(validated_data, assesment_status):
 
     
 
-def create_assesment(validated_data, assesment_type):
+def create_assesment(validated_data):
     logger.info("Оценивание вещи", {"thing_id": validated_data['thing']})
-    responce = assesment_create_or_create(validated_data, assesment_type) 
+    responce = assesment_create_or_create(validated_data) 
     return responce

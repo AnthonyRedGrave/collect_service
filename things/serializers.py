@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from .models import Thing, ThingMessage, Section, Deal
+from .models import Assesment, Thing, ThingMessage, Section, Deal
 from comments.serializers import CommentSerializer
 from tags.serializers import TagSerializer
 from tags.models import Tag
@@ -140,6 +140,7 @@ class UpdateDealSerializer(serializers.Serializer):
 class AssesmentSerializer(serializers.Serializer):
     owner = serializers.CharField()
     thing = serializers.CharField()
+    type = serializers.ChoiceField(choices=Assesment.TypeChoices)
 
 
     def validate_thing(self, value):
