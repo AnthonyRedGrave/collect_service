@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'core',
     'social_django',
+    'vote',
 
 
 ]

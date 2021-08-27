@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from .models import Assesment, Thing, ThingMessage, Section, Deal
+from .models import Thing, ThingMessage, Section, Deal
 from comments.serializers import CommentSerializer
 from tags.serializers import TagSerializer
 from tags.models import Tag
@@ -136,27 +136,3 @@ class UpdateDealSerializer(serializers.Serializer):
         deal = update_deal(instance, **validated_data)
         return deal
 
-
-class AssesmentSerializer(serializers.Serializer):
-    owner = serializers.CharField()
-    thing = serializers.CharField()
-    type = serializers.ChoiceField(choices=Assesment.TypeChoices)
-
-
-    def validate_thing(self, value):
-        logger.info("Валидация вещи для оценивания вещи", {"thing_id": value})
-        thing = Thing.objects.filter(id=value).last()
-        if not thing:
-            message = "Вещи с таким id не существует!"
-            logger.error(message, {'thing_id': value})
-            raise ValidationError(message)
-        return thing
-    
-    def validate_owner(self, value):
-        logger.info("Валидация пользователя для оценивания вещи", {"owner_id": value})
-        owner = User.objects.filter(id=value).last()
-        if not owner:
-            message = "Пользователя с таким id не существует!"
-            logger.error(message, {'owner_id': value})
-            raise ValidationError(message)
-        return owner

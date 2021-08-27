@@ -1,4 +1,3 @@
-from rest_framework.exceptions import ValidationError
 from tags.models import Tag
 from django.db import models
 from django.contrib.auth.models import User
@@ -53,11 +52,6 @@ class Thing(SoftDeleteMixin, models.Model):
 
     def get_comments(self):
         return self.comments.all()
-
-    def get_assessments(self, type):
-        if type not in Assesment.TypeChoices:
-            raise ValidationError({"type": "Некорректный ввод"})
-        return self.assesment_set.filter(type = type)
 
     def __str__(self):
         return f"Вещь {self.title}"
@@ -123,7 +117,6 @@ class Deal(BaseModel, models.Model):
         verbose_name="Цена сделки", max_digits=6, decimal_places=2, null=True
     )
 
-
     def __str__(self):
         return f"Сделка между {self.new_owner} и {self.old_owner}"
 
@@ -132,15 +125,3 @@ class Deal(BaseModel, models.Model):
         verbose_name_plural = "Сделки"
 
 
-class Assesment(models.Model):
-    class TypeChoices(models.TextChoices):
-        like = "like", "Нравится"
-        dislike = "dislike", "Не нравится"
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    thing = models.ForeignKey(Thing, on_delete=models.CASCADE)
-    type = models.CharField(verbose_name="Статус оценивания", choices=TypeChoices.choices, max_length=15)
-
-    class Meta:
-        verbose_name = 'Оценка'
-        verbose_name_plural = 'Оценки'
-        unique_together = ("owner", "thing")

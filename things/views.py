@@ -10,17 +10,17 @@ from .serializers import (
     ThingMessageSerializer,
     DateSerializer,
     UpdateDealSerializer,
-    DealModelSerializer,
-    AssesmentSerializer
+    DealModelSerializer
 )
+from vote.serializers import VoteSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
-from django.db.models import Count
+from django.db.models import Count, manager
 from things.services.deal import create_deal
 from things.services.csv import csv_export
-from things.services.assesment import create_assesment
-from django.db.models import Q
+from vote.services.assesment import create_vote
+from django.db.models import Q, Sum
 import logging
 
 logger = logging.getLogger(__name__)
@@ -64,25 +64,28 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
             queryset = queryset.filter(**seriliazer.validated_data)
         return queryset
 
-    @action(detail=True, methods=["get", "post"], name='like')
-    def assess(self, request, pk=None):
+    @action(detail=False, methods=["get"])
+    def rating(self, request):
+        logger.info("ThingViewSet GET action rating Получение рейтинга вещей с разницей лайков/дизлайков")
+        things = self.queryset.annotate(votes = Sum("vote__value")).order_by("-votes").exclude(votes__isnull=True)
+        serializer = self.get_serializer(things, many=True)
+        return Response(serializer.data) 
+
+
+    @action(detail=True, methods=["get", "post"])
+    def rate(self, request, pk=None):
         thing = self.get_object()
-        assesment_type = request.data['type']
+        serializer = VoteSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
         if request.method == "GET":
-            logger.info("ThingViewSet GET action asses Получение всех лайков/дизлайков вещи")
-            serializer = AssesmentSerializer(thing.get_assessments(assesment_type), many=True)
+            logger.info("ThingViewSet GET action rate Получение всех лайков/дизлайков вещи")
+            serializer = VoteSerializer(thing.vote_set.filter(value = serializer.validated_data['value']), many=True)
             return Response(serializer.data)
         else:
-            logger.info("ThingViewSet POST action asses Создание нового лайка/дизлайка для вещи")
-            request_data = {
-                "thing": thing.id,
-                "owner": request.user.id,
-                "type": assesment_type
-            }
-            serializer = AssesmentSerializer(data = request_data)
-            serializer.is_valid(raise_exception=True)
-            responce = create_assesment(serializer.validated_data)
-            return Response(responce)
+            logger.info("ThingViewSet POST action rate Создание нового лайка/дизлайка для вещи")
+            vote = create_vote(thing, request.user, serializer.validated_data['value'])
+            serializer = VoteSerializer(vote)
+            return Response(serializer.data)
 
     @action(detail=False, methods=["get"])
     def csv_export(self, request):
