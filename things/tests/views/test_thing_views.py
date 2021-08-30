@@ -4,6 +4,8 @@ from things.models import Deal
 from things.tests.factories import ThingFactory, DealFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
+from vote.tests.factories import VoteFactory
+import json
 
 
 @pytest.mark.django_db(True)
@@ -234,3 +236,53 @@ class TestDeal:
         assert result['status'] == data["status"]
         assert result['cost'] == data['cost']
         assert statuses == ['accepted', 'confirmed', 'completed']
+
+
+class TestRate:
+    @pytest.mark.parametrize(
+        "value, label", [("like", "1"), ("dislike", "-1")])
+    def test_action_rate_get_thing_all_likes_and_dislikes__success(self, api_client_with_credentials, value, label):
+        thing = ThingFactory(votes="random")
+        url = reverse("thing-rate", kwargs={"pk": thing.id})
+        data= {'value': value}
+        response = api_client_with_credentials.generic(method="GET", path=url, data=json.dumps(data), content_type='application/json')
+        result_votes_count = len(response.json())
+        votes_count = thing.vote_set.filter(value=label).count()
+        assert response.status_code == 200
+        assert result_votes_count == votes_count
+
+    @pytest.mark.parametrize(
+        "value", [("like"), ("dislike")])
+    def test_action_rate_post_like_to_thing__success(self, api_client_with_credentials, value):
+        thing = ThingFactory()
+        url = reverse("thing-rate", kwargs={"pk": thing.id})
+        data = {'value': value}
+        response = api_client_with_credentials.post(url, data=data)
+        assert response
+        assert response.status_code == 200
+    
+
+    @pytest.mark.parametrize(
+        "value", [("like"), ("dislike")])
+    def test_action_rate_post_like_to_thing__success(self, api_client_with_credentials, value):
+        thing = ThingFactory()
+        url = reverse("thing-rate", kwargs={"pk": thing.id})
+        data = {'value': value}
+        response = api_client_with_credentials.post(url, data=data)
+        assert response
+        assert response.status_code == 200
+        
+
+    @pytest.mark.parametrize(
+        "value_first, value_second", [("like", "dislike"), ("dislike", "like")])
+    def test_action_rate_post_like_to_thing__success(self, api_client_with_credentials, value_first, value_second):
+        thing = ThingFactory()
+        url = reverse("thing-rate", kwargs={"pk": thing.id})
+        data = {'value': value_first}
+        response = api_client_with_credentials.post(url, data=data)
+        assert response.json()['value'] == value_first
+        assert response.status_code == 200
+        data = {'value': value_second}
+        response = api_client_with_credentials.post(url, data=data)
+        assert response.json()['value'] == value_second
+        assert response.status_code == 200

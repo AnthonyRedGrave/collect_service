@@ -3,6 +3,7 @@ import factory
 from ..models import Thing, ThingMessage, Section, Deal
 from django.contrib.auth.models import User
 import random
+from vote.tests.factories import VoteFactory
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -55,6 +56,16 @@ class ThingFactory(factory.django.DjangoModelFactory):
             tags = TagFactory.create_batch(extracted)
             for tag in tags:
                 self.tags.add(tag)
+
+    @factory.post_generation
+    def votes(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            if extracted == "random":
+                extracted = random.randint(2, 10)
+                for n in range(extracted):
+                    VoteFactory(thing=self, user=UserFactory())
 
 
 class ThingMessageFactory(factory.django.DjangoModelFactory):

@@ -14,4 +14,3 @@ class Vote(models.Model):
     class Meta:
         verbose_name = 'Оценка'
         verbose_name_plural = 'Оценки'
-        unique_together = ("user", "thing")
