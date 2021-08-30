@@ -16,10 +16,10 @@ from vote.serializers import VoteSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
-from django.db.models import Count, manager
+from django.db.models import Count
 from things.services.deal import create_deal
 from things.services.csv import csv_export
-from vote.services.assesment import create_vote
+from vote.services.assesment import create_or_delete_vote
 from django.db.models import Q, Sum
 import logging
 
@@ -83,8 +83,10 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
             return Response(serializer.data)
         else:
             logger.info("ThingViewSet POST action rate Создание нового лайка/дизлайка для вещи")
-            vote = create_vote(thing, request.user, serializer.validated_data['value'])
-            serializer = VoteSerializer(vote)
+            response = create_or_delete_vote(thing, request.user, serializer.validated_data['value'])
+            if response["value"] == "Deleted":
+                return Response(response)
+            serializer = VoteSerializer(response)
             return Response(serializer.data)
 
     @action(detail=False, methods=["get"])

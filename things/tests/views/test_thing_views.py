@@ -275,7 +275,7 @@ class TestRate:
 
     @pytest.mark.parametrize(
         "value_first, value_second", [("like", "dislike"), ("dislike", "like")])
-    def test_action_rate_post_like_to_thing__success(self, api_client_with_credentials, value_first, value_second):
+    def test_action_rate_post_swap_like_and_dislike__success(self, api_client_with_credentials, value_first, value_second):
         thing = ThingFactory()
         url = reverse("thing-rate", kwargs={"pk": thing.id})
         data = {'value': value_first}
@@ -285,4 +285,17 @@ class TestRate:
         data = {'value': value_second}
         response = api_client_with_credentials.post(url, data=data)
         assert response.json()['value'] == value_second
+        assert response.status_code == 200
+
+    
+    def test_action_rate_post__delete_like__success(self, api_client_with_credentials):
+        thing = ThingFactory()
+        url = reverse("thing-rate", kwargs={"pk": thing.id})
+        data = {'value': "like"}
+        response = api_client_with_credentials.post(url, data=data)
+        assert response.json()['value'] == "like"
+        assert response.status_code == 200
+
+        response = api_client_with_credentials.post(url, data=data)
+        assert response.json()['value'] == "Deleted"
         assert response.status_code == 200
