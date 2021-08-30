@@ -11,15 +11,14 @@ class VoteSerializer(serializers.Serializer):
     value = serializers.ChoiceField(choices=Vote.ValueChoices.labels)
 
     def to_representation(self, dictionary):
+        logger.info("VoteSerializer to_representation")
         data = super().to_representation(dictionary)
-        if data['value'] == Vote.ValueChoices.LIKE.value:
-            data['value'] = Vote.ValueChoices.LIKE.label
-            return data
-        data['value'] = Vote.ValueChoices.DISLIKE.label
+        votes = {1: "like", -1: "dislike"}
+        vote = votes.pop(data['value'])
+        data.update({"value":vote})
         return data
 
     def validate_value(self, value):
-        if value == Vote.ValueChoices.LIKE.label:
-            return Vote.ValueChoices.LIKE.value
-        value = Vote.ValueChoices.DISLIKE.value
-        return value
+        logger.info("Валидация оценки от пользователя", {"value": value})
+        votes = {"like": 1, "dislike": -1}
+        return votes[value]

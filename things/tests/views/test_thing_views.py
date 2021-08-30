@@ -234,5 +234,3 @@ class TestDeal:
         assert result['status'] == data["status"]
         assert result['cost'] == data['cost']
         assert statuses == ['accepted', 'confirmed', 'completed']
-
-
