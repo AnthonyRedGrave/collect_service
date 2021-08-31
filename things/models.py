@@ -5,7 +5,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from comments.models import Comment
 from core.mixins import SoftDeleteMixin
 from core.models import BaseModel
-from datetime import datetime
 
 
 class Section(SoftDeleteMixin, models.Model):
@@ -118,10 +117,11 @@ class Deal(BaseModel, models.Model):
         verbose_name="Цена сделки", max_digits=6, decimal_places=2, null=True
     )
 
-
     def __str__(self):
         return f"Сделка между {self.new_owner} и {self.old_owner}"
 
     class Meta:
         verbose_name = "Сделка"
         verbose_name_plural = "Сделки"
+
+

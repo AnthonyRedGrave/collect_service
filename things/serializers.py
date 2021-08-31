@@ -135,3 +135,4 @@ class UpdateDealSerializer(serializers.Serializer):
         logger.info("update записи в UpdateDealSerializer", {'deal': instance})
         deal = update_deal(instance, **validated_data)
         return deal
+

@@ -10,15 +10,17 @@ from .serializers import (
     ThingMessageSerializer,
     DateSerializer,
     UpdateDealSerializer,
-    DealModelSerializer,
+    DealModelSerializer
 )
+from vote.serializers import VoteSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework import mixins
 from django.db.models import Count
 from things.services.deal import create_deal
 from things.services.csv import csv_export
-from django.db.models import Q
+from vote.services.assesment import create_or_delete_vote
+from django.db.models import Q, Sum
 import logging
 
 logger = logging.getLogger(__name__)
@@ -61,6 +63,29 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         if seriliazer.validated_data.keys():
             queryset = queryset.filter(**seriliazer.validated_data)
         return queryset
+
+    @action(detail=False, methods=["get"])
+    def rating(self, request):
+        logger.info("ThingViewSet GET action rating Получение рейтинга вещей с разницей лайков/дизлайков")
+        things = self.queryset.annotate(votes = Sum("vote__value")).order_by("-votes").exclude(votes__isnull=True)
+        serializer = self.get_serializer(things, many=True)
+        return Response(serializer.data) 
+
+
+    @action(detail=True, methods=["get", "post"])
+    def rate(self, request, pk=None):
+        thing = self.get_object()
+        serializer = VoteSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        if request.method == "GET":
+            logger.info("ThingViewSet GET action rate Получение всех лайков/дизлайков вещи")
+            serializer = VoteSerializer(thing.vote_set.filter(value = serializer.validated_data['value']), many=True)
+            return Response(serializer.data)
+        else:
+            logger.info("ThingViewSet POST action rate Создание нового лайка/дизлайка для вещи")
+            response = create_or_delete_vote(thing, request.user, serializer.validated_data['value'])
+            serializer = VoteSerializer(response)
+            return Response(serializer.data)
 
     @action(detail=False, methods=["get"])
     def csv_export(self, request):

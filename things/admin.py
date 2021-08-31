@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.http import HttpResponse
 from django.http import FileResponse
 
 from .models import Thing, ThingMessage, Section, Deal
@@ -56,6 +55,9 @@ class ThingMessageAdmin(admin.ModelAdmin):
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
     list_display = ("title", "deleted")
+
+
+
 
 
 admin.site.register(Deal)
