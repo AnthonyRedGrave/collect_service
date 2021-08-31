@@ -1,19 +1,22 @@
 <template>
-  <div class="things">
-    <div class="thing" v-for="thing in things" :key="thing.id">
-      {{ thing }}
-    </div>
+  <div class="form-wrapper">
+    <filter-form/>
   </div>
-  <ThingForm @addThing="addThing($event)"/>
+  <div class="things-list">
+    <ThingCard v-for="thing in things" :thing="thing" :key="thing.id"/>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
-import ThingForm from "@/components/ThingForm.vue";
+import ThingCard from "./things/ThingCard.vue"
+import FilterForm from "./things/FilterForm.vue"
+
 export default {
   name: "Things",
   components: {
-    ThingForm,
+    ThingCard,
+    FilterForm
   },
   data() {
     return {
@@ -21,21 +24,10 @@ export default {
     };
   },
   mounted() {
-    this.getAccessToken();
+    
     this.getThingsList();
   },
   methods: {
-    getAccessToken() {
-      this.$store
-        .dispatch("userLogin", {
-          username: "admin",
-          password: 12345,
-        })
-        .then(() => {})
-        .catch((err) => {
-          console.log(err);
-        });
-    },
     getThingsList() {
       axios
         .get("http://0.0.0.0:8000/api/things/", {
@@ -73,4 +65,11 @@ export default {
 </script>
 
 <style>
+.things-list{
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  width: 900px;
+  flex-flow: wrap;
+}
 </style>

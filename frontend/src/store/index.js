@@ -5,13 +5,17 @@ const store = createStore({
     state: {
         accessToken: JSON.parse(localStorage.getItem('token')),
         refreshToken: null,
-        username: JSON.parse(localStorage.getItem('username'))
+        username: JSON.parse(localStorage.getItem('username')),
+        section_choices: []
     },
     mutations: {
-        updateStorage(state, { access, refresh, username }) {
+        updateAuthCredentials(state, { access, refresh, username }) {
             state.accessToken = access
             state.refreshToken = refresh
             state.username = username
+        },
+        updateSectionFilterChoices(state, { section_choices }) {
+            state.section_choices = section_choices
         },
         destroyToken(state) {
             state.accessToken = null
@@ -38,7 +42,7 @@ const store = createStore({
                         },
                         credentials: 'include',
                     }).then((responce) => {
-                        context.commit('updateStorage', { access: responce.data.access, refresh: responce.data.refresh, username: usercredential.username })
+                        context.commit('updateAuthCredentials', { access: responce.data.access, refresh: responce.data.refresh, username: usercredential.username })
                         localStorage.setItem('token', JSON.stringify(responce.data.access))
                         localStorage.setItem('username', JSON.stringify(usercredential.username))
 
@@ -55,6 +59,23 @@ const store = createStore({
             if (context.getters.loggedIn) {
                 context.commit('destroyToken')
             }
+        },
+        thingSectionChoices(context, access) {
+            return new Promise((resolve, reject) => {
+                axios({
+                        method: 'get',
+                        url: 'http://localhost:8000/api/sections/',
+                        headers: { Authorization: `Bearer ${access.token}` },
+                        credentials: 'include',
+                    }).then((responce) => {
+                        context.commit('updateSectionFilterChoices', { section_choices: responce.data })
+                        resolve(responce)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        reject(err)
+                    })
+            })
         }
     },
     modules: {}
