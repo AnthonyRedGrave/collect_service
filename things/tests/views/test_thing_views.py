@@ -1,11 +1,15 @@
 import pytest
 from django.urls import reverse
-from things.models import Deal
+from things.models import Deal, Thing
 from things.tests.factories import ThingFactory, DealFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
+
 from vote.tests.factories import VoteFactory
 import json
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 
 
 @pytest.mark.django_db(True)
@@ -19,12 +23,15 @@ class TestThingViewSet:
 
     def test_post_new_thing__success(self):
         thing = ThingFactory()
+        image_path = "media/tests/images/test_image.jpeg"
+        image = SimpleUploadedFile(name='test_image.jpeg', content=open(image_path, 'rb').read(), content_type='image/jpeg')
         data = {
-            "title": thing.title,
-            "content": thing.content,
-            "state": thing.state,
+            "title": "Новая вещь",
+            "content": "Новый контент",
+            "state": "Awesome",
             "section": thing.section.id,
             "owner": thing.owner,
+            "image": image
         }
         url = reverse("thing-list")
         view = ThingViewSet.as_view({"post": "create"})
@@ -34,7 +41,9 @@ class TestThingViewSet:
         force_authenticate(request, user=thing.owner)
         response = view(request)
         response.render()
+        thing = Thing.objects.last()
         assert response
+        assert thing.image
         assert response.status_code == 201
 
     @pytest.mark.parametrize(
