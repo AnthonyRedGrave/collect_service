@@ -9,7 +9,7 @@ class Vote(models.Model):
         DISLIKE = -1, "dislike"
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     thing = models.ForeignKey(Thing, on_delete=models.CASCADE)
-    value = models.IntegerField(verbose_name="Статус оценивания", choices=ValueChoices.choices)
+    value = models.IntegerField(verbose_name="Статус оценивания", choices=ValueChoices.choices, default=None, null=True)
 
     class Meta:
         verbose_name = 'Оценка'

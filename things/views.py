@@ -84,8 +84,6 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         else:
             logger.info("ThingViewSet POST action rate Создание нового лайка/дизлайка для вещи")
             response = create_or_delete_vote(thing, request.user, serializer.validated_data['value'])
-            if response["value"] == "Deleted":
-                return Response(response)
             serializer = VoteSerializer(response)
             return Response(serializer.data)
 

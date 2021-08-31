@@ -293,9 +293,9 @@ class TestRate:
         url = reverse("thing-rate", kwargs={"pk": thing.id})
         data = {'value': "like"}
         response = api_client_with_credentials.post(url, data=data)
-        assert response.json()['value'] == "like"
+        assert response.json()['value'] == 'like'
         assert response.status_code == 200
 
         response = api_client_with_credentials.post(url, data=data)
-        assert response.json()['value'] == "Deleted"
+        assert response.json()['value'] == None
         assert response.status_code == 200
