@@ -5,7 +5,6 @@ from things.tests.factories import ThingFactory, DealFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingViewSet
 
-from vote.tests.factories import VoteFactory
 import json
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -308,3 +307,31 @@ class TestRate:
         response = api_client_with_credentials.post(url, data=data)
         assert response.json()['value'] == None
         assert response.status_code == 200
+
+
+class TestFilter:
+    def test_filter_state__success(self, api_client_with_credentials):
+        things = ThingFactory.create_batch(5)
+        url = "http://0.0.0.0:8000/api/things/?state=Good"
+        response = api_client_with_credentials.get(url)
+
+        thing_before_after_filtering = [thing.state for thing in things]
+        thing_states_after_filtering = [thing['state'] for thing in response.json()]
+
+        assert thing_before_after_filtering != thing_states_after_filtering
+
+
+    def test_filter_state__error(self, api_client_with_credentials):
+        ThingFactory.create_batch(5)
+        url = "http://0.0.0.0:8000/api/things/?state=WrongState"
+        response = api_client_with_credentials.get(url)
+        assert response.status_code == 400
+        assert response.json()['state'] != "Select a valid choice. WrongState is not one of the available choices."
+
+
+    # def test_filter_date_published_start__success(self, api_client_with_credentials):
+
+    # def test_filter_date_published_start__error(self, api_client_with_credentials):
+    # def test_ordering_title__success(self, api_client_with_credentials):
+    # def test_ordering_title__error(self, api_client_with_credentials):
+    # def test_filter_tags__success(self, api_client_with_credentials):

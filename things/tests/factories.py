@@ -5,6 +5,11 @@ from django.contrib.auth.models import User
 import random
 from vote.tests.factories import VoteFactory
 
+THING_STATE_CHOICES = [x[0] for x in Thing.STATE_CHOICES]
+
+def get_thing_state_choices():
+    return random.choice(THING_STATE_CHOICES)
+
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -30,7 +35,7 @@ class ThingFactory(factory.django.DjangoModelFactory):
 
     title = factory.Faker("first_name")
     content = factory.Faker("text")
-    state = "Awesome"
+    state = factory.LazyFunction(get_thing_state_choices)
     owner = factory.SubFactory(UserFactory)
     section = factory.SubFactory(SectionFactory)
     is_sold = False
