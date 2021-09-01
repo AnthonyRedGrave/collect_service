@@ -15,13 +15,10 @@
             </label>
             </div>
         </div>
-        <select id="thing-state-select-form" class="form-select" aria-label="Default select example">
-            <option value="Awesome">Лучшее</option>
-            <option value="Good">Хорошее</option>
-            <option value="Shabby">Потрепанное</option>
-            <option value="Bad">Плохое</option>
+        <select id="thing-state-select-form" class="form-select" @change="filteringThings(filterState)" v-model="filterState" aria-label="Default select example">
+            <option v-for="state in this.state_list" :key="state.id" v-bind:value=state.value>{{state.label}}</option>
         </select>
-        <select id="thing-section-select-form" class="form-select" aria-label="Default select example">
+        <select id="thing-section-select-form" class="form-select" @change="filteringThings(filterSection)" v-model="filterSection" aria-label="Default select example">
             <option v-for="section in this.$store.state.section_choices" :key="section.id" v-bind:value=section.id>{{section.title}}</option>
         </select>
         <div class="search-button">
@@ -33,7 +30,34 @@
 
 <script>
 export default {
-    name: "filter-form"
+    name: "filter-form",
+    data() {
+        return {
+            filterState: "",
+            filterSection: "",
+            state_list: [{
+                label: "Лучшее",
+                value: "Awesome",
+            },
+            {
+                label: "Хорошее",
+                value: "Good",
+            },
+            {
+                label: "Потрепанное",
+                value: "Shabby",
+            },
+            {
+                label: "Плохое",
+                value: "Bad",
+            }]
+        }
+    },
+    methods:{
+        filteringThings(value){
+            console.log(value)
+        }
+    }
 }
 </script>
 
