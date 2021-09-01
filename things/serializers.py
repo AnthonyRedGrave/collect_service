@@ -89,9 +89,15 @@ class CreateThingSerializer(serializers.Serializer):
         return user
 
 
-class DateSerializer(serializers.Serializer):
+class DateAndOrderingSerializer(serializers.Serializer):
     date_published__gte = serializers.DateField(required=False, source="date")
     owner_id = serializers.IntegerField(required=False, source="owner")
+    ordering = serializers.CharField(required=False)
+
+    def validate_ordering(self, value):
+        if value not in ['title', '-title']:
+            raise ValidationError({"ordering": "Неправильный title для сортировки"})
+        return value
 
 
 class DealModelSerializer(serializers.ModelSerializer):

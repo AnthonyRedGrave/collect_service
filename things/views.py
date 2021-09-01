@@ -1,14 +1,16 @@
+from django_filters.filters import OrderingFilter
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section, Deal
+from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import (
     CreateDealSerializer,
     SectionSerializer,
     ThingSerializer,
     ThingMessageSerializer,
-    DateSerializer,
+    DateAndOrderingSerializer,
     UpdateDealSerializer,
     DealModelSerializer
 )
@@ -54,14 +56,18 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     )
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['state', 'section', 'tags']
 
     def get_queryset(self):
         logger.info("ThingViewSet GET get_queryset")
         queryset = super().get_queryset()
-        seriliazer = DateSerializer(data=self.request.query_params)
-        seriliazer.is_valid(raise_exception=True)
-        if seriliazer.validated_data.keys():
-            queryset = queryset.filter(**seriliazer.validated_data)
+        serializer = DateAndOrderingSerializer(data=self.request.query_params)
+        serializer.is_valid(raise_exception=True)
+        if 'date' in serializer.validated_data.keys():
+            queryset = queryset.filter(date_published__gte = serializer.validated_data['date'])
+        if 'ordering' in serializer.validated_data:
+            queryset = queryset.order_by(serializer.validated_data['ordering'])
         return queryset
 
     @action(detail=False, methods=["get"])
