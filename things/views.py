@@ -1,4 +1,3 @@
-from django_filters.filters import OrderingFilter
 from comments.models import Comment
 from comments.serializers import CommentSerializer
 from rest_framework.response import Response
@@ -24,6 +23,7 @@ from things.services.csv import csv_export
 from vote.services.assesment import create_or_delete_vote
 from django.db.models import Q, Sum
 import logging
+from .filters import ThingFilter
 
 logger = logging.getLogger(__name__)
 
@@ -57,18 +57,7 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
-    filter_fields = ['state', 'section', 'tags']
-
-    def get_queryset(self):
-        logger.info("ThingViewSet GET get_queryset")
-        queryset = super().get_queryset()
-        serializer = DateAndOrderingSerializer(data=self.request.query_params)
-        serializer.is_valid(raise_exception=True)
-        if 'date' in serializer.validated_data.keys():
-            queryset = queryset.filter(date_published__gte = serializer.validated_data['date'])
-        if 'ordering' in serializer.validated_data:
-            queryset = queryset.order_by(serializer.validated_data['ordering'])
-        return queryset
+    filter_class = ThingFilter
 
     @action(detail=False, methods=["get"])
     def rating(self, request):
