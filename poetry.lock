@@ -21,7 +21,7 @@ tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
 name = "atomicwrites"
 version = "1.4.0"
 description = "Atomic file writes."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
@@ -85,7 +85,7 @@ unicode_backport = ["unicodedata2"]
 name = "colorama"
 version = "0.4.4"
 description = "Cross-platform colored terminal text."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
@@ -322,7 +322,7 @@ python-versions = "*"
 name = "freezegun"
 version = "1.1.0"
 description = "Let your Python tests travel through time"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -500,7 +500,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "pytest"
 version = "6.2.4"
 description = "pytest: simple powerful testing with Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -544,6 +544,18 @@ python-versions = ">=3.6"
 factory-boy = ">=2.10.0"
 inflection = "*"
 pytest = ">=4.6"
+
+[[package]]
+name = "pytest-freezegun"
+version = "0.4.2"
+description = "Wrap tests with fixtures in freeze_time"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+freezegun = ">0.3"
+pytest = ">=3.0.0"
 
 [[package]]
 name = "python-dateutil"
@@ -722,7 +734,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b72405a6061188d1ea0c8a0abe7a918d5d3b667273162bae3c0dce033a3cdf48"
+content-hash = "e09f43bbbf0f6bbb635ba7870a735d42a73a9fa8f4776b829ff103f6e95d1fe6"
 
 [metadata.files]
 appdirs = [
@@ -1066,6 +1078,10 @@ pytest-django = [
 pytest-factoryboy = [
     {file = "pytest-factoryboy-2.1.0.tar.gz", hash = "sha256:23bc562ab32cc39eddfbbbf70e618a1b30e834a4cfa451c4bedc36216f0a7b19"},
     {file = "pytest_factoryboy-2.1.0-py3-none-any.whl", hash = "sha256:10c02d2736cb52c7af28065db9617e7f50634e95eaa07eeb9a007026aa3dc0a8"},
+]
+pytest-freezegun = [
+    {file = "pytest-freezegun-0.4.2.zip", hash = "sha256:19c82d5633751bf3ec92caa481fb5cffaac1787bd485f0df6436fd6242176949"},
+    {file = "pytest_freezegun-0.4.2-py2.py3-none-any.whl", hash = "sha256:5318a6bfb8ba4b709c8471c94d0033113877b3ee02da5bfcd917c1889cde99a7"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},
