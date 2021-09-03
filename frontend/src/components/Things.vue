@@ -1,6 +1,6 @@
 <template>
   <div class="form-wrapper">
-    <filter-form/>
+    <filter-form @filteringThings="filteringThings($event)"/>
   </div>
   <div class="things-list">
     <ThingCard v-for="thing in things" :thing="thing" :key="thing.id"/>
@@ -60,6 +60,9 @@ export default {
           console.log(err);
         });
     },
+    filteringThings(filtered_things){
+      this.things = filtered_things
+    }
   },
 };
 </script>

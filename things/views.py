@@ -3,12 +3,13 @@ from comments.serializers import CommentSerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from .models import ThingMessage, Thing, Section, Deal
+from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import (
     CreateDealSerializer,
     SectionSerializer,
     ThingSerializer,
     ThingMessageSerializer,
-    DateSerializer,
+    DateAndOrderingSerializer,
     UpdateDealSerializer,
     DealModelSerializer
 )
@@ -22,6 +23,7 @@ from things.services.csv import csv_export
 from vote.services.assesment import create_or_delete_vote
 from django.db.models import Q, Sum
 import logging
+from .filters import ThingFilter
 
 logger = logging.getLogger(__name__)
 
@@ -54,15 +56,8 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     )
     serializer_class = ThingSerializer
     permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        logger.info("ThingViewSet GET get_queryset")
-        queryset = super().get_queryset()
-        seriliazer = DateSerializer(data=self.request.query_params)
-        seriliazer.is_valid(raise_exception=True)
-        if seriliazer.validated_data.keys():
-            queryset = queryset.filter(**seriliazer.validated_data)
-        return queryset
+    filter_backends = [DjangoFilterBackend]
+    filter_class = ThingFilter
 
     @action(detail=False, methods=["get"])
     def rating(self, request):
