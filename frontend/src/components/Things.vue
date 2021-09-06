@@ -76,5 +76,9 @@ export default {
   margin: 0 auto;
   width: 900px;
   flex-flow: wrap;
+  z-index: 1;
+}
+.form-wrapper{
+  z-index: 6;
 }
 </style>
