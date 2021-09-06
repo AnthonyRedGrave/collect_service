@@ -3,26 +3,26 @@
       <form class="form-filter" action="">
         <div class="thing-title-check-form">
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle1" v-model="ordering">
+                <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle1" @click="orderingThingsTitle('title')">
                 <label class="form-check-label" for="flexRadioOrderingTitle1">
                     От А до Я
                 </label>
             </div>
             <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle2" checked>
+            <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle2" @click="orderingThingsTitle('-title')">
             <label class="form-check-label" for="flexRadioOrderingTitle2">
                 От Я до А
             </label>
             </div>
         </div>
-        <select id="thing-state-select-form" class="form-select" @change="simplefilteringThings('state', filterState)" v-model="filterState" aria-label="Default select example">
+        <select id="thing-state-select-form" class="form-select filtering" @change="simplefilteringThings('state', filterState)" v-model="filterState" aria-label="Default select example">
             <option v-for="state in this.state_list" :key="state.id" v-bind:value=state.value>{{state.label}}</option>
         </select>
-        <select id="thing-section-select-form" class="form-select" @change="simplefilteringThings('section', filterSection)" v-model="filterSection" aria-label="Default select example">
+        <select id="thing-section-select-form" class="form-select filtering" @change="simplefilteringThings('section', filterSection)" v-model="filterSection" aria-label="Default select example">
             <option v-for="section in this.$store.state.section_choices" :key="section.id" v-bind:value=section.id>{{section.title}}</option>
         </select>
-        <div class="search-button">
-            <button type="button" class="btn btn-success">Искать</button>
+        <div class="drop-filters-button">
+            <button type="button" class="btn btn-success" @click="dropFilters()">Сбросить фильтры</button>
         </div>
       </form>
   </div>
@@ -37,7 +37,7 @@ export default {
             filterState: "",
             filterSection: "",
             filters: [],
-            ordering: "",
+            ordering: null,
             state_list: [{
                 label: "Лучшее",
                 value: "Awesome",
@@ -81,7 +81,10 @@ export default {
             axios
                 .get(`http://0.0.0.0:8000/api/things/`, {
                 headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
-                params: {state:state, section: section},
+                params: {
+                    state:state, 
+                    section: section, 
+                    order_by: this.ordering},
                 })
                 .then((response) => {
                     this.$emit('filteringThings', response.data)
@@ -109,6 +112,37 @@ export default {
             }
             });
 
+        },
+        orderingThingsTitle(ordering){
+            this.ordering = ordering
+            axios
+                .get(`http://0.0.0.0:8000/api/things/`, {
+                headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
+                params: {
+                    order_by: ordering,
+                    state: this.getFieldValue('state'),
+                    section: this.getFieldValue('section')
+                    },
+                })
+                .then((response) => {
+                    this.$emit('filteringThings', response.data)
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        },
+        dropFilters(){
+            this.filters = []
+            this.ordering = null
+            let orderings = document.querySelectorAll(".ordering")
+            orderings.forEach(element => {
+                element.checked = false
+            });
+            let filters = document.querySelectorAll(".filtering")
+            filters.forEach(element => {
+                element.value = ""
+            });
+            this.$emit('dropFilters')
         }
     }
 }
@@ -131,5 +165,10 @@ export default {
     }
     #thing-section-select-form{
         width: 250px;
+    }
+    .drop-filters-button{
+        width: 210px;
+        align-items: center;
+        padding: 4px;
     }
 </style>

@@ -1,10 +1,13 @@
 <template>
   <div class="form-wrapper">
-    <filter-form @filteringThings="filteringThings($event)"/>
+    <filter-form @filteringThings="filteringThings($event)" @dropFilters = "dropFilters($event)"/>
   </div>
-  <div class="things-list">
+  <div class="things-list" v-if="things.length !== 0">
     <ThingCard v-for="thing in things" :thing="thing" :key="thing.id"/>
   </div>
+  <div v-else class="no-items-block">
+      <h2>К сожалению, вещей не нашлось</h2>
+    </div>
 </template>
 
 <script>
@@ -23,26 +26,22 @@ export default {
       things: [],
     };
   },
-  mounted() {
-    
-    this.getThingsList();
+  created() {
+    this.getThingList()
   },
   methods: {
-    getThingsList() {
-      axios
-        .get("http://0.0.0.0:8000/api/things/", {
-          headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
-        })
-        .then((response) => {
-          this.things = response.data;
-        })
+    getThingList(){
+      this.$store.dispatch("getThingList", {
+        token: this.$store.state.accessToken,
+      })
+      .then((response) => {
+        this.things = response.data
+      })
         .catch((err) => {
           console.log(err);
         });
     },
     addThing(thing_data) {
-      console.log(thing_data);
-
       axios({
         method: "post",
         url: "http://localhost:8000/api/things/",
@@ -62,6 +61,9 @@ export default {
     },
     filteringThings(filtered_things){
       this.things = filtered_things
+    },
+    dropFilters(){
+      this.things = this.$store.state.things
     }
   },
 };

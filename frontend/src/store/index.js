@@ -6,6 +6,7 @@ const store = createStore({
         accessToken: JSON.parse(localStorage.getItem('token')),
         refreshToken: null,
         username: JSON.parse(localStorage.getItem('username')),
+        things: [],
         section_choices: []
     },
     mutations: {
@@ -16,6 +17,9 @@ const store = createStore({
         },
         updateSectionFilterChoices(state, { section_choices }) {
             state.section_choices = section_choices
+        },
+        updateThings(state, { things }) {
+            state.things = things
         },
         destroyToken(state) {
             state.accessToken = null
@@ -69,6 +73,23 @@ const store = createStore({
                         credentials: 'include',
                     }).then((responce) => {
                         context.commit('updateSectionFilterChoices', { section_choices: responce.data })
+                        resolve(responce)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        reject(err)
+                    })
+            })
+        },
+        getThingList(context, access) {
+            return new Promise((resolve, reject) => {
+                axios({
+                        method: 'get',
+                        url: 'http://localhost:8000/api/things/',
+                        headers: { Authorization: `Bearer ${access.token}` },
+                        credentials: 'include',
+                    }).then((responce) => {
+                        context.commit('updateThings', { things: responce.data })
                         resolve(responce)
                     })
                     .catch(err => {

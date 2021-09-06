@@ -16,6 +16,7 @@ export default {
   created() {
     console.log("created app")
     this.getAccessToken()
+    
     this.getSectionChoices()
   },
   methods:{
@@ -30,6 +31,7 @@ export default {
           console.log(err);
         });
     },
+    
     getSectionChoices(){
       this.$store
         .dispatch("thingSectionChoices", {
