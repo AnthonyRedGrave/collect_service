@@ -7,6 +7,7 @@ const store = createStore({
         refreshToken: null,
         username: JSON.parse(localStorage.getItem('username')),
         things: [],
+        tags: [],
         section_choices: []
     },
     mutations: {
@@ -20,6 +21,9 @@ const store = createStore({
         },
         updateThings(state, { things }) {
             state.things = things
+        },
+        updateTags(state, { tags }) {
+            state.tags = tags
         },
         destroyToken(state) {
             state.accessToken = null
@@ -97,7 +101,25 @@ const store = createStore({
                         reject(err)
                     })
             })
-        }
+        },
+        getThingTagsList(context, access) {
+            return new Promise((resolve, reject) => {
+                axios({
+                        method: 'get',
+                        url: 'http://localhost:8000/api/tags/',
+                        headers: { Authorization: `Bearer ${access.token}` },
+                        credentials: 'include',
+                    }).then((responce) => {
+                        context.commit('updateTags', { tags: responce.data })
+                        resolve(responce)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        reject(err)
+                    })
+            })
+        },
+
     },
     modules: {}
 })

@@ -29,7 +29,7 @@
                 </button>
                 </h2>
                 <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the first item's accordion body.</div>
+                <div class="accordion-body"><code v-for="tag in tags" :key="tag.id"></code></div>
                 </div>
             </div>
         </div>
@@ -50,6 +50,7 @@ export default {
             filterSection: "",
             filters: [],
             ordering: null,
+            tags: [],
             state_list: [{
                 label: "Лучшее",
                 value: "Awesome",
@@ -68,7 +69,21 @@ export default {
             }]
         }
     },
+    mounted() {
+        this.getThingTags()
+    },
     methods:{
+        getThingTags(){
+            this.$store.dispatch("getThingTagsList", {
+                token: this.$store.state.accessToken,
+            })
+            .then((response) => {
+                this.tags = response.data
+            })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
         filteringThings(value){
             let url = this.getCorrectUrl(value);
             axios
