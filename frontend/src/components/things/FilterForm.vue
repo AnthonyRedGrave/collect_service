@@ -15,6 +15,20 @@
             </label>
             </div>
         </div>
+        <div class="thing-rating-check-form">
+            <div class="form-check">
+                <input class="form-check-input rating" type="radio" name="flexRadioDefault" id="flexRadioRatingLikes" @click="rating('rating')">
+                <label class="form-check-label" for="flexRadioRatingLikes">
+                    Рейтинг по лайкам
+                </label>
+            </div>
+            <div class="form-check">
+            <input class="form-check-input rating" type="radio" name="flexRadioDefault" id="flexRadioRatingTags" @click="rating('most')">
+            <label class="form-check-label" for="flexRadioRatingTags">
+                Рейтинг по тегам
+            </label>
+            </div>
+        </div>
         <select id="thing-state-select-form" class="form-select filtering" @change="simplefilteringThings('state', filterState)" v-model="filterState" aria-label="Default select example">
             <option v-for="state in this.state_list" :key="state.id" v-bind:value=state.value>{{state.label}}</option>
         </select>
@@ -175,6 +189,19 @@ export default {
                 element.value = ""
             });
             this.$emit('dropFilters')
+        },
+        rating(type_rating){
+            console.log(type_rating)
+            axios
+                .get(`http://0.0.0.0:8000/api/things/${type_rating}`, {
+                headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
+                })
+                .then((response) => {
+                    this.$emit('filteringThings', response.data)
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         }
     }
 }
@@ -185,11 +212,14 @@ export default {
         margin: 0 70px;
         display: flex;
         justify-content: space-between;
-        width: 1000px;
+        width: 1500px;
         height: 45px;
         margin-bottom: 50px;
     }
     .thing-title-check-form{
+        width: 200px;
+    }
+    .thing-rating-check-form{
         width: 200px;
     }
     #thing-state-select-form{
