@@ -3,13 +3,13 @@
       <form class="form-filter" action="">
         <div class="thing-title-check-form">
             <div class="form-check">
-                <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle1" @click="orderingThingsTitle('title')">
+                <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle1" @click="simplefilteringThings('ordering','title')">
                 <label class="form-check-label" for="flexRadioOrderingTitle1">
                     От А до Я
                 </label>
             </div>
             <div class="form-check">
-            <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle2" @click="orderingThingsTitle('-title')">
+            <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioOrderingTitle2" @click="simplefilteringThings('ordering','-title')">
             <label class="form-check-label" for="flexRadioOrderingTitle2">
                 От Я до А
             </label>
@@ -25,11 +25,11 @@
             <div class="accordion-item">
                 <h2 class="accordion-header" id="flush-headingOne">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                    Accordion Item #1
+                    Выберите теги
                 </button>
                 </h2>
                 <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body"><code v-for="tag in tags" :key="tag.id"></code></div>
+                <div class="accordion-body"><p class="accordion-tag-title" @click="simplefilteringThings('tags', tag.id)" v-bind:id="tag.id" v-for="tag in tags" :key="tag.id">{{tag.title}}</p></div>
                 </div>
             </div>
         </div>
@@ -48,7 +48,12 @@ export default {
         return {
             filterState: "",
             filterSection: "",
-            filters: [],
+            filters: {
+                state: [],
+                section: [],
+                tags: [],
+                ordering: ""
+            },
             ordering: null,
             tags: [],
             state_list: [{
@@ -84,34 +89,29 @@ export default {
                 console.log(err);
                 });
         },
-        filteringThings(value){
-            let url = this.getCorrectUrl(value);
-            axios
-                .get(url, {
-                headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
-                })
-                .then((response) => {
-                    this.$emit('filteringThings', response.data)
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-        },
         simplefilteringThings(filtername, value){
             let filter = {
                 filtername: filtername,
                 value: value
             }
-            this.getCorrectUrl(filter)
+            this.getCorrectFilters(filter)
+            let tags = this.getFieldValue('tags')
             let state = this.getFieldValue('state')
             let section = this.getFieldValue('section')
+            this.ordering = this.filters.ordering
+            var qs = require('qs');
             axios
                 .get(`http://0.0.0.0:8000/api/things/`, {
                 headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
                 params: {
-                    state:state, 
-                    section: section, 
-                    order_by: this.ordering},
+                    tags: tags,
+                    state: state,
+                    section: section,
+                    order_by: this.ordering
+                },
+                paramsSerializer: function(params) {
+                    return qs.stringify(params, {arrayFormat: 'repeat'})
+                },
                 })
                 .then((response) => {
                     this.$emit('filteringThings', response.data)
@@ -121,46 +121,51 @@ export default {
                 });
         },
         getFieldValue(name){
-            if (this.filters.some(item => item.filtername === name)){
-                return this.filters.find(element => element.filtername === name).value
+            if (name == "tags"){
+                let tags = []
+                this.filters[name].forEach(element => {
+                    tags.push(element.value)
+                });
+                return tags
+            }
+            else {
+                if (this.filters[name].length == 0){
+                    return null
+                }
+                return this.filters[name][0].value
+            }
+        },
+        getCorrectFilters(filter){
+            let filterValues = this.filters[filter.filtername].map(function (el) {return el.value})
+            if (filterValues.includes(filter.value)){
+                for(let i = 0;i<filterValues.length;i++){
+                        if (this.filters[filter.filtername][i].value == filter.value){
+                            this.filters[filter.filtername].splice(i, 1)
+                        }
+                }
             }
             else{
-                return null
-            }
-        },
-        getCorrectUrl(filter){
-            let filterkeys = this.filters.map(function (el) {return el.filtername})
-            if (this.filters.length < 2 && !filterkeys.includes(filter.filtername)){
-                this.filters.push(filter)
-            }
-            this.filters.forEach(element => {
-            if (element.filtername == filter.filtername){
-                element.value = filter.value
-            }
-            });
+               if (filter.filtername == "tags"){
+                    this.filters.tags.push(filter)   
+                }
+                else{
+                    if (filter.filtername == "ordering"){
+                        this.filters[filter.filtername] = filter.value
+                        return
+                    }
+                    this.filters[filter.filtername].splice(0, 1)
+                    this.filters[filter.filtername].push(filter)
 
-        },
-        orderingThingsTitle(ordering){
-            this.ordering = ordering
-            axios
-                .get(`http://0.0.0.0:8000/api/things/`, {
-                headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
-                params: {
-                    order_by: ordering,
-                    state: this.getFieldValue('state'),
-                    section: this.getFieldValue('section')
-                    },
-                })
-                .then((response) => {
-                    this.$emit('filteringThings', response.data)
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+                } 
+            } 
         },
         dropFilters(){
-            this.filters = []
-            this.ordering = null
+            this.filters = {
+                state: [],
+                section: [],
+                tags: [],
+                ordering: ""
+            }
             let orderings = document.querySelectorAll(".ordering")
             orderings.forEach(element => {
                 element.checked = false
@@ -180,7 +185,7 @@ export default {
         margin: 0 70px;
         display: flex;
         justify-content: space-between;
-        width: 800px;
+        width: 1000px;
         height: 45px;
         margin-bottom: 50px;
     }
@@ -201,5 +206,31 @@ export default {
     .tags-filter-block{
         width: 500px;
         z-index: 6;
+    }
+    .accordion-button{
+        border: 1px solid #ced4da;
+        width: 400px;
+        height: 45px;
+    }
+    .accordion-tag-title{
+        width: 100px;
+        border: 1px solid black;
+        padding: 0;
+        margin: 0;
+        margin-bottom: 10px;
+        cursor: default;
+    }
+    .accordion-tag-title:hover{
+        transition: all 0.5s ease;
+        background:lightgrey;
+    }
+    .accordion-tag-title:active{
+        background: #696969;
+    }
+    .accordion-body{
+        display: flex;
+        justify-content: space-between;
+        width: 400px;
+        flex-flow: wrap;
     }
 </style>
