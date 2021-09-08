@@ -1,16 +1,16 @@
 <template>
   <NavBar/>
-  <things/>
+  <router-view/>
 </template>
 
 <script>
-import Things from './components/Things.vue'
+// import Things from './components/Things.vue'
 import NavBar from './components/NavBar.vue'
 
 export default {
   name: 'App',
   components: {
-    Things,
+    // Things,
     NavBar
   },
   created() {
