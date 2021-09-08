@@ -1,56 +1,47 @@
 <template>
-  <div class="things">
-    <div class="thing" v-for="thing in things" :key="thing.id">
-      {{ thing }}
-    </div>
+  <div class="form-wrapper">
+    <filter-form @filteringThings="filteringThings($event)" @dropFilters = "dropFilters($event)"/>
   </div>
-  <ThingForm @addThing="addThing($event)"/>
+  <div class="things-list" v-if="things.length !== 0">
+    <ThingCard v-for="thing in things" :thing="thing" :key="thing.id"/>
+  </div>
+  <div v-else class="no-items-block">
+      <h2>К сожалению, вещей не нашлось</h2>
+    </div>
 </template>
 
 <script>
 import axios from "axios";
-import ThingForm from "@/components/ThingForm.vue";
+import ThingCard from "./things/ThingCard.vue"
+import FilterForm from "./things/FilterForm.vue"
+
 export default {
   name: "Things",
   components: {
-    ThingForm,
+    ThingCard,
+    FilterForm
   },
   data() {
     return {
       things: [],
     };
   },
-  mounted() {
-    this.getAccessToken();
-    this.getThingsList();
+  created() {
+    this.getThingList()
   },
   methods: {
-    getAccessToken() {
-      this.$store
-        .dispatch("userLogin", {
-          username: "admin",
-          password: 12345,
-        })
-        .then(() => {})
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-    getThingsList() {
-      axios
-        .get("http://0.0.0.0:8000/api/things/", {
-          headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
-        })
-        .then((response) => {
-          this.things = response.data;
-        })
+    getThingList(){
+      this.$store.dispatch("getThingList", {
+        token: this.$store.state.accessToken,
+      })
+      .then((response) => {
+        this.things = response.data
+      })
         .catch((err) => {
           console.log(err);
         });
     },
     addThing(thing_data) {
-      console.log(thing_data);
-
       axios({
         method: "post",
         url: "http://localhost:8000/api/things/",
@@ -68,9 +59,26 @@ export default {
           console.log(err);
         });
     },
+    filteringThings(filtered_things){
+      this.things = filtered_things
+    },
+    dropFilters(){
+      this.things = this.$store.state.things
+    }
   },
 };
 </script>
 
 <style>
+.things-list{
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  width: 900px;
+  flex-flow: wrap;
+  z-index: 1;
+}
+.form-wrapper{
+  z-index: 6;
+}
 </style>
