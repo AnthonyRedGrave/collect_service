@@ -17,13 +17,13 @@
         </div>
         <div class="thing-rating-check-form">
             <div class="form-check">
-                <input class="form-check-input rating" type="radio" name="flexRadioDefault" id="flexRadioRatingLikes" @click="rating('rating')">
+                <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioRatingLikes" @click="rating('rating')">
                 <label class="form-check-label" for="flexRadioRatingLikes">
                     Рейтинг по лайкам
                 </label>
             </div>
             <div class="form-check">
-            <input class="form-check-input rating" type="radio" name="flexRadioDefault" id="flexRadioRatingTags" @click="rating('most')">
+            <input class="form-check-input ordering" type="radio" name="flexRadioDefault" id="flexRadioRatingTags" @click="rating('most')">
             <label class="form-check-label" for="flexRadioRatingTags">
                 Рейтинг по тегам
             </label>
@@ -150,6 +150,10 @@ export default {
             }
         },
         getCorrectFilters(filter){
+            if (filter.filtername == "ordering"){
+                this.filters[filter.filtername] = filter.value
+                return
+            }
             let filterValues = this.filters[filter.filtername].map(function (el) {return el.value})
             if (filterValues.includes(filter.value)){
                 for(let i = 0;i<filterValues.length;i++){
@@ -163,10 +167,6 @@ export default {
                     this.filters.tags.push(filter)   
                 }
                 else{
-                    if (filter.filtername == "ordering"){
-                        this.filters[filter.filtername] = filter.value
-                        return
-                    }
                     this.filters[filter.filtername].splice(0, 1)
                     this.filters[filter.filtername].push(filter)
 
@@ -191,7 +191,6 @@ export default {
             this.$emit('dropFilters')
         },
         rating(type_rating){
-            console.log(type_rating)
             axios
                 .get(`http://0.0.0.0:8000/api/things/${type_rating}`, {
                 headers: { Authorization: `Bearer ${this.$store.state.accessToken}` },
