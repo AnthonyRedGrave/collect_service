@@ -21,13 +21,23 @@
                         <p class="thing-detail-tag" v-for="tag in thing.tags" :key="tag.id">{{tag.title}}</p>
                     </div>
                 </div>
+                <div class="thing-detail-rates-block">
+                    <div class="thing-detail-likes">
+                        <button @click="postRates('like')" class="btn btn-success">Понравилось: {{thing_rates.like.length}}</button>
+                    </div>
+                    <div class="thing-detail-dislikes">
+                        <button @click="postRates('dislike')" class="btn btn-danger">Не понравилось: {{thing_rates.dislike.length}}</button>
+
+                    </div>
+
+                </div>
               </div>
               
           </div>
           <div class="thing-detail-content-block">
-                    <div class="thing-detail-content">
-                        <h4>{{thing.content}}</h4>
-                    </div>
+                <div class="thing-detail-content">
+                    <h4>{{thing.content}}</h4>
+                </div>
             <hr>
           </div>
       </div>
@@ -41,12 +51,16 @@ export default {
     data() {
         return {
             thing: {},
-            thing_rates: []
+            thing_rates: {
+                like: [],
+                dislike: []
+            }
         }
     },
     created() {
         this.getThing()
-        this.getRates()
+        this.getRates('like')
+        this.getRates('dislike')
     },
     methods:{
         getThing(){
@@ -65,23 +79,57 @@ export default {
                 console.log(err);
                 });
         },
-        getRates(){
-            let data = JSON.stringify({value: "like"})
+        getRates(rate){
             axios({
                 method: "get",
+                url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/rate/?value=${rate}`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                })
+                .then((responce) => {
+                    this.thing_rates[rate] = (responce.data)
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+        postRates(rate){
+            axios({
+                method: "post",
                 url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/rate/`,
-                params: data,
+                data:{
+                    value: rate
+                },
                 headers: {
                 Authorization: `Bearer ${this.$store.state.accessToken}`,
                 },
                 
                 })
                 .then((responce) => {
-                this.thing_rates = responce.data
+                this.pushThingRate(responce.data, rate)
                 })
                 .catch((err) => {
                 console.log(err);
                 });
+        },
+        pushThingRate(new_rate, rate){
+            if (new_rate.value == null){
+                let rate_id_to_delete = this.thing_rates[rate].indexOf(this.thing_rates[rate].find(x => x.username = this.$store.state.username))
+                this.thing_rates[rate].splice(rate_id_to_delete, 1)
+            }
+            else{
+                this.thing_rates[rate].push(new_rate)
+                if (rate == 'like'){
+                    let rate_id_to_delete = this.thing_rates['dislike'].indexOf(this.thing_rates['dislike'].find(x => x.username = this.$store.state.username))
+                    this.thing_rates['dislike'].splice(rate_id_to_delete, 1)
+                }
+                else{
+                    let rate_id_to_delete = this.thing_rates['like'].indexOf(this.thing_rates['like'].find(x => x.username = this.$store.state.username))
+                    this.thing_rates['like'].splice(rate_id_to_delete, 1)
+                }
+                
+            }
         }
     }
     
@@ -122,5 +170,16 @@ export default {
     }
     .thing-detail-tag{
         padding: 5px;
+    }
+
+    .thing-detail-content-block{
+        margin-top: 50px;
+    }
+
+    .thing-detail-rates-block{
+        display: flex;
+        width: 330px;
+        justify-content: space-between;
+
     }
 </style>
