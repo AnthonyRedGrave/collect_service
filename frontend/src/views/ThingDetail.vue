@@ -27,9 +27,7 @@
                     </div>
                     <div class="thing-detail-dislikes">
                         <button @click="postRates('dislike')" class="btn btn-danger">Не понравилось: {{thing_rates.dislike.length}}</button>
-
                     </div>
-
                 </div>
               </div>
               
@@ -40,14 +38,36 @@
                 </div>
             <hr>
           </div>
+          <div class="thing-detail-comments">
+              <div class="thing-detail-comments-block">
+                <comment-card v-for="comment in thing.comments" :key="comment.id" :comment="comment"/>
+              </div>
+              <div class="thing-detail-comments-create">
+                <comment-form @postComment = "postComment($event)"/>
+              </div>
+          </div>
+          <hr>
+          <div class="thing-detail-call-owner-block">
+              <h3>Свяжитесь с продавцом</h3>
+              <thing-message/>
+          </div>
+          
       </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import CommentCard from '../components/comments/CommentCard.vue'
+import CommentForm from '../components/comments/CommentForm.vue'
+import ThingMessage from '../components/messages/ThingMessage.vue'
 export default {
     name: 'ThingDetail',
+    components:{
+        CommentCard,
+        CommentForm,
+        ThingMessage
+    },
     data() {
         return {
             thing: {},
@@ -130,8 +150,44 @@ export default {
                 }
                 
             }
+        },
+        getComments(){
+            axios({
+                method: "get",
+                url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/comment/`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                
+                })
+                .then((responce) => {
+                this.thing.comments = responce.data
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+        postComment(newCommentText){
+            axios({
+                method: "post",
+                url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/comment/`,
+                data:{
+                    content: newCommentText
+                },
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                
+                })
+                .then(() => {
+                this.getComments()
+                })
+                .catch((err) => {
+                console.log(err);
+                });
         }
-    }
+    },
+    
     
 }
 </script>
@@ -181,5 +237,18 @@ export default {
         width: 330px;
         justify-content: space-between;
 
+    }
+
+    .thing-detail-comments-block{
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .thing-detail-comments{
+        display: flex;
+    }
+    .thing-detail-comments-create{
+        margin-left: 150px;
     }
 </style>
