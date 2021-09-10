@@ -121,6 +121,23 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
             serializer = CommentSerializer(thing.get_comments(), many=True)
             return Response(serializer.data)
 
+    @action(detail=True, methods=["get", "post"])
+    def message(self, request, pk=None):
+        thing = self.get_object()
+        if request.method == "POST":
+            data = {
+                "content": request.data["content"],
+                "user": request.user.id,
+                "thing": thing.id
+            }
+            serializer = ThingMessageSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            ThingMessage.objects.create(**serializer.validated_data)
+            return Response({"Message": "Created!"})
+        else:
+            serializer = ThingMessageSerializer(thing.get_messages(), many=True)
+            return Response(serializer.data)
+
     def perform_create(self, serializer):
         logger.info("ThingViewSet perform create Создание вещи")
         Thing.objects.create(**serializer.validated_data, owner=self.request.user)

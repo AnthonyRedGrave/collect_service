@@ -69,8 +69,18 @@ class ThingFactory(factory.django.DjangoModelFactory):
         if extracted:
             if extracted == "random":
                 extracted = random.randint(2, 10)
-                for n in range(extracted):
-                    VoteFactory(thing=self, user=UserFactory())
+            for n in range(extracted):
+                VoteFactory(thing=self, user=UserFactory())
+    
+    @factory.post_generation
+    def messages(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            if extracted == "random":
+                extracted = random.randint(2, 10)
+            for n in range(extracted):
+                ThingMessageFactory(thing=self, user=UserFactory())
 
 
 class ThingMessageFactory(factory.django.DjangoModelFactory):

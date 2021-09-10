@@ -1,5 +1,6 @@
 import pytest
 from django.urls import reverse
+from rest_framework import response
 from things.models import Deal, Thing
 from things.tests.factories import ThingFactory, DealFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -380,3 +381,23 @@ class TestFilter:
         response = api_client_with_credentials.get(url)
         assert response.status_code == 200
         assert len(response.json()) == 1
+
+
+class TestMessage:
+    def test_get_thing_messages__success(self, api_client_with_credentials):
+        thing = ThingFactory(messages = 5)
+        url = reverse("thing-message", kwargs={"pk": thing.id})
+        response = api_client_with_credentials.get(url)
+        assert response.status_code == 200
+        assert len(response.json()) == 5
+
+    
+    def test_post_thing_message__success(self, api_client_with_credentials):
+        thing = ThingFactory()
+        url = reverse("thing-message", kwargs={"pk": thing.id})
+        data = {
+            "content": "Новое сообщения"
+        }
+        response = api_client_with_credentials.post(url, data=data)
+        assert response.status_code == 200
+        assert response.json() == {"Message": "Created!"}
