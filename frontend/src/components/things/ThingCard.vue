@@ -33,7 +33,7 @@ export default {
     },
     methods:{
       showItem(thing_id){
-        console.log(thing_id)
+        this.$router.push({path: 'thing-detail', query: {'thing_id': thing_id}, props: {thing: this.thing}})
       }
     }
 }

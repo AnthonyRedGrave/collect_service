@@ -18,11 +18,11 @@
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Dropdown link
+            Связь
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><a class="dropdown-item" @click="showMessages()">Сообщения</a></li>
+            <li><a class="dropdown-item" @click="showChats()">Чаты</a></li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </li>
@@ -34,7 +34,15 @@
 
 <script>
 export default {
-    name: "navbar"
+    name: "navbar",
+    methods: {
+      showMessages(){
+        this.$router.push({path: 'messages'})
+      },
+      showChats(){
+        this.$router.push({path: 'chats'})
+      }
+    },
 }
 </script>
 

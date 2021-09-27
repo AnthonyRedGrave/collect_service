@@ -1,20 +1,17 @@
 <template>
   <NavBar/>
-  <things/>
+  <router-view/>
 </template>
 
 <script>
-import Things from './components/Things.vue'
 import NavBar from './components/NavBar.vue'
 
 export default {
   name: 'App',
   components: {
-    Things,
     NavBar
   },
   created() {
-    console.log("created app")
     this.getAccessToken()
     
     this.getSectionChoices()
