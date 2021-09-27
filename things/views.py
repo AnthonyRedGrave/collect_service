@@ -38,6 +38,13 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
         queryset = self.queryset.filter(user=self.request.user)
         return queryset
 
+    @action(detail=False, methods=["get"])
+    def user_messages(self, request):
+        messages = self.queryset.filter(thing__owner = request.user)
+        serializer = self.get_serializer(messages, many=True)
+        return Response(serializer.data) 
+
+
     def create(self):
         pass
 

@@ -7,6 +7,7 @@ const store = createStore({
         refreshToken: null,
         username: JSON.parse(localStorage.getItem('username')),
         things: [],
+        messages: [],
         tags: [],
         section_choices: []
     },
@@ -18,6 +19,9 @@ const store = createStore({
         },
         updateSectionFilterChoices(state, { section_choices }) {
             state.section_choices = section_choices
+        },
+        updateMessages(state, { messages }) {
+            state.messages = messages
         },
         updateThings(state, { things }) {
             state.things = things
@@ -119,7 +123,23 @@ const store = createStore({
                     })
             })
         },
-
+        getMessagesList(context, access) {
+            return new Promise((resolve, reject) => {
+                axios({
+                        method: 'get',
+                        url: 'http://0.0.0.0:8000/api/thing_messages/user_messages/',
+                        headers: { Authorization: `Bearer ${access.token}` },
+                        credentials: 'include',
+                    }).then((responce) => {
+                        context.commit('updateMessages', { messages: responce.data })
+                        resolve(responce)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        reject(err)
+                    })
+            })
+        },
     },
     modules: {}
 })

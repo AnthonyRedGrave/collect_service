@@ -3,7 +3,7 @@ from django.http import request
 from django.urls.base import resolve
 import pytest
 from django.urls import reverse, resolve
-from things.tests.factories import ThingMessageFactory, UserFactory
+from things.tests.factories import ThingFactory, ThingMessageFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
 from things.views import ThingMessageViewSet
 
@@ -58,3 +58,17 @@ def test_detail_ThingMessageViewSet__success(api_client_with_credentials, create
     url = reverse('thingmessage-detail', kwargs={'pk': thing_message.id})
     response = api_client_with_credentials.get(url)
     assert response.status_code == 200
+
+
+def test_action_user_messages_ThingMessageViewSet__success(api_client_with_credentials):
+    owner = UserFactory()
+    user = UserFactory()
+    api_client_with_credentials.force_authenticate(user = owner)
+    thing = ThingFactory(owner=owner)
+    ThingMessageFactory(user=user, thing=thing)
+    url = reverse('thingmessage-user-messages')
+    response = api_client_with_credentials.get(url)
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    
+

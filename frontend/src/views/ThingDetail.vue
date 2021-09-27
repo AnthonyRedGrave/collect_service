@@ -49,8 +49,9 @@
           <hr>
           <div class="thing-detail-call-owner-block">
               <h3>Свяжитесь с продавцом</h3>
-              <thing-message/>
+              <thing-message @postMessage = "postMessage($event)"/>
           </div>
+          
           
       </div>
   </div>
@@ -171,6 +172,25 @@ export default {
             axios({
                 method: "post",
                 url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/comment/`,
+                data:{
+                    content: newCommentText
+                },
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                
+                })
+                .then(() => {
+                this.getComments()
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+        postMessage(newCommentText){
+            axios({
+                method: "post",
+                url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/message/`,
                 data:{
                     content: newCommentText
                 },

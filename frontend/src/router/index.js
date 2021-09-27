@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Things from '@/components/Things.vue'
 import ThingDetail from '@/views/ThingDetail.vue'
+import ThingMessagesList from '@/views/ThingMessagesList.vue'
+import ThingChatsList from '@/views/ThingChatsList.vue'
 
 const routes = [{
         path: '/',
@@ -11,6 +13,17 @@ const routes = [{
         path: '/thing-detail/',
         name: 'ThingDetail',
         component: ThingDetail,
+        props: true
+    },
+    {
+        path: '/messages/',
+        name: 'ThingMessagesList',
+        component: ThingMessagesList,
+    },
+    {
+        path: '/chats/',
+        name: 'ThingChatsList',
+        component: ThingChatsList,
         props: true
     }
 ]
