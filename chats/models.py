@@ -1,5 +1,5 @@
 from django.db import models
-from things.models import Thing, ThingMessage
+from things.models import Thing
 from django.contrib.auth.models import User
 
 class Chat(models.Model):
