@@ -53,6 +53,9 @@ class Thing(SoftDeleteMixin, models.Model):
     def get_comments(self):
         return self.comments.all()
 
+    def get_messages(self):
+        return self.thing_messages.all()
+
     def __str__(self):
         return f"Вещь {self.title}"
 
