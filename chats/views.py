@@ -16,9 +16,6 @@ class MessageViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     def perform_create(self, serializer):
         chat = serializer.validated_data['chat']
         user = self.request.user
-        print(user)
-        print(chat.member_1)
-        print(chat.member_2)
 
         if user != chat.member_1 and user != chat.member_2:
             raise APIException("Чтобы отправлять сообщения в чат пользователь должен быть его участником!")
@@ -26,7 +23,7 @@ class MessageViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         
 
 
-class ChatViewSet(ReadOnlyModelViewSet):
+class ChatViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     queryset = Chat.objects.all()
     serializer_class = ChatSerializer
     permission_classes = [IsAuthenticated]
