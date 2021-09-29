@@ -4,8 +4,6 @@ import pytest
 from chats.serializers import ChatSerializer
 from rest_framework.validators import ValidationError
 
-from chats.tests.factories import ChatFactory, MessageFactory
-
 pytestmark = pytest.mark.django_db
 
 def test_chat_serializer_thing__error():

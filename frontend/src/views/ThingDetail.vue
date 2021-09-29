@@ -42,12 +42,12 @@
               <div class="thing-detail-comments-block">
                 <comment-card v-for="comment in thing.comments" :key="comment.id" :comment="comment"/>
               </div>
-              <div class="thing-detail-comments-create">
+              <div v-if="username !== thing.owner_name" class="thing-detail-comments-create">
                 <comment-form @postComment = "postComment($event)"/>
               </div>
           </div>
           <hr>
-          <div class="thing-detail-call-owner-block">
+          <div v-if="username !== thing.owner_name" class="thing-detail-call-owner-block">
               <h3>Свяжитесь с продавцом</h3>
               <thing-message @postMessage = "postMessage($event)"/>
           </div>
@@ -75,7 +75,8 @@ export default {
             thing_rates: {
                 like: [],
                 dislike: []
-            }
+            },
+            username: JSON.parse(localStorage.getItem('username'))
         }
     },
     created() {
@@ -200,7 +201,7 @@ export default {
                 
                 })
                 .then(() => {
-                this.getComments()
+                    this.getComments()
                 })
                 .catch((err) => {
                 console.log(err);

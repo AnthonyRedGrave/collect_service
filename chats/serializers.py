@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from rest_framework.validators import ValidationError
 
+from django.contrib.auth.models import User
+
+from django.db.models import Q
+
 from .models import Chat, Message
 from things.models import Thing
 
@@ -20,8 +24,9 @@ class MessageSerializer(serializers.ModelSerializer):
         return chat
 
 
-
 class ChatSerializer(serializers.ModelSerializer):
+    member_1 = serializers.CharField()
+    member_2 = serializers.CharField()
     member_1_name = serializers.StringRelatedField(many=False, source="member_1")
     member_2_name = serializers.StringRelatedField(many=False, source="member_2")
     thing = serializers.CharField()
@@ -37,6 +42,18 @@ class ChatSerializer(serializers.ModelSerializer):
         if thing.owner != member_1 and thing.owner != member_2:
             raise ValidationError({"thing": "Невозможно создать чат с такими пользователями"})
         return data
+
+    def validate_member_1(self, value):
+        member_1 = User.objects.filter(Q(username__icontains=value) | Q(id__icontains = value)).last()
+        if not member_1:
+            raise ValidationError("Такого пользователя чата не существует!")
+        return member_1
+
+    def validate_member_2(self, value):
+        member_2 = User.objects.filter(Q(username__icontains=value) | Q(id__icontains = value)).last()
+        if not member_2:
+            raise ValidationError("Такого пользователя чата не существует!")
+        return member_2
 
     def validate_thing(self, value):
         thing = Thing.objects.filter(id=value).last()

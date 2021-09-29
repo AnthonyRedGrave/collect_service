@@ -14,6 +14,12 @@ class ThingMessageSerializer(serializers.ModelSerializer):
     user_name = serializers.StringRelatedField(many=False, source="user")
     thing_title = serializers.StringRelatedField(source="thing")
 
+    def validate_user(self, value):
+        thing = Thing.objects.filter(id = self.initial_data['thing']).last()
+        if value == thing.owner:
+            raise ValidationError("Пользователь не может связаться сам с собой!")
+        return value
+    
     class Meta:
         model = ThingMessage
         fields = ("id", "user_name", "thing_title", "content", "thing", "user")

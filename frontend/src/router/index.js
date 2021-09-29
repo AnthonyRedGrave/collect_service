@@ -3,6 +3,8 @@ import Things from '@/components/Things.vue'
 import ThingDetail from '@/views/ThingDetail.vue'
 import ThingMessagesList from '@/views/ThingMessagesList.vue'
 import ThingChatsList from '@/views/ThingChatsList.vue'
+import Chat from '@/views/Chat.vue'
+
 
 const routes = [{
         path: '/',
@@ -25,6 +27,11 @@ const routes = [{
         name: 'ThingChatsList',
         component: ThingChatsList,
         props: true
+    },
+    {
+        path: '/chat/',
+        name: 'Chat',
+        component: Chat
     }
 ]
 
