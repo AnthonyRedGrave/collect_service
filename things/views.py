@@ -66,6 +66,12 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filter_class = ThingFilter
 
+    @action(detail=False, methods=['get'])
+    def own(self, request):
+        things = self.queryset.filter(owner = request.user)
+        serializer = self.get_serializer(things, many=True)
+        return Response(serializer.data)
+
     @action(detail=False, methods=["get"])
     def rating(self, request):
         logger.info("ThingViewSet GET action rating Получение рейтинга вещей с разницей лайков/дизлайков")

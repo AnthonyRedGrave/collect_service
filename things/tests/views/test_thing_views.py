@@ -401,3 +401,14 @@ class TestMessage:
         response = api_client_with_credentials.post(url, data=data)
         assert response.status_code == 200
         assert response.json() == {"Message": "Created!"}
+
+
+class TestActionOwn:
+    def test_get_onwer_things__success(self, api_client):
+        owner = UserFactory()
+        api_client.force_authenticate(user=owner)
+        ThingFactory.create_batch(5, owner=owner)
+        url = reverse('thing-own')
+        response = api_client.get(url)
+        assert response.status_code == 200
+        assert len(response.json()) == 5
