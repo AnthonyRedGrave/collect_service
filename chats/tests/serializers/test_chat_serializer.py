@@ -6,7 +6,7 @@ from rest_framework.validators import ValidationError
 
 pytestmark = pytest.mark.django_db
 
-def test_chat_serializer_thing__error():
+def test_chat_serializer_wrong_members__error():
     member_1 = UserFactory()
     member_2 = UserFactory()
     thing = ThingFactory()
@@ -22,7 +22,7 @@ def test_chat_serializer_thing__error():
     assert 'thing' in serializer.errors.keys()
 
 
-def test_chat_serializer_wrong_members_error():
+def test_chat_serializer_create_chat__error():
     member_1 = UserFactory()
     member_2 = UserFactory()
     thing = ThingFactory(owner = member_2)
@@ -35,13 +35,8 @@ def test_chat_serializer_wrong_members_error():
 
     assert serializer.is_valid()
     assert serializer.data == {
-                               'member_1': member_1.id,
-                               'member_2': member_2.id, 
-                               'thing': str(thing), 
-                               'member_1_name': member_1.username, 
-                               'member_2_name': member_2.username
+                               'member_1': member_1.username,
+                               'member_2': member_2.username, 
+                               'thing': str(thing),
                               }
     assert serializer.errors == {}
-
-
-def test_chat_serializer___error():

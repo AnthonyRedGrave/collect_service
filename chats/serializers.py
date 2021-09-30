@@ -27,13 +27,11 @@ class MessageSerializer(serializers.ModelSerializer):
 class ChatSerializer(serializers.ModelSerializer):
     member_1 = serializers.CharField()
     member_2 = serializers.CharField()
-    member_1_name = serializers.StringRelatedField(many=False, source="member_1")
-    member_2_name = serializers.StringRelatedField(many=False, source="member_2")
     thing = serializers.CharField()
 
     class Meta:
         model = Chat
-        fields = ('id', 'member_1', 'member_2', 'thing', 'member_1_name', 'member_2_name')
+        fields = ('id', 'member_1', 'member_2', 'thing')
 
     def validate(self, data):
         member_1 = data['member_1']
