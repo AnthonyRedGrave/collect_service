@@ -23,6 +23,7 @@ export default {
   methods: {
     postThingMessage(){
       this.$emit("postMessage", this.newCommentText)
+      this.newCommentText = ""
     }
   },
 }

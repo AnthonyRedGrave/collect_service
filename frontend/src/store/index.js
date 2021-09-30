@@ -8,6 +8,7 @@ const store = createStore({
         username: JSON.parse(localStorage.getItem('username')),
         things: [],
         messages: [],
+        chats: [],
         tags: [],
         section_choices: []
     },
@@ -22,6 +23,9 @@ const store = createStore({
         },
         updateMessages(state, { messages }) {
             state.messages = messages
+        },
+        updateChats(state, { chats }) {
+            state.chats = chats
         },
         updateThings(state, { things }) {
             state.things = things
@@ -132,6 +136,23 @@ const store = createStore({
                         credentials: 'include',
                     }).then((responce) => {
                         context.commit('updateMessages', { messages: responce.data })
+                        resolve(responce)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        reject(err)
+                    })
+            })
+        },
+        getChatsList(context, access) {
+            return new Promise((resolve, reject) => {
+                axios({
+                        method: 'get',
+                        url: 'http://0.0.0.0:8000/api/chats/',
+                        headers: { Authorization: `Bearer ${access.token}` },
+                        credentials: 'include',
+                    }).then((responce) => {
+                        context.commit('updateChats', { chats: responce.data })
                         resolve(responce)
                     })
                     .catch(err => {

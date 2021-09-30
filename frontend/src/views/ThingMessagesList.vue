@@ -33,10 +33,9 @@
                   <h5>{{message.user_name}}</h5>
                   <p>{{message.content}}</p>
                   <div class="start_chat">
-                  <button type="button" class="btn btn-primary">Начать чат</button>
+                  <button type="button" @click="startChat(message)" class="btn btn-primary">Начать чат</button>
                 </div>
                 </div>
-                
               </div>
             </div>
           </div>
@@ -46,6 +45,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
     name: "ThingMessagesList",
     data() {
@@ -67,8 +67,30 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+    },
+    startChat(message){
+      axios({
+            method: "post",
+            url: `http://localhost:8000/api/chats/`,
+            data:{
+                member_1: JSON.parse(localStorage.getItem('username')),
+                member_2: message.user,
+                thing: message.thing,
+            },
+            headers: {
+            Authorization: `Bearer ${this.$store.state.accessToken}`,
+            },
+            
+            })
+            .then(() => {
+              this.$router.push({path: 'chat'})
+            })
+            .catch((err) => {
+            console.log(err);
+            });
     }
-  }
+  },
+  
 }
 </script>
 

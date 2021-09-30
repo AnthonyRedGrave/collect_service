@@ -15,15 +15,15 @@
             </div>
           </div>
           <div class="inbox_chat">
-            <div v-for="message in messages" :key="message.id" class="chat_list">
+            <div v-for="chat in chats" :key="chat.id" class="chat_list">
               <div class="chat_people">
                 <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                 <div class="chat_ib">
-                  <h6>Оставлен под вещью <b>{{message.thing_title}}</b></h6>
-                  <h5>{{message.user_name}}</h5>
-                  <p>{{message.content}}</p>
+                  <h6>Вещь разговора <b>{{chat.thing}}</b></h6>
+                  <h5>{{chat.member_1}}</h5>
+                  <h5>{{chat.member_2}}</h5>
                   <div class="start_chat">
-                  <button type="button" class="btn btn-primary">Начать чат</button>
+                  <button type="button" @click="continueChat(chat.id)" class="btn btn-primary">Продолжить чат</button>
                 </div>
                 </div>
                 
@@ -38,6 +38,31 @@
 <script>
 export default {
     name: 'ThingChatsList',
+    data(){
+      return{
+        chats: []
+      }
+    },
+    created() {
+      this.getChatsList()
+    },
+    methods:{
+      getChatsList(){
+        this.$store.dispatch("getChatsList", {
+        token: this.$store.state.accessToken,
+      })
+      .then((response) => {
+        this.chats = response.data
+      })
+        .catch((err) => {
+          console.log(err);
+        });
+      },
+      continueChat(chat_id){
+        this.$router.push({path: 'chat', query: {'chat_id': chat_id}})
+        
+      }
+    }
 }
 </script>
 

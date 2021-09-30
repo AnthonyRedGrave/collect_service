@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'core',
     'social_django',
     'vote',
-    'django_filters'
+    'django_filters',
+    'chats',
 
 
 ]
