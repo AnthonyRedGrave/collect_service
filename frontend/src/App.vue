@@ -11,23 +11,27 @@ export default {
   components: {
     NavBar
   },
+  data() {
+    return {
+      username: JSON.parse(localStorage.getItem('usernmae'))
+    }
+  },
   created() {
-    this.getAccessToken()
     
-    this.getSectionChoices()
+    // this.getSectionChoices()
   },
   methods:{
-    getAccessToken() {
-      this.$store
-        .dispatch("userLogin", {
-          username: "admin",
-          password: 12345,
-        })
-        .then(() => {})
-        .catch((err) => {
-          console.log(err);
-        });
-    },
+    // getAccessToken() {
+    //   this.$store
+    //     .dispatch("userLogin", {
+    //       username: "admin",
+    //       password: 12345,
+    //     })
+    //     .then(() => {})
+    //     .catch((err) => {
+    //       console.log(err);
+    //     });
+    // },
     
     getSectionChoices(){
       this.$store

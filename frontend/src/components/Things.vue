@@ -1,13 +1,21 @@
 <template>
-  <div class="form-wrapper">
-    <filter-form @filteringThings="filteringThings($event)" @dropFilters = "dropFilters($event)"/>
-  </div>
-  <div class="things-list" v-if="things.length !== 0">
-    <ThingCard v-for="thing in things" :thing="thing" :key="thing.id"/>
-  </div>
-  <div v-else class="no-items-block">
-      <h2>К сожалению, вещей не нашлось</h2>
+  <div v-if="username" class="">
+    <div class="form-wrapper">
+      <filter-form @filteringThings="filteringThings($event)" @dropFilters = "dropFilters($event)"/>
     </div>
+    <div class="things-list" v-if="things.length !== 0">
+      <ThingCard v-for="thing in things" :thing="thing" :key="thing.id"/>
+    </div>
+    <div v-else class="no-items-block">
+        <h2>К сожалению, вещей не нашлось</h2>
+    </div>
+  </div>
+  <div v-else class="">
+    <h2>Пользоваться сервисом можно авторизованным пользователям!</h2>
+  </div>
+    
+
+  
 </template>
 
 <script>
@@ -24,7 +32,8 @@ export default {
   data() {
     return {
       things: [],
-    };
+      username: JSON.parse(localStorage.getItem('username'))
+    }
   },
   created() {
     this.getThingList()
