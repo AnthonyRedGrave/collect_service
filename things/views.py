@@ -66,6 +66,12 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filter_class = ThingFilter
 
+    @action(detail=False, methods=['get'])
+    def own(self, request):
+        things = self.queryset.filter(owner = request.user)
+        serializer = self.get_serializer(things, many=True)
+        return Response(serializer.data)
+
     @action(detail=False, methods=["get"])
     def rating(self, request):
         logger.info("ThingViewSet GET action rating Получение рейтинга вещей с разницей лайков/дизлайков")
@@ -77,16 +83,15 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     @action(detail=True, methods=["get", "post"])
     def rate(self, request, pk=None):
         thing = self.get_object()
+        request_data = request.GET or request.data
+        serializer = VoteSerializer(data = request_data)
+        serializer.is_valid(raise_exception=True)
         if request.method == "GET":
             logger.info("ThingViewSet GET action rate Получение всех лайков/дизлайков вещи")
-            serializer = VoteSerializer(data = request.GET)
-            serializer.is_valid(raise_exception=True)
             serializer = VoteSerializer(thing.vote_set.filter(value = serializer.validated_data['value']), many=True)
             return Response(serializer.data)
         else:
             logger.info("ThingViewSet POST action rate Создание нового лайка/дизлайка для вещи")
-            serializer = VoteSerializer(data = request.data)
-            serializer.is_valid(raise_exception=True)
             response = create_or_delete_vote(thing, request.user, serializer.validated_data['value'])
             serializer = VoteSerializer(response)
             return Response(serializer.data)

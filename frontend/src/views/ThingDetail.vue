@@ -9,11 +9,14 @@
                   <div class="thing-detail-title-block">
                     <div class="thing-detail-title">
                         <h1>{{thing.title}}</h1>
+                        <button v-if="username == thing.owner_name" class="btn btn-primary">Изменить</button>
                     </div>
                 </div>
                 <hr>
                 <div class="thing-detail-section">
                     <h3>{{thing.section_name}}</h3>
+                    <button v-if="username == thing.owner_name" class="btn btn-primary">Изменить</button>
+
                 </div>
                 <div class="thing-detail-tags-block">
                     <div class="thing-detail-tags">
@@ -35,6 +38,8 @@
           <div class="thing-detail-content-block">
                 <div class="thing-detail-content">
                     <h4>{{thing.content}}</h4>
+                    <button v-if="username == thing.owner_name" class="btn btn-primary">Изменить</button>
+
                 </div>
             <hr>
           </div>
