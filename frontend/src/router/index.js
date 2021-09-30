@@ -3,6 +3,7 @@ import Things from '@/components/Things.vue'
 import ThingDetail from '@/views/ThingDetail.vue'
 import ThingMessagesList from '@/views/ThingMessagesList.vue'
 import ThingChatsList from '@/views/ThingChatsList.vue'
+import OwnerThings from '@/views/OwnerThings.vue'
 import Chat from '@/views/Chat.vue'
 import Login from '@/views/Login.vue'
 import store from '@/store/index.js'
@@ -14,7 +15,7 @@ const routes = [{
         component: Things
     },
     {
-        path: '/thing-detail/',
+        path: '/thing-detail',
         name: 'ThingDetail',
         component: ThingDetail,
         props: true
@@ -40,6 +41,11 @@ const routes = [{
         name: 'login',
         component: Login
     },
+    {
+        path: '/own_things',
+        name: 'own_things',
+        component: OwnerThings
+    }
 ]
 
 const router = createRouter({

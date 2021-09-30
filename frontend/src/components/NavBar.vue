@@ -30,6 +30,7 @@
             Добрый день, {{username}}
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li><a class="dropdown-item" @click="ownerThings()">Ваши вещи</a></li>
             <li><a class="dropdown-item" @click="logOut()">Выйти</a></li>
           </ul>
         </li>
@@ -70,6 +71,9 @@ export default {
         this.$store.dispatch('userLogout')
         this.$router.push({name: 'Things'})
 
+      },
+      ownerThings(){
+        this.$router.push({name: 'own_things'})
       }
     },
 }

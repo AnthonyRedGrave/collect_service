@@ -1,6 +1,6 @@
 import pytest
 
-from things.tests.factories import ThingFactory
+from things.tests.factories import ThingFactory, UserFactory
 from things.serializers import ThingMessageSerializer
 from rest_framework.validators import ValidationError
 
@@ -9,29 +9,29 @@ pytestmark = pytest.mark.django_db
 @pytest.mark.parametrize("content", ("Текст первого сообщения", "тЕкСт ПерВОго сОобЩенИя", "   Сообщение   ", 123))
 def test_thing_message_serializer_content__success(content):
     thing = ThingFactory()
-
+    user = UserFactory()
     data = {
         'content': content,
-        'user': thing.owner.id,
+        'user': user.id,
         'thing': thing.id
     }
     serializer = ThingMessageSerializer(data=data)
-    
     assert serializer.is_valid() == True
     assert serializer.data == {'content': str(content).strip(),
-                               'user': thing.owner.id,
+                               'user': user.id,
                                'thing': thing.id,
                                'thing_title': thing.__str__(),
-                               'user_name': thing.owner.username}
+                               'user_name': user.username}
     assert serializer.errors == {}
 
 
 @pytest.mark.parametrize("content", (False, "", None))
 def test_thing_message_serializer_content__error(content):
     thing = ThingFactory()
+    user = UserFactory()
     data = {
         'content': content,
-        'user': thing.owner.id,
+        'user': user.id,
         'thing': thing.id
     }
        

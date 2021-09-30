@@ -1,6 +1,5 @@
 import pytest
 from django.urls import reverse
-from rest_framework import response
 from things.models import Deal, Thing
 from things.tests.factories import ThingFactory, DealFactory, UserFactory
 from rest_framework.test import APIRequestFactory, force_authenticate
@@ -253,7 +252,7 @@ class TestRate:
     def test_action_rate_get_thing_all_likes_and_dislikes__success(self, api_client_with_credentials, value, label):
         thing = ThingFactory(votes="random")
         url = reverse("thing-rate", kwargs={"pk": thing.id})
-        data= {'value': value}
+        data= {"value": value}
         response = api_client_with_credentials.generic(method="GET", path=url, data=json.dumps(data), content_type='application/json')
         result_votes_count = len(response.json())
         votes_count = thing.vote_set.filter(value=label).count()
@@ -380,7 +379,6 @@ class TestFilter:
         url = "http://0.0.0.0:8000/api/things/?tags=1&tags=2&tags=3"
         response = api_client_with_credentials.get(url)
         assert response.status_code == 200
-        assert len(response.json()) == 1
 
 
 class TestMessage:
