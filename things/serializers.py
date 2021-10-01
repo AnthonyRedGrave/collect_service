@@ -57,6 +57,33 @@ class ThingSerializer(serializers.ModelSerializer):
         read_only_fields = ("owner",)
 
 
+class PartialUpdateSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    # state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)
+    content = serializers.CharField()
+    section = serializers.CharField()
+    tags = serializers.CharField()
+
+    def validate_section(self, value):
+        section = Section.objects.filter(id=value).last()
+        if not section:
+            message = "Такого раздела не существует"
+            logger.error(message, {'section_id': value})
+            raise ValidationError(message)
+        return section
+
+
+    def validate_tags(self, value):
+        tags = value.split(",")
+        tags_from_db = Tag.objects.filter(id__in=tags).all()
+        if len(tags) != len(tags_from_db):
+            message = "Не все теги существуют!"
+            logger.error(message, {'tags': value})
+            raise ValidationError(message)
+        return list(tags_from_db)
+
+
+
 class CreateThingSerializer(serializers.Serializer):
     title = serializers.CharField()
     state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)

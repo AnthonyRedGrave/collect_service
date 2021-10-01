@@ -6,6 +6,8 @@ from .models import ThingMessage, Thing, Section, Deal
 from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import (
     CreateDealSerializer,
+    CreateThingSerializer,
+    PartialUpdateSerializer,
     SectionSerializer,
     ThingSerializer,
     ThingMessageSerializer,
@@ -55,7 +57,7 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
         pass
 
 
-class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
+class ThingViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet):
     queryset = (
         Thing.objects.all()
         .prefetch_related("tags", "comments")
@@ -65,6 +67,11 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filter_class = ThingFilter
+
+    def get_serializer_class(self):
+        if self.action == 'partial_update':
+            return PartialUpdateSerializer
+        return super().get_serializer_class()
 
     @action(detail=False, methods=['get'])
     def own(self, request):
@@ -157,8 +164,17 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     def destroy(self):
         pass
 
-    def update(self):
-        pass
+    def perform_update(self, serializer):
+        thing = self.get_object()
+        thing.title = serializer.validated_data.get('title', thing.title)
+        thing.content = serializer.validated_data.get('content', thing.content)
+        thing.section = serializer.validated_data.get('section', thing.section)
+        tags = serializer.validated_data.get('tags', thing.tags)
+        if tags.count() != 0:
+            print(tags.count())
+            thing.tags.set(tags)
+        thing.save()
+        return Response(serializer.data)
 
 
 class SectionViewSet(ReadOnlyModelViewSet):

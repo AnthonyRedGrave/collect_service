@@ -43,7 +43,7 @@
                 </button>
                 </h2>
                 <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body"><p class="accordion-tag-title" @click="simplefilteringThings('tags', tag.id)" v-bind:id="tag.id" v-for="tag in tags" :key="tag.id">{{tag.title}}</p></div>
+                <div class="accordion-body"><p class="accordion-tag-title" @click="simplefilteringThings('tags', tag.id)" v-bind:id="tag.id" v-for="tag in this.$store.state.tags" :key="tag.id">{{tag.title}}</p></div>
                 </div>
             </div>
         </div>
@@ -69,7 +69,6 @@ export default {
                 ordering: ""
             },
             ordering: null,
-            tags: [],
             state_list: [{
                 label: "Лучшее",
                 value: "Awesome",
@@ -88,21 +87,7 @@ export default {
             }]
         }
     },
-    mounted() {
-        this.getThingTags()
-    },
     methods:{
-        getThingTags(){
-            this.$store.dispatch("getThingTagsList", {
-                token: this.$store.state.accessToken,
-            })
-            .then((response) => {
-                this.tags = response.data
-            })
-                .catch((err) => {
-                console.log(err);
-                });
-        },
         simplefilteringThings(filtername, value){
             let filter = {
                 filtername: filtername,
