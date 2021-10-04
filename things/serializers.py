@@ -32,7 +32,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 class ThingSerializer(serializers.ModelSerializer):
-    state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)
+    state = serializers.ChoiceField(choices=Thing.StateChoices, source = 'get_state_display')
     owner_name = serializers.StringRelatedField(many=False, source="owner")
     section_name = serializers.StringRelatedField(many=False, source="section")
     comments = CommentSerializer(many=True, read_only=True)
@@ -59,7 +59,7 @@ class ThingSerializer(serializers.ModelSerializer):
 
 class PartialUpdateSerializer(serializers.Serializer):
     title = serializers.CharField()
-    # state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)
+    state = serializers.ChoiceField(choices=Thing.StateChoices)
     content = serializers.CharField()
     section = serializers.CharField()
     tags = serializers.CharField()
@@ -86,7 +86,7 @@ class PartialUpdateSerializer(serializers.Serializer):
 
 class CreateThingSerializer(serializers.Serializer):
     title = serializers.CharField()
-    state = serializers.ChoiceField(choices=Thing.STATE_CHOICES)
+    state = serializers.ChoiceField(choices=Thing.StateChoices)
     owner = serializers.CharField()
     content = serializers.CharField()
     section = serializers.CharField()

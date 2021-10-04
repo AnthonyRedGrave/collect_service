@@ -26,6 +26,16 @@
                 <div v-else class="thing-detail-section">
                     <h3>{{thing.section_name}}</h3>
                 </div>
+                <div v-if="username == thing.owner_name"  class="thing-detail-section">
+                    <h1>Качество: {{thing.state}}</h1>
+                    <select class="form-select state" aria-label="Default select example">
+                    <option v-for="state in this.state_list" :key="state.id" :value=state.value>{{state.label}}</option>
+                    </select>
+                    <button style="margin-top: 15px; margin-bottom: 15px;" @click="changeElement('state')"  class="btn btn-primary">Изменить</button>
+                </div>
+                <div v-else class="thing-detail-section">
+                    <h3>Качество: {{thing.state}}</h3>
+                </div>
                 <div class="thing-detail-tags-block">
                     <div v-if="username == thing.owner_name" style="margin-bottom: 15px;" class="thing-detail-tags">
                         <h3>Теги:</h3>
@@ -101,7 +111,23 @@ export default {
                 dislike: []
             },
             username: JSON.parse(localStorage.getItem('username')),
-            chosed_tags: []
+            chosed_tags: [],
+            state_list: [{
+                label: "Лучшее",
+                value: "Awesome",
+            },
+            {
+                label: "Хорошее",
+                value: "Good",
+            },
+            {
+                label: "Потрепанное",
+                value: "Shabby",
+            },
+            {
+                label: "Плохое",
+                value: "Bad",
+            }]
         }
     },
     created() {
@@ -120,7 +146,8 @@ export default {
                 credentials: "include",
                 })
                 .then((responce) => {
-                this.thing = responce.data
+                    console.log(responce.data)
+                    this.thing = responce.data
                 })
                 .catch((err) => {
                 console.log(err);
@@ -252,10 +279,8 @@ export default {
             this.chosed_tags.push(`${tag_id}`)
         },
         changeTags(){
-            // console.log(Object.values(this.chosed_tags))
-            console.log([...this.chosed_tags])
             let data = {}
-            data['tags'] = [...this.chosed_tags]
+            data['tags'] = [...this.chosed_tags].toString()
             axios({
                 method: "patch",
                 url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/`,

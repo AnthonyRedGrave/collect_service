@@ -169,9 +169,9 @@ class ThingViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyMod
         thing.title = serializer.validated_data.get('title', thing.title)
         thing.content = serializer.validated_data.get('content', thing.content)
         thing.section = serializer.validated_data.get('section', thing.section)
-        tags = serializer.validated_data.get('tags', thing.tags)
-        if tags.count() != 0:
-            print(tags.count())
+        thing.state = serializer.validated_data.get('state', thing.state)
+        tags = serializer.validated_data.get('tags', [])
+        if len(tags) != 0:
             thing.tags.set(tags)
         thing.save()
         return Response(serializer.data)
