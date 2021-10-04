@@ -1,3 +1,4 @@
+from rest_framework import request
 from rest_framework.viewsets import ModelViewSet
 from .serializers import CommentSerializer
 from .models import Comment
@@ -6,3 +7,7 @@ from .models import Comment
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset

@@ -17,11 +17,7 @@ def test_thing_message_serializer_content__success(content):
     }
     serializer = ThingMessageSerializer(data=data)
     assert serializer.is_valid() == True
-    assert serializer.data == {'content': str(content).strip(),
-                               'user': user.id,
-                               'thing': thing.id,
-                               'thing_title': thing.__str__(),
-                               'user_name': user.username}
+    assert serializer.data['content'] == str(content).strip()
     assert serializer.errors == {}
 
 

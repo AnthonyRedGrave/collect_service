@@ -4,6 +4,7 @@ import ThingDetail from '@/views/ThingDetail.vue'
 import ThingMessagesList from '@/views/ThingMessagesList.vue'
 import ThingChatsList from '@/views/ThingChatsList.vue'
 import OwnerThings from '@/views/OwnerThings.vue'
+import UserThingMessages from '@/views/UserThingMessages.vue'
 import Chat from '@/views/Chat.vue'
 import Login from '@/views/Login.vue'
 import store from '@/store/index.js'
@@ -45,6 +46,11 @@ const routes = [{
         path: '/own_things',
         name: 'own_things',
         component: OwnerThings
+    },
+    {
+        path: '/user_thing_messages',
+        name: 'user_thing_messages',
+        component: UserThingMessages
     }
 ]
 
