@@ -10,7 +10,7 @@
           <div class="userThingMessage-thing">
               <h4>Под какой вещью оставлен: <p @click="showItem(message.thing)">{{message.thing_title}}</p></h4>    
           </div>
-          <button style="margin: 15px;" class="btn btn-danger">Удалить</button>
+          <button style="margin: 15px;" class="btn btn-danger" @click="deleteMessage(message.id)">Удалить</button>
       </div>
       <br>
       <br>
@@ -22,9 +22,9 @@
           <hr>
           </div>
           <div class="userThingMessage-thing">
-              <h4>Под какой вещью оставлен: <p @click="showItem(message.thing)">{{comment.thing_title}}</p></h4>    
+              <h4><a @click="showItem(comment.object_id)">Вещь, под которой оставлен</a></h4>    
           </div>
-          <button style="margin: 15px;" class="btn btn-danger">Удалить</button>
+          <button style="margin: 15px;" class="btn btn-danger" @click="deleteComment(comment.id)">Удалить</button>
       </div>
   </div>
 
@@ -74,8 +74,39 @@ export default {
                 credentials: "include",
                 })
                 .then((responce) => {
-                    console.log(responce.data)
                     this.userThingComments = responce.data
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+        deleteMessage(id){
+            axios({
+                method: "delete",
+                url: `http://localhost:8000/api/thing_messages/${id}`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then(() => {
+                    this.getUserThingMessages()
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+        deleteComment(id){
+            axios({
+                method: "delete",
+                url: `http://localhost:8000/api/comments/${id}`,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                credentials: "include",
+                })
+                .then(() => {
+                    this.getUserThingComments()
                 })
                 .catch((err) => {
                 console.log(err);

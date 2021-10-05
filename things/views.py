@@ -30,27 +30,24 @@ from .filters import ThingFilter
 logger = logging.getLogger(__name__)
 
 
-class ThingMessageViewSet(ReadOnlyModelViewSet):
+class ThingMessageViewSet(mixins.DestroyModelMixin, ReadOnlyModelViewSet):
     queryset = ThingMessage.objects.all()
     serializer_class = ThingMessageSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         logger.info("ThingMessageViewSet GET get_queryset")
-        queryset = self.queryset.filter(user=self.request.user)
+        queryset = self.queryset.filter(user=self.request.user, deleted=False)
         return queryset
 
     @action(detail=False, methods=["get"])
     def user_messages(self, request):
-        messages = self.queryset.filter(thing__owner = request.user)
+        messages = self.queryset.filter(thing__owner = request.user, deleted=False)
         serializer = self.get_serializer(messages, many=True)
         return Response(serializer.data) 
 
 
     def create(self):
-        pass
-
-    def destroy(self):
         pass
 
     def update(self):
@@ -130,7 +127,6 @@ class ThingViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyMod
                 "object_id": thing.id,
             }
             serializer = CommentSerializer(data=data)
-
             serializer.is_valid(raise_exception=True)
             logger.info("ThingViewSet POST action comment Создание комментария для вещи")
             Comment.objects.create(**serializer.validated_data, content_object=thing)
@@ -156,7 +152,7 @@ class ThingViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyMod
         else:
             serializer = ThingMessageSerializer(thing.get_messages(), many=True)
             return Response(serializer.data)
-
+ 
     def perform_create(self, serializer):
         logger.info("ThingViewSet perform create Создание вещи")
         Thing.objects.create(**serializer.validated_data, owner=self.request.user)

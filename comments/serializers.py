@@ -1,9 +1,8 @@
-from things.models import Thing
 from rest_framework import serializers
 from .models import Comment
 
 
-class CommentSerializer(serializers.HyperlinkedModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     user_name = serializers.StringRelatedField(many=False, source = 'user')
 
 

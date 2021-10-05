@@ -26,13 +26,6 @@ class Thing(SoftDeleteMixin, models.Model):
         shabby = "Shabby", "Потрепанное"
         bad = "Bad", "Плохое"
 
-    # STATE_CHOICES = [
-    #     ("Awesome", "Лучшее"),
-    #     ("Good", "Хорошее"),
-    #     ("Shabby", "Потрепанное"),
-    #     ("Bad", "Плохое"),
-    # ]
-
     title = models.CharField("Название вещи", max_length=150)
     content = models.TextField("Описание")
     state = models.CharField(

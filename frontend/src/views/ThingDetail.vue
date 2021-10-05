@@ -146,7 +146,6 @@ export default {
                 credentials: "include",
                 })
                 .then((responce) => {
-                    console.log(responce.data)
                     this.thing = responce.data
                 })
                 .catch((err) => {
