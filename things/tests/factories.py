@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 import random
 from vote.tests.factories import VoteFactory
 
-THING_STATE_CHOICES = [x[0] for x in Thing.STATE_CHOICES]
+THING_STATE_CHOICES = [x[0] for x in Thing.StateChoices.choices]
 
 def get_thing_state_choices():
     return random.choice(THING_STATE_CHOICES)

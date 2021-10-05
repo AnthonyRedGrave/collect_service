@@ -6,6 +6,8 @@ from .models import ThingMessage, Thing, Section, Deal
 from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import (
     CreateDealSerializer,
+    CreateThingSerializer,
+    PartialUpdateSerializer,
     SectionSerializer,
     ThingSerializer,
     ThingMessageSerializer,
@@ -28,19 +30,19 @@ from .filters import ThingFilter
 logger = logging.getLogger(__name__)
 
 
-class ThingMessageViewSet(ReadOnlyModelViewSet):
+class ThingMessageViewSet(mixins.DestroyModelMixin, ReadOnlyModelViewSet):
     queryset = ThingMessage.objects.all()
     serializer_class = ThingMessageSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         logger.info("ThingMessageViewSet GET get_queryset")
-        queryset = self.queryset.filter(user=self.request.user)
+        queryset = self.queryset.filter(user=self.request.user, deleted=False)
         return queryset
 
     @action(detail=False, methods=["get"])
     def user_messages(self, request):
-        messages = self.queryset.filter(thing__owner = request.user)
+        messages = self.queryset.filter(thing__owner = request.user, deleted=False)
         serializer = self.get_serializer(messages, many=True)
         return Response(serializer.data) 
 
@@ -48,14 +50,11 @@ class ThingMessageViewSet(ReadOnlyModelViewSet):
     def create(self):
         pass
 
-    def destroy(self):
-        pass
-
     def update(self):
         pass
 
 
-class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
+class ThingViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, ReadOnlyModelViewSet):
     queryset = (
         Thing.objects.all()
         .prefetch_related("tags", "comments")
@@ -65,6 +64,11 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filter_class = ThingFilter
+
+    def get_serializer_class(self):
+        if self.action == 'partial_update':
+            return PartialUpdateSerializer
+        return super().get_serializer_class()
 
     @action(detail=False, methods=['get'])
     def own(self, request):
@@ -123,7 +127,6 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
                 "object_id": thing.id,
             }
             serializer = CommentSerializer(data=data)
-
             serializer.is_valid(raise_exception=True)
             logger.info("ThingViewSet POST action comment Создание комментария для вещи")
             Comment.objects.create(**serializer.validated_data, content_object=thing)
@@ -149,7 +152,7 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
         else:
             serializer = ThingMessageSerializer(thing.get_messages(), many=True)
             return Response(serializer.data)
-
+ 
     def perform_create(self, serializer):
         logger.info("ThingViewSet perform create Создание вещи")
         Thing.objects.create(**serializer.validated_data, owner=self.request.user)
@@ -157,8 +160,17 @@ class ThingViewSet(mixins.CreateModelMixin, ReadOnlyModelViewSet):
     def destroy(self):
         pass
 
-    def update(self):
-        pass
+    def perform_update(self, serializer):
+        thing = self.get_object()
+        thing.title = serializer.validated_data.get('title', thing.title)
+        thing.content = serializer.validated_data.get('content', thing.content)
+        thing.section = serializer.validated_data.get('section', thing.section)
+        thing.state = serializer.validated_data.get('state', thing.state)
+        tags = serializer.validated_data.get('tags', [])
+        if len(tags) != 0:
+            thing.tags.set(tags)
+        thing.save()
+        return Response(serializer.data)
 
 
 class SectionViewSet(ReadOnlyModelViewSet):

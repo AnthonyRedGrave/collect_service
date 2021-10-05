@@ -7,19 +7,43 @@
               </div>
               <div class="thing-detail-info-block">
                   <div class="thing-detail-title-block">
-                    <div class="thing-detail-title">
+                    <div v-if="username == thing.owner_name" class="thing-detail-title">
+                        <input class="form-control title" :value=thing.title>
+                        <button style="margin-top: 10px;" @click="changeElement('title')" class="btn btn-primary ">Изменить</button>
+                    </div>
+                    <div v-else class="thing-detail-title">
                         <h1>{{thing.title}}</h1>
-                        <button v-if="username == thing.owner_name" class="btn btn-primary">Изменить</button>
                     </div>
                 </div>
                 <hr>
-                <div class="thing-detail-section">
+                <div v-if="username == thing.owner_name"  class="thing-detail-section">
+                    <h1>{{thing.section_name}}</h1>
+                    <select class="form-select section" aria-label="Default select example">
+                    <option v-for="section in this.$store.state.section_choices" :key="section.id" :value=section.id>{{section.title}}</option>
+                    </select>
+                    <button style="margin-top: 15px; margin-bottom: 15px;" @click="changeElement('section')"  class="btn btn-primary">Изменить</button>
+                </div>
+                <div v-else class="thing-detail-section">
                     <h3>{{thing.section_name}}</h3>
-                    <button v-if="username == thing.owner_name" class="btn btn-primary">Изменить</button>
-
+                </div>
+                <div v-if="username == thing.owner_name"  class="thing-detail-section">
+                    <h1>Качество: {{thing.state}}</h1>
+                    <select class="form-select state" aria-label="Default select example">
+                    <option v-for="state in this.state_list" :key="state.id" :value=state.value>{{state.label}}</option>
+                    </select>
+                    <button style="margin-top: 15px; margin-bottom: 15px;" @click="changeElement('state')"  class="btn btn-primary">Изменить</button>
+                </div>
+                <div v-else class="thing-detail-section">
+                    <h3>Качество: {{thing.state}}</h3>
                 </div>
                 <div class="thing-detail-tags-block">
-                    <div class="thing-detail-tags">
+                    <div v-if="username == thing.owner_name" style="margin-bottom: 15px;" class="thing-detail-tags">
+                        <h3>Теги:</h3>
+                        <p class="thing-detail-tag" v-for="tag in thing.tags" :key="tag.id">{{tag.title}}</p>
+                        <div class="accordion-tag-block"><p class="accordion-tag-title" @click="chooseTags(tag.id)" v-for="tag in this.$store.state.tags" :key="tag.id">{{tag.title}}</p></div>
+                        <button style="margin-top: 15px; margin-bottom: 15px;" @click="changeTags()" class="btn btn-primary">Изменить</button>
+                    </div>
+                    <div v-else class="thing-detail-tags">
                         <h3>Теги:</h3>
                         <p class="thing-detail-tag" v-for="tag in thing.tags" :key="tag.id">{{tag.title}}</p>
                     </div>
@@ -36,10 +60,12 @@
               
           </div>
           <div class="thing-detail-content-block">
-                <div class="thing-detail-content">
+                <div v-if="username == thing.owner_name" class="thing-detail-content">
+                    <textarea class="form-control content" cols="80" rows="2" :value=thing.content></textarea>
+                    <button style="margin-top: 15px;" @click="changeElement('content')" class="btn btn-primary">Изменить</button>
+                </div>
+                <div v-else class="thing-detail-content">
                     <h4>{{thing.content}}</h4>
-                    <button v-if="username == thing.owner_name" class="btn btn-primary">Изменить</button>
-
                 </div>
             <hr>
           </div>
@@ -77,11 +103,31 @@ export default {
     data() {
         return {
             thing: {},
+            thing_title: "",
+            thing_content: "",
+            thing_state: "",
             thing_rates: {
                 like: [],
                 dislike: []
             },
-            username: JSON.parse(localStorage.getItem('username'))
+            username: JSON.parse(localStorage.getItem('username')),
+            chosed_tags: [],
+            state_list: [{
+                label: "Лучшее",
+                value: "Awesome",
+            },
+            {
+                label: "Хорошее",
+                value: "Good",
+            },
+            {
+                label: "Потрепанное",
+                value: "Shabby",
+            },
+            {
+                label: "Плохое",
+                value: "Bad",
+            }]
         }
     },
     created() {
@@ -100,7 +146,7 @@ export default {
                 credentials: "include",
                 })
                 .then((responce) => {
-                this.thing = responce.data
+                    this.thing = responce.data
                 })
                 .catch((err) => {
                 console.log(err);
@@ -165,7 +211,6 @@ export default {
                 headers: {
                 Authorization: `Bearer ${this.$store.state.accessToken}`,
                 },
-                
                 })
                 .then((responce) => {
                 this.thing.comments = responce.data
@@ -184,7 +229,6 @@ export default {
                 headers: {
                 Authorization: `Bearer ${this.$store.state.accessToken}`,
                 },
-                
                 })
                 .then(() => {
                 this.getComments()
@@ -203,10 +247,49 @@ export default {
                 headers: {
                 Authorization: `Bearer ${this.$store.state.accessToken}`,
                 },
-                
                 })
                 .then(() => {
                     this.getComments()
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+        changeElement(thing_field){
+            let element = document.querySelector(`.${thing_field}`)
+            let data = {}
+            data[thing_field] = element.value
+            axios({
+                method: "patch",
+                url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/`,
+                data:data,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                })
+                .then(() => {
+                    this.getThing()
+                })
+                .catch((err) => {
+                console.log(err);
+                });
+        },
+        chooseTags(tag_id){
+            this.chosed_tags.push(`${tag_id}`)
+        },
+        changeTags(){
+            let data = {}
+            data['tags'] = [...this.chosed_tags].toString()
+            axios({
+                method: "patch",
+                url: `http://localhost:8000/api/things/${this.$route.query.thing_id}/`,
+                data:data,
+                headers: {
+                Authorization: `Bearer ${this.$store.state.accessToken}`,
+                },
+                })
+                .then(() => {
+                    this.getThing()
                 })
                 .catch((err) => {
                 console.log(err);
@@ -276,5 +359,14 @@ export default {
     }
     .thing-detail-comments-create{
         margin-left: 150px;
+    }
+
+    .accordion-tag-block{
+        display: flex;
+
+    }
+
+    .accordion-tag-title{
+        margin: 5px;
     }
 </style>

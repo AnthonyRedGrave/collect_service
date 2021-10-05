@@ -9,8 +9,8 @@ const store = createStore({
         things: [],
         messages: [],
         chats: [],
-        tags: [],
-        section_choices: []
+        tags: JSON.parse(localStorage.getItem('tags')),
+        section_choices: JSON.parse(localStorage.getItem('sections'))
     },
     mutations: {
         updateAuthCredentials(state, { access, refresh, username }) {
@@ -85,6 +85,7 @@ const store = createStore({
                         credentials: 'include',
                     }).then((responce) => {
                         context.commit('updateSectionFilterChoices', { section_choices: responce.data })
+                        localStorage.setItem("sections", JSON.stringify(responce.data))
                         resolve(responce)
                     })
                     .catch(err => {
@@ -119,6 +120,7 @@ const store = createStore({
                         credentials: 'include',
                     }).then((responce) => {
                         context.commit('updateTags', { tags: responce.data })
+                        localStorage.setItem("tags", JSON.stringify(responce.data))
                         resolve(responce)
                     })
                     .catch(err => {

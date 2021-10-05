@@ -20,17 +20,16 @@ class Section(SoftDeleteMixin, models.Model):
 
 class Thing(SoftDeleteMixin, models.Model):
 
-    STATE_CHOICES = [
-        ("Awesome", "Лучшее"),
-        ("Good", "Хорошее"),
-        ("Shabby", "Потрепанное"),
-        ("Bad", "Плохое"),
-    ]
+    class StateChoices(models.TextChoices):
+        awesome = "Awesome", "Лучшее"
+        good = "Good", "Хорошее"
+        shabby = "Shabby", "Потрепанное"
+        bad = "Bad", "Плохое"
 
     title = models.CharField("Название вещи", max_length=150)
     content = models.TextField("Описание")
     state = models.CharField(
-        verbose_name="Состояние вещи", choices=STATE_CHOICES, max_length=50
+        verbose_name="Состояние вещи", choices=StateChoices.choices, max_length=50
     )
     section = models.ForeignKey(
         Section,

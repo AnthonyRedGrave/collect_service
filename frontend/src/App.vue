@@ -1,47 +1,26 @@
 <template>
-  <NavBar/>
-  <router-view/>
+  <div v-if="username" class="">
+    <Main/>
+  </div>
+  <div v-else class="">
+    <h2>Пользоваться сервисом можно авторизованным пользователям!</h2>
+    <login/>
+  </div>
 </template>
 
 <script>
-import NavBar from './components/NavBar.vue'
+import Login from './views/Login.vue';
+import Main from './views/Main.vue';
 
 export default {
   name: 'App',
   components: {
-    NavBar
+    Main,
+    Login
   },
   data() {
     return {
-      username: JSON.parse(localStorage.getItem('usernmae'))
-    }
-  },
-  created() {
-    
-    // this.getSectionChoices()
-  },
-  methods:{
-    // getAccessToken() {
-    //   this.$store
-    //     .dispatch("userLogin", {
-    //       username: "admin",
-    //       password: 12345,
-    //     })
-    //     .then(() => {})
-    //     .catch((err) => {
-    //       console.log(err);
-    //     });
-    // },
-    
-    getSectionChoices(){
-      this.$store
-        .dispatch("thingSectionChoices", {
-          token: this.$store.state.accessToken,
-        })
-        .then(() => {})
-        .catch((err) => {
-          console.log(err);
-        });
+      username: JSON.parse(localStorage.getItem('username'))
     }
   }
 }

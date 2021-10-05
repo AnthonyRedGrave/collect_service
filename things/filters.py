@@ -11,7 +11,7 @@ class ThingFilter(django_filters.FilterSet):
     date_start = django_filters.DateFilter(field_name='date_published', lookup_expr='gte')
     date_end = django_filters.DateFilter(field_name='date_published', lookup_expr='lte')
     order_by = django_filters.ChoiceFilter(method='filter_order_by', choices=FILTER_ORDERING_TITLE_CHOICES)
-    state = django_filters.ChoiceFilter(field_name='state', choices=Thing.STATE_CHOICES)
+    state = django_filters.ChoiceFilter(field_name='state', choices=Thing.StateChoices.choices)
     section = django_filters.NumberFilter(field_name='section')
     tags = django_filters.NumberFilter(field_name='tags')
 
